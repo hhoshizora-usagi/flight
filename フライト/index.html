@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>フライト すごろく｜パタパタ試作</title>
+<style>
+:root{--panel:#0e141c;--amber:#f5b13c;--ink:#e9eef2;--muted:#7f93a6;--line:#1c2733}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(1200px 600px at 50% -10%,#13202e 0%,#070b10 55%);color:var(--ink);font-family:Arial,"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:44px 16px;gap:28px;overflow-x:hidden}
+h1{font-size:22px;letter-spacing:.2em;color:var(--amber);font-weight:700}
+.sub{font-size:12px;color:var(--muted);letter-spacing:.14em;margin-top:8px;text-align:center}
+.board{width:min(780px,100%);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 22px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+.row{display:flex;align-items:center;gap:16px;padding:14px 0;border-bottom:1px dashed var(--line);min-height:76px}
+.row:last-child{border-bottom:0}
+.row .k{width:118px;flex:none;font-size:12px;letter-spacing:.16em;color:var(--muted)}
+.flaps{display:flex;gap:6px;flex-wrap:wrap}
+.flap{width:34px;height:46px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#151d27,#0b1118);border:1px solid #22303e;border-radius:4px;color:var(--amber);font-weight:700;font-size:21px;perspective:120px}
+.flap.flip{animation:tr .13s ease}
+@keyframes tr{0%{transform:rotateX(0)}50%{transform:rotateX(-88deg)}100%{transform:rotateX(0)}}
+.flap.settled{color:#fff;border-color:var(--amber);box-shadow:0 0 14px rgba(245,177,60,.35)}
+.flap.hit{color:#ff6b5e;border-color:#ff6b5e;box-shadow:0 0 14px rgba(255,107,94,.4)}
+.cta{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;align-items:center}
+button{border:1px solid var(--amber);background:transparent;color:var(--amber);font:inherit;letter-spacing:.12em;font-size:13px;padding:13px 30px;border-radius:4px;cursor:pointer;transition:.25s}
+button:hover:not(:disabled){background:var(--amber);color:#070b10}
+button:disabled{opacity:.35;cursor:not-allowed}
+.dice{width:70px;height:70px;border:1px solid var(--line);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--amber);font-weight:700;background:#0b1118}
+.dice.roll{animation:diceRoll .5s ease}
+@keyframes diceRoll{0%{transform:rotate(0) scale(1)}50%{transform:rotate(180deg) scale(1.15)}100%{transform:rotate(360deg) scale(1)}}
+.msg{font-size:13px;color:var(--muted);letter-spacing:.04em;min-height:22px;text-align:center;max-width:600px;line-height:1.7}
+footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
+@media(max-width:560px){.row{flex-direction:column;align-items:flex-start;gap:8px}.row .k{width:auto}.flap{width:30px;height:42px;font-size:18px}}
+</style>
+</head>
+<body>
+<h1>フライト すごろく</h1>
+<div class="sub">1人すごろく × パタパタ演出（試作）</div>
+
+<div class="board">
+  <div class="row"><div class="k">出発空港</div><div class="flaps" id="f-dep"></div></div>
+  <div class="row"><div class="k">到着空港</div><div class="flaps" id="f-dest"></div></div>
+  <div class="row"><div class="k">機体</div><div class="flaps" id="f-plane"></div></div>
+  <div class="row"><div class="k">天候</div><div class="flaps" id="f-weather"></div></div>
+  <div class="row"><div class="k">アクシデント</div><div class="flaps" id="f-acc"></div></div>
+</div>
+
+<div class="cta">
+  <button id="roll">サイコロを振る</button>
+  <button id="again" disabled>もう一度</button>
+  <div class="dice" id="dice">–</div>
+</div>
+<div class="msg" id="msg">サイコロを振って、すごろくスタート。</div>
+<footer>フライト すごろく / PATAPATA SAMPLE</footer>
+
+<script>
+(function(){
+  var AIRPORTS=['羽田','成田','伊丹','那覇','新千歳','福岡','中部','関空'];
+  var PLANES=['ボーイング787','エアバスA350','ボーイング737','エアバスA321','セスナCJ4'];
+  var WEATHER=['晴れ','くもり','雨','雪','霧','向かい風','追い風'];
+  var WEATHER_MSG={'晴れ':'視界良好、快適なフライト。','くもり':'雲が多めだが問題なし。','雨':'滑走路が濡れている。','雪':'滑走路の雪かきが必要。','霧':'視界不良、進入に注意。','向かい風':'向かい風で到着が遅れそう。','追い風':'追い風で早く着きそう。'};
+  var ACCIDENTS=['なし','乱気流','エンジン片肺不調','燃料ギリギリ','到着空港クローズ','気圧急変'];
+  var ACC_WEIGHT=[0,0,0,1,1,2,2,3,3,4,4,5];
+  var glyphs='アイウエオカキクケコサシスセソタチツテトナニヌネノ航空機体天候風雨雪晴霧';
+
+  var fDep=document.getElementById('f-dep');
+  var fDest=document.getElementById('f-dest');
+  var fPlane=document.getElementById('f-plane');
+  var fWeather=document.getElementById('f-weather');
+  var fAcc=document.getElementById('f-acc');
+  var diceEl=document.getElementById('dice');
+  var msg=document.getElementById('msg');
+  var rollBtn=document.getElementById('roll');
+  var againBtn=document.getElementById('again');
+
+  function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+
+  function runFlap(cell, finalCh, cycleMs){
+    var t=0;
+    (function tick(){
+      t+=50;
+      cell.textContent = glyphs[Math.floor(Math.random()*glyphs.length)];
+      cell.classList.remove('flip'); void cell.offsetWidth; cell.classList.add('flip');
+      if(t<cycleMs) setTimeout(tick,50);
+      else { cell.textContent=finalCh; cell.classList.add('settled'); }
+    })();
+  }
+
+  function flapGroup(el, text, baseDelay){
+    el.innerHTML='';
+    var chars=text.split('');
+    var cells=chars.map(function(){
+      var d=document.createElement('span'); d.className='flap'; d.textContent=' '; el.appendChild(d); return d;
+    });
+    cells.forEach(function(cell, idx){
+      var fch = chars[idx];
+      setTimeout(function(){ runFlap(cell, fch, 700+idx*40); }, baseDelay + idx*95);
+    });
+    return baseDelay + chars.length*95 + 700;
+  }
+
+  var busy=false;
+
+  function start(){
+    if(busy) return;
+    busy=true;
+    rollBtn.disabled=true; againBtn.disabled=true;
+    diceEl.textContent='–'; diceEl.classList.remove('roll');
+    [fDep,fDest,fPlane,fWeather,fAcc].forEach(function(el){ el.innerHTML=''; });
+
+    var dice=1+Math.floor(Math.random()*6);
+    var dep=pick(AIRPORTS);
+    var dest=pick(AIRPORTS.filter(function(a){return a!==dep;}));
+    var plane=pick(PLANES);
+    var weather=pick(WEATHER);
+    var acc=ACCIDENTS[pick(ACC_WEIGHT)];
+
+    diceEl.classList.add('roll');
+    msg.textContent='サイコロを振っています…';
+
+    setTimeout(function(){
+      diceEl.textContent=dice;
+      msg.textContent='サイコロは「'+dice+'」！ すごろくスタート。';
+
+      var t1=flapGroup(fDep, dep, 120);
+      var t2=flapGroup(fDest, dest, t1+260);
+      var t3=flapGroup(fPlane, plane, t2+260);
+      var t4=flapGroup(fWeather, weather, t3+260);
+      var t5=flapGroup(fAcc, acc, t4+260);
+
+      setTimeout(function(){
+        if(acc!=='なし'){
+          fAcc.querySelectorAll('.flap').forEach(function(c){ c.classList.add('hit'); });
+        }
+        var wx = WEATHER_MSG[weather] || '';
+        var accMsg = (acc==='なし') ? 'アクシデントなし、無事に到着。' : 'アクシデント発生!! 「'+acc+'」に備えて対応しよう。';
+        msg.textContent = '出発は「'+dep+'」→「'+dest+'」、機体は'+plane+'。天候は'+weather+'（'+wx+'）'+accMsg;
+        busy=false;
+        rollBtn.disabled=false; againBtn.disabled=false;
+      }, t5+200);
+    }, 650);
+  }
+
+  rollBtn.addEventListener('click', start);
+  againBtn.addEventListener('click', start);
+})();
+</script>
+</body>
+</html>
