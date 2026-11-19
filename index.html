@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>フライト すごろく｜パタパタ</title>
 <style>
-:root{--bg:#070b10;--panel:#0e141c;--amber:#f5b13c;--ink:#e9eef2;--muted:#7f93a6;--line:#1c2733}
+:root{--bg:#070b10;--panel:#0e141c;--amber:#f5b13c;--ink:#e9eef2;--muted:#7f93a6;--line:#1c2733;--danger:#ff6b5e}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:radial-gradient(1200px 600px at 50% -10%,#13202e 0%,#070b10 55%);color:var(--ink);font-family:Arial,"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:44px 16px;gap:26px;overflow-x:hidden}
+body{background:radial-gradient(1200px 600px at 50% -10%,#13202e 0%,#070b10 55%);color:var(--ink);font-family:Arial,"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:44px 16px;gap:24px;overflow-x:hidden}
 h1{font-size:22px;letter-spacing:.2em;color:var(--amber);font-weight:700}
 .sub{font-size:12px;color:var(--muted);letter-spacing:.14em;margin-top:8px;text-align:center}
 .board{width:min(820px,100%);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 22px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
@@ -27,15 +27,23 @@ h1{font-size:22px;letter-spacing:.2em;color:var(--amber);font-weight:700}
 @keyframes foldTop{from{transform:rotateX(0)}to{transform:rotateX(-92deg)}}
 @keyframes unfoldBot{from{transform:rotateX(90deg)}to{transform:rotateX(0)}}
 .flap.hit .half{background:#2a0f0d;border-color:#5a1c16}
-.flap.hit .ch{color:#ff6b5e}
+.flap.hit .ch{color:var(--danger)}
+.choices{width:min(820px,100%);background:#160f0e;border:1px solid #5a1c16;border-radius:6px;padding:18px 20px;display:none;box-shadow:0 0 40px rgba(255,107,94,.15)}
+.choices.show{display:block}
+.choices-title{font-size:14px;letter-spacing:.14em;color:var(--danger);font-weight:700;margin-bottom:14px}
+.choices-btns{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.choices-btns button{border:1px solid #5a4130;background:#0e141c;color:var(--ink);font:inherit;font-size:13px;letter-spacing:.06em;padding:14px 10px;border-radius:4px;cursor:pointer;transition:.2s}
+.choices-btns button:hover:not(:disabled){border-color:var(--amber);color:var(--amber)}
+.choices-btns button:disabled{opacity:.35;cursor:not-allowed}
+.choices-msg{margin-top:14px;font-size:13px;color:var(--amber);min-height:20px;line-height:1.7}
 .cta{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;align-items:center}
-button{border:1px solid var(--amber);background:transparent;color:var(--amber);font:inherit;letter-spacing:.12em;font-size:13px;padding:13px 30px;border-radius:4px;cursor:pointer;transition:.25s}
-button:hover:not(:disabled){background:var(--amber);color:#070b10}
-button:disabled{opacity:.35;cursor:not-allowed}
+button.main{border:1px solid var(--amber);background:transparent;color:var(--amber);font:inherit;letter-spacing:.12em;font-size:13px;padding:13px 30px;border-radius:4px;cursor:pointer;transition:.25s}
+button.main:hover:not(:disabled){background:var(--amber);color:#070b10}
+button.main:disabled{opacity:.35;cursor:not-allowed}
 .dice{width:70px;height:70px;border:1px solid var(--line);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--amber);font-weight:700;background:#0b1118}
 .msg{font-size:13px;color:var(--muted);letter-spacing:.04em;min-height:22px;text-align:center;max-width:640px;line-height:1.8}
 footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
-@media(max-width:560px){.row{flex-direction:column;align-items:flex-start;gap:8px}.row .k{width:auto}}
+@media(max-width:560px){.row{flex-direction:column;align-items:flex-start;gap:8px}.row .k{width:auto}.choices-btns{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -50,9 +58,20 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
   <div class="row"><div class="k">アクシデント</div><div class="flaps" id="f-acc"></div></div>
 </div>
 
+<div class="choices" id="choices">
+  <div class="choices-title">到着空港クローズ！ どうする？</div>
+  <div class="choices-btns">
+    <button data-act="swap">別の空港に振り替える</button>
+    <button data-act="hold">上空で待機する</button>
+    <button data-act="force">強行着陸を試みる</button>
+    <button data-act="abort">あきらめて引き返す</button>
+  </div>
+  <div class="choices-msg" id="choices-msg"></div>
+</div>
+
 <div class="cta">
-  <button id="roll">サイコロを振る</button>
-  <button id="again" disabled>もう一度</button>
+  <button class="main" id="roll">サイコロを振る</button>
+  <button class="main" id="again" disabled>もう一度</button>
   <div class="dice" id="dice">–</div>
 </div>
 <div class="msg" id="msg">サイコロを振って、すごろくスタート。</div>
@@ -87,11 +106,16 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
   var GLYPHS='アイウエオカキクケコサシスセソタチツテトナニヌネノ空港機体天候風雨雪晴霧気流染料';
 
   function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
-
   function isNear(dep, cand){
     if(cand.p===dep.p) return true;
     var adj=ADJ[dep.p]||[];
     return adj.indexOf(cand.p)!==-1;
+  }
+  function alternateFor(closed, dep){
+    var same=AIRPORTS.filter(function(a){ return a.p===closed.p && a.n!==closed.n; });
+    if(same.length) return pick(same);
+    var cands=AIRPORTS.filter(function(a){ return a.n!==closed.n && a.n!==dep.n && !isNear(dep,a); });
+    return cands.length ? pick(cands) : null;
   }
 
   function makeFlap(){
@@ -143,12 +167,45 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
   var msg=document.getElementById('msg');
   var rollBtn=document.getElementById('roll');
   var againBtn=document.getElementById('again');
+  var choicesEl=document.getElementById('choices');
+  var choicesMsg=document.getElementById('choices-msg');
   var busy=false;
+  var closedAirport=null;
+  var depAirport=null;
+
+  function hideChoices(){
+    choicesEl.classList.remove('show');
+    choicesMsg.textContent='';
+  }
+
+  function chooseAction(act){
+    var btns=choicesEl.querySelectorAll('.choices-btns button');
+    btns.forEach(function(b){ b.disabled=true; });
+    if(act==='swap'){
+      var alt=alternateFor(closedAirport, depAirport);
+      if(alt){
+        choicesMsg.textContent='振り替え先：「'+alt.n+'」（'+alt.p+'）に着陸します。';
+        flapGroup(fDest, alt.n, 80);
+      } else {
+        choicesMsg.textContent='振り替えできる空港がありません。';
+      }
+    } else if(act==='hold'){
+      choicesMsg.textContent='上空で周回して待機中…';
+      setTimeout(function(){ choicesMsg.textContent='少し待って、無事に着陸できました。'; }, 1600);
+    } else if(act==='force'){
+      var ok=Math.random()<0.5;
+      choicesMsg.textContent=ok?'強行着陸… 成功！ 無事に着陸しました。':'強行着陸… 失敗！ 着陸をやり直します。';
+    } else {
+      choicesMsg.textContent='このフライトを中止して、引き返しました。';
+    }
+  }
 
   function start(){
     if(busy) return;
     busy=true;
     rollBtn.disabled=true; againBtn.disabled=true;
+    hideChoices();
+    closedAirport=null; depAirport=null;
     diceEl.textContent='–';
     [fDep,fDest,fPlane,fWeather,fAcc].forEach(function(el){ el.innerHTML=''; });
 
@@ -175,13 +232,22 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
         fAcc.querySelectorAll('.flap').forEach(function(c){ c.classList.add('hit'); });
       }
       var wx=WEATHER_MSG[weather]||'';
-      var accMsg=(acc==='なし')?'アクシデントなし、無事に到着。':'アクシデント発生!! 「'+acc+'」に備えて対応しよう。';
+      var isClosed=(acc==='到着空港クローズ');
+      var accMsg=isClosed?'到着空港がクローズ!! どうするか選んでね。':(acc==='なし'?'アクシデントなし、無事に到着。':'アクシデント発生!! 「'+acc+'」に備えて対応しよう。');
       msg.textContent='出発は「'+dep.n+'」→「'+dest.n+'」、機体は'+plane+'。天候は'+weather+'（'+wx+'）'+accMsg;
+      if(isClosed){
+        closedAirport=dest;
+        depAirport=dep;
+        choicesEl.classList.add('show');
+      }
       busy=false;
       rollBtn.disabled=false; againBtn.disabled=false;
     }, t5+200);
   }
 
+  choicesEl.querySelectorAll('.choices-btns button').forEach(function(b){
+    b.addEventListener('click', function(){ chooseAction(b.getAttribute('data-act')); });
+  });
   rollBtn.addEventListener('click', start);
   againBtn.addEventListener('click', start);
   setTimeout(start, 500);
