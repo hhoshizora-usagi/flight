@@ -33,8 +33,8 @@ h1{font-size:22px;letter-spacing:.2em;color:var(--amber);font-weight:700}
 .choices-title{font-size:14px;letter-spacing:.14em;color:var(--danger);font-weight:700;margin-bottom:14px}
 .choices-btns{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 .choices-btns button{border:1px solid #5a4130;background:#0e141c;color:var(--ink);font:inherit;font-size:13px;letter-spacing:.06em;padding:14px 10px;border-radius:4px;cursor:pointer;transition:.2s}
-.choices-btns button:hover:not(:disabled){border-color:var(--amber);color:var(--amber)}
-.choices-btns button:disabled{opacity:.35;cursor:not-allowed}
+.choices-btns button:hover{border-color:var(--amber);color:var(--amber)}
+.choices-btns button:active{transform:scale(.98)}
 .choices-msg{margin-top:14px;font-size:13px;color:var(--amber);min-height:20px;line-height:1.7}
 .cta{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;align-items:center}
 button.main{border:1px solid var(--amber);background:transparent;color:var(--amber);font:inherit;letter-spacing:.12em;font-size:13px;padding:13px 30px;border-radius:4px;cursor:pointer;transition:.25s}
@@ -112,8 +112,8 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
     return adj.indexOf(cand.p)!==-1;
   }
   function alternateFor(closed, dep){
-    var same=AIRPORTS.filter(function(a){ return a.p===closed.p && a.n!==closed.n; });
-    if(same.length) return pick(same);
+    var samePref=AIRPORTS.filter(function(a){ return a.p===closed.p && a.n!==closed.n && a.n!==dep.n && !isNear(dep,a); });
+    if(samePref.length) return pick(samePref);
     var cands=AIRPORTS.filter(function(a){ return a.n!==closed.n && a.n!==dep.n && !isNear(dep,a); });
     return cands.length ? pick(cands) : null;
   }
@@ -179,8 +179,6 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
   }
 
   function chooseAction(act){
-    var btns=choicesEl.querySelectorAll('.choices-btns button');
-    btns.forEach(function(b){ b.disabled=true; });
     if(act==='swap'){
       var alt=alternateFor(closedAirport, depAirport);
       if(alt){
@@ -191,7 +189,15 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
       }
     } else if(act==='hold'){
       choicesMsg.textContent='上空で周回して待機中…';
-      setTimeout(function(){ choicesMsg.textContent='少し待って、無事に着陸できました。'; }, 1600);
+      (function(){
+        var n=document.createElement('span');
+        var t=0;
+        var timer=setInterval(function(){
+          t++;
+          if(t>=3){ clearInterval(timer); choicesMsg.textContent='少し待って、無事に着陸できました。'; }
+          else { choicesMsg.textContent='上空で周回して待機中…'+'●'.repeat(t); }
+        },500);
+      })();
     } else if(act==='force'){
       var ok=Math.random()<0.5;
       choicesMsg.textContent=ok?'強行着陸… 成功！ 無事に着陸しました。':'強行着陸… 失敗！ 着陸をやり直します。';
@@ -238,6 +244,7 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
       if(isClosed){
         closedAirport=dest;
         depAirport=dep;
+        choicesMsg.textContent='';
         choicesEl.classList.add('show');
       }
       busy=false;
