@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>フライト シミュレーター（2D試作）</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;font-family:Arial,"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
+#cv{display:block;width:100vw;height:100vh}
+#hud{position:fixed;left:0;right:0;top:0;padding:14px 18px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;font-size:13px;letter-spacing:.06em}
+#hud .l{line-height:1.6;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+#hud .phase{font-size:20px;font-weight:700;color:#f5b13c}
+#hud .cond{color:#c3d1dd;font-size:12px}
+#hud .rt{color:#c3d1dd;font-size:12px;text-align:right;line-height:1.6}
+#back{position:fixed;left:16px;bottom:16px;border:1px solid #f5b13c;background:rgba(7,11,16,.75);color:#f5b13c;font:inherit;font-size:13px;letter-spacing:.06em;padding:10px 18px;border-radius:4px;cursor:pointer;text-decoration:none}
+#back:hover{background:#f5b13c;color:#070b10}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="hud">
+  <div class="l"><div class="phase" id="phase">離陸</div><div class="cond" id="cond"></div></div>
+  <div class="rt" id="rt"></div>
+</div>
+<a id="back" href="./index.html">← すごろくに戻る</a>
+<script>
+(function(){
+  var cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+  var dpr=Math.min(window.devicePixelRatio||1,2);
+  var W=0,H=0;
+  function resize(){ W=cv.width=Math.floor(innerWidth*dpr); H=cv.height=Math.floor(innerHeight*dpr); }
+  resize(); window.addEventListener('resize',resize);
+
+  var P=new URLSearchParams(location.search);
+  var dep=P.get('dep')||'羽田', dest=P.get('dest')||'那覇';
+  var planeName=P.get('plane')||'ボーイング787', weather=P.get('weather')||'晴れ', acc=P.get('acc')||'なし';
+  document.getElementById('cond').textContent=dep+' → '+dest+' / '+planeName+' / '+weather+(acc==='なし'?'':' / '+acc);
+  var phaseEl=document.getElementById('phase');
+  var rtEl=document.getElementById('rt');
+
+  var phase='takeoff', phaseTime=0, total=0;
+  var planeX=0, planeY=0, pitch=0, worldX=0;
+  var TAKEOFF=2200, CRUISE=4200, LANDING=2600;
+  var groundY, startY, altY;
+  var speed=0, bobT=0;
+  var started=false;
+
+  function layout(){
+    groundY=H*0.82;
+    startY=groundY-16*dpr;
+    altY=groundY-210*dpr;
+    if(!started){ planeX=W*0.30; planeY=startY; pitch=0; }
+  }
+
+  function easeInOut(p){ return p<0.5?2*p*p:1-Math.pow(-2*p+2,2)/2; }
+  function easeIn(p){ return p*p; }
+
+  // 雲（背景燸動）
+  var clouds=[];
+  for(var i=0;i<7;i++) clouds.push({x:Math.random(),y:Math.random()*0.5+0.05,s:Math.random()*0.6+0.4});
+
+  function drawCloud(x,y,s){
+    ctx.save(); ctx.globalAlpha=0.55; ctx.fillStyle='#dfeaf3';
+    var r=40*dpr*s;
+    ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.arc(x+r*0.8,y+r*0.15,r*0.75,0,7); ctx.arc(x-r*0.8,y+r*0.2,r*0.65,0,7); ctx.fill();
+    ctx.restore();
+  }
+
+  function drawSky(){
+    var g=ctx.createLinearGradient(0,0,0,groundY);
+    if(weather==='雨'||weather==='くもり'){ g.addColorStop(0,'#2b3a48'); g.addColorStop(1,'#5b6c79'); }
+    else if(weather==='雪'){ g.addColorStop(0,'#8fa7bb'); g.addColorStop(1,'#cdd9e2'); }
+    else if(weather==='霧'){ g.addColorStop(0,'#7b8794'); g.addColorStop(1,'#b9c4cc'); }
+    else { g.addColorStop(0,'#0f4c81'); g.addColorStop(1,'#8fc4e8'); }
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,groundY);
+  }
+
+  function drawGround(){
+    ctx.fillStyle='#1d2a1a'; ctx.fillRect(0,groundY,W,H-groundY);
+    // 滑走路
+    ctx.fillStyle='#2b2f33'; ctx.fillRect(0,groundY+8*dpr,W,26*dpr);
+    ctx.fillStyle='#d9c15a';
+    var dash=60*dpr, gap=40*dpr, off=(worldX*0.9)%(dash+gap);
+    for(var x=-off; x<W; x+=dash+gap){ ctx.fillRect(x,groundY+19*dpr,dash,4*dpr); }
+  }
+
+  function drawPlane(){
+    ctx.save();
+    ctx.translate(planeX,planeY);
+    ctx.rotate(pitch);
+    ctx.fillStyle='#eef3f7';
+    // 胴体
+    ctx.beginPath();
+    ctx.moveTo(-52*dpr,2*dpr); ctx.quadraticCurveTo(-30*dpr,-12*dpr,20*dpr,-10*dpr); ctx.lineTo(60*dpr,-4*dpr);
+    ctx.quadraticCurveTo(66*dpr,0,60*dpr,5*dpr); ctx.lineTo(20*dpr,9*dpr); ctx.quadraticCurveTo(-30*dpr,12*dpr,-52*dpr,2*dpr);
+    ctx.closePath(); ctx.fill();
+    // 主翼
+    ctx.fillStyle='#cfdae3';
+    ctx.beginPath(); ctx.moveTo(-8*dpr,6*dpr); ctx.lineTo(14*dpr,34*dpr); ctx.lineTo(-6*dpr,34*dpr); ctx.lineTo(-20*dpr,8*dpr); ctx.closePath(); ctx.fill();
+    // 尾翼
+    ctx.fillStyle='#dbe4eb';
+    ctx.beginPath(); ctx.moveTo(-52*dpr,0); ctx.lineTo(-40*dpr,-22*dpr); ctx.lineTo(-30*dpr,-2*dpr); ctx.closePath(); ctx.fill();
+    // コクピット
+    ctx.fillStyle='#2f6fb3';
+    ctx.beginPath(); ctx.ellipse(34*dpr,-2*dpr,6*dpr,3*dpr,0,0,7); ctx.fill();
+    ctx.restore();
+  }
+
+  function drawWeather(){
+    if(weather==='雨'){
+      ctx.strokeStyle='rgba(180,200,220,.5)'; ctx.lineWidth=dpr;
+      for(var i=0;i<90;i++){ var rx=(Math.random()*W), ry=(Math.random()*H); ctx.beginPath(); ctx.moveTo(rx,ry); ctx.lineTo(rx-6*dpr,ry+16*dpr); ctx.stroke(); }
+    } else if(weather==='雪'){
+      ctx.fillStyle='rgba(255,255,255,.8)';
+      for(var j=0;j<70;j++){ ctx.beginPath(); ctx.arc(Math.random()*W,Math.random()*H,Math.random()*2*dpr+dpr,0,7); ctx.fill(); }
+    } else if(weather==='霧'){
+      ctx.fillStyle='rgba(210,220,228,.22)'; ctx.fillRect(0,0,W,H);
+    }
+  }
+
+  var last=0;
+  function frame(now){
+    if(!last) last=now;
+    var dt=now-last; last=now;
+    if(!started){ layout(); started=true; }
+
+    phaseTime+=dt; total+=dt;
+    speed=TAKEOFF*(1);
+
+    if(phase==='takeoff'){
+      var p=Math.min(phaseTime/TAKEOFF,1);
+      planeY=startY+(altY-startY)*easeIn(p);
+      pitch=-0.34*Math.min(1,p*1.6);
+      worldX+=260*dpr*(dt/1000);
+      phaseEl.textContent='離陸・上昇中';
+      if(p>=1){ phase='cruise'; phaseTime=0; }
+    } else if(phase==='cruise'){
+      var pc=Math.min(phaseTime/CRUISE,1);
+      bobT+=dt/1000; bobT2=bobT;
+      planeY=altY+Math.sin(bobT*2)*4*dpr;
+      pitch=-0.02;
+      worldX+=520*dpr*(dt/1000);
+      phaseEl.textContent='巡航中（オートパイロット）';
+      if(pc>=1){ phase='landing'; phaseTime=0; }
+    } else if(phase==='landing'){
+      var pl=Math.min(phaseTime/LANDING,1);
+      planeY=altY+(startY-altY)*easeInOut(pl);
+      pitch=0.16*Math.min(1,pl*1.4);
+      worldX+=300*dpr*(dt/1000);
+      phaseEl.textContent='着陸・降下中';
+      if(pl>=1){ phase='done'; phaseTime=0; phaseEl.textContent='着陸完了！'; }
+    } else {
+      planeY=startY; pitch=0;
+    }
+
+    // 乱気流で揺れる
+    if(acc==='乱気流' && phase!=='done'){ planeY+=Math.sin(total/60)*6*dpr; }
+
+    // 描画
+    ctx.clearRect(0,0,W,H);
+    drawSky();
+    // 雲
+    for(var k=0;k<clouds.length;k++){
+      var c=clouds[k];
+      var cx=((c.x - (worldX/(W))*0.12)%1.4)-0.2; if(cx<-0.25) cx+=1.4;
+      drawCloud(cx*W, (c.y)*groundY, c.s);
+    }
+    drawGround();
+    drawPlane();
+    drawWeather();
+
+    if(phase==='done'){
+      txt();
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function txt(){
+    ctx.save();
+    ctx.textAlign='center';
+    ctx.fillStyle='rgba(7,11,16,.55)'; ctx.fillRect(0,H*0.36,W,110*dpr);
+    ctx.fillStyle='#f5b13c'; ctx.font='bold '+(30*dpr)+'px Arial';
+    ctx.fillText('着陸！ '+dest+' に到着しました', W/2, H*0.36+56*dpr);
+    ctx.fillStyle='#e9eef2'; ctx.font=(14*dpr)+'px Arial';
+    ctx.fillText('もう一度すごろくするには下の「すごろくに戻る」', W/2, H*0.36+86*dpr);
+    ctx.restore();
+  }
+
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
