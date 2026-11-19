@@ -48,7 +48,7 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
 </head>
 <body>
 <h1>フライト すごろく</h1>
-<div class="sub">1人すごろく × パタパタ（フリップボード）</div>
+<div class="sub">1人すごろく ✕ パタパタ（フリップボード）</div>
 
 <div class="board">
   <div class="row"><div class="k">出発空港</div><div class="flaps" id="f-dep"></div></div>
@@ -174,7 +174,7 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
   var busy=false;
   var closedAirport=null;
   var depAirport=null;
-  var flyUrl='';
+  var curDep='',curDest='',curPlane='',curWeather='',curAcc='';
 
   function hideChoices(){
     choicesEl.classList.remove('show');
@@ -187,6 +187,7 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
       if(alt){
         choicesMsg.textContent='振り替え先：「'+alt.n+'」（'+alt.p+'）に着陸します。';
         flapGroup(fDest, alt.n, 80);
+        curDest=alt.n;
       } else {
         choicesMsg.textContent='振り替えできる空港がありません。';
       }
@@ -213,7 +214,7 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
     busy=true;
     rollBtn.disabled=true; againBtn.disabled=true; flyBtn.disabled=true;
     hideChoices();
-    closedAirport=null; depAirport=null; flyUrl='';
+    closedAirport=null; depAirport=null; curDep='';curDest='';curPlane='';curWeather='';curAcc='';
     diceEl.textContent='–';
     [fDep,fDest,fPlane,fWeather,fAcc].forEach(function(el){ el.innerHTML=''; });
 
@@ -249,7 +250,7 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
         choicesMsg.textContent='';
         choicesEl.classList.add('show');
       }
-      flyUrl='sim.html?dep='+encodeURIComponent(dep.n)+'&dest='+encodeURIComponent(dest.n)+'&plane='+encodeURIComponent(plane)+'&weather='+encodeURIComponent(weather)+'&acc='+encodeURIComponent(acc);
+      curDep=dep.n; curDest=dest.n; curPlane=plane; curWeather=weather; curAcc=acc;
       flyBtn.disabled=false;
       busy=false;
       rollBtn.disabled=false; againBtn.disabled=false;
@@ -259,7 +260,10 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
   choicesEl.querySelectorAll('.choices-btns button').forEach(function(b){
     b.addEventListener('click', function(){ chooseAction(b.getAttribute('data-act')); });
   });
-  flyBtn.addEventListener('click', function(){ if(flyUrl) location.href=flyUrl; });
+  flyBtn.addEventListener('click', function(){
+    if(!curDest) return;
+    location.href='sim.html?dep='+encodeURIComponent(curDep)+'&dest='+encodeURIComponent(curDest)+'&plane='+encodeURIComponent(curPlane)+'&weather='+encodeURIComponent(curWeather)+'&acc='+encodeURIComponent(curAcc);
+  });
   rollBtn.addEventListener('click', start);
   againBtn.addEventListener('click', start);
   setTimeout(start, 500);
