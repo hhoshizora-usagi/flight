@@ -22,8 +22,8 @@ h1{font-size:22px;letter-spacing:.2em;color:var(--amber);font-weight:700}
 .flap .ch{position:absolute;left:0;width:100%;height:92px;display:flex;align-items:center;justify-content:center;color:var(--amber);font-weight:800;font-size:20px;font-family:"Courier New",Arial,sans-serif}
 .flap .half.top .ch{top:0}
 .flap .half.bot .ch{top:-46px}
-.flap.flipping .half.top{animation:foldTop .16s ease-in forwards}
-.flap.flipping .half.bot{animation:unfoldBot .16s ease-out .16s forwards}
+.flap.flipping .half.top{animation:foldTop .17s ease-in}
+.flap.flipping .half.bot{animation:unfoldBot .17s ease-out .17s}
 @keyframes foldTop{from{transform:rotateX(0)}to{transform:rotateX(-92deg)}}
 @keyframes unfoldBot{from{transform:rotateX(90deg)}to{transform:rotateX(0)}}
 .flap.hit .half{background:#2a0f0d;border-color:#5a1c16}
@@ -102,6 +102,10 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
   function setFlap(el, ch){
     el.querySelectorAll('.ch').forEach(function(c){ c.textContent=ch; });
   }
+  function flipTo(item, ch){
+    setFlap(item, ch);
+    item.classList.remove('flipping'); void item.offsetWidth; item.classList.add('flipping');
+  }
 
   function flapGroup(container, text, baseDelay){
     container.innerHTML='';
@@ -117,13 +121,11 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
         (function tick(){
           t+=100;
           if(t<dur){
-            setFlap(item, GLYPHS[Math.floor(Math.random()*GLYPHS.length)]);
-            item.classList.remove('flipping'); void item.offsetWidth; item.classList.add('flipping');
+            flipTo(item, GLYPHS[Math.floor(Math.random()*GLYPHS.length)]);
             setTimeout(tick, 105);
           } else {
-            setFlap(item, fch);
-            item.classList.remove('flipping'); void item.offsetWidth; item.classList.add('flipping');
-            item.classList.add('settled');
+            flipTo(item, fch);
+            setTimeout(function(){ item.classList.remove('flipping'); }, 360);
           }
         })();
       }, start);
