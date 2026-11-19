@@ -13,15 +13,15 @@ h1{font-size:22px;letter-spacing:.2em;color:var(--amber);font-weight:700}
 .board{width:min(820px,100%);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 22px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
 .row{display:flex;align-items:center;gap:16px;padding:14px 0;border-bottom:1px dashed var(--line);min-height:78px}
 .row:last-child{border-bottom:0}
-.row .k{width:126px;flex:none;font-size:12px;letter-spacing:.16em;color:var(--muted)}
-.flaps{display:flex;gap:5px;flex-wrap:wrap;perspective:600px}
-.flap{width:38px;height:46px;position:relative;perspective:300px}
+.row .k{width:110px;flex:none;font-size:12px;letter-spacing:.16em;color:var(--muted)}
+.flaps{display:flex;gap:4px;flex-wrap:wrap;perspective:600px;min-width:0}
+.flap{width:34px;height:46px;position:relative;perspective:300px;flex:none}
 .flap .half{position:absolute;left:0;width:100%;height:50%;overflow:hidden;background:#0e1620;border:1px solid #1e2c3a}
 .flap .half.top{top:0;border-radius:4px 4px 0 0;z-index:2;transform-origin:bottom;background:#111b25}
 .flap .half.bot{top:50%;border-radius:0 0 4px 4px;z-index:1;background:#0b131c}
-.flap .ch{position:absolute;left:0;width:100%;height:92px;display:flex;align-items:center;justify-content:center;color:var(--amber);font-weight:800;font-size:20px;font-family:"Courier New",Arial,sans-serif}
+.flap .ch{position:absolute;left:0;width:100%;height:46px;display:flex;align-items:center;justify-content:center;color:var(--amber);font-weight:800;font-size:24px;line-height:1;font-family:"Courier New",Arial,sans-serif}
 .flap .half.top .ch{top:0}
-.flap .half.bot .ch{top:-46px}
+.flap .half.bot .ch{top:-23px}
 .flap.flipping .half.top{animation:foldTop .17s ease-in}
 .flap.flipping .half.bot{animation:unfoldBot .17s ease-out .17s}
 @keyframes foldTop{from{transform:rotateX(0)}to{transform:rotateX(-92deg)}}
