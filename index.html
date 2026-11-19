@@ -3,45 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>フライト すごろく｜パタパタ試作</title>
+<title>フライト すごろく｜パタパタ</title>
 <style>
 :root{--bg:#070b10;--panel:#0e141c;--amber:#f5b13c;--ink:#e9eef2;--muted:#7f93a6;--line:#1c2733}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:radial-gradient(1200px 600px at 50% -10%,#13202e 0%,#070b10 55%);color:var(--ink);font-family:Arial,"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:44px 16px;gap:28px;overflow-x:hidden}
+body{background:radial-gradient(1200px 600px at 50% -10%,#13202e 0%,#070b10 55%);color:var(--ink);font-family:Arial,"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:44px 16px;gap:26px;overflow-x:hidden}
 h1{font-size:22px;letter-spacing:.2em;color:var(--amber);font-weight:700}
 .sub{font-size:12px;color:var(--muted);letter-spacing:.14em;margin-top:8px;text-align:center}
-.board{width:min(780px,100%);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 22px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
-.row{display:flex;align-items:center;gap:16px;padding:14px 0;border-bottom:1px dashed var(--line);min-height:88px}
+.board{width:min(820px,100%);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 22px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+.row{display:flex;align-items:center;gap:16px;padding:14px 0;border-bottom:1px dashed var(--line);min-height:78px}
 .row:last-child{border-bottom:0}
-.row .k{width:118px;flex:none;font-size:12px;letter-spacing:.16em;color:var(--muted)}
-.flaps{display:flex;gap:6px;flex-wrap:wrap;perspective:500px}
-.flap{
-  position:relative;width:36px;height:50px;border-radius:5px;
-  perspective:400px;font-weight:800;font-size:23px;line-height:1;
-  color:var(--amber);background:#070b0f;
-}
-.flap .half{position:absolute;left:0;width:100%;height:50%;overflow:hidden;background:#0d141d}
-.flap .half.top{top:0;border-radius:5px 5px 0 0;z-index:2;transform-origin:bottom;border-bottom:1px solid #05080c}
-.flap .half.bot{top:50%;border-radius:0 0 5px 5px;z-index:1;background:#0a1018}
-.flap .ch{position:absolute;left:0;width:100%;height:50px;display:flex;align-items:center;justify-content:center}
+.row .k{width:126px;flex:none;font-size:12px;letter-spacing:.16em;color:var(--muted)}
+.flaps{display:flex;gap:5px;flex-wrap:wrap;perspective:600px}
+.flap{width:38px;height:46px;position:relative;perspective:300px}
+.flap .half{position:absolute;left:0;width:100%;height:50%;overflow:hidden;background:#0e1620;border:1px solid #1e2c3a}
+.flap .half.top{top:0;border-radius:4px 4px 0 0;z-index:2;transform-origin:bottom;background:#111b25}
+.flap .half.bot{top:50%;border-radius:0 0 4px 4px;z-index:1;background:#0b131c}
+.flap .ch{position:absolute;left:0;width:100%;height:92px;display:flex;align-items:center;justify-content:center;color:var(--amber);font-weight:800;font-size:20px;font-family:"Courier New",Arial,sans-serif}
 .flap .half.top .ch{top:0}
-.flap .half.bot .ch{top:-25px}
+.flap .half.bot .ch{top:-46px}
 .flap.flipping .half.top{animation:foldTop .16s ease-in forwards}
-@keyframes foldTop{from{transform:rotateX(0)}to{transform:rotateX(-90deg)}}
-.flap.settled{color:#fff}
-.flap.settled .half{background:#101a24}
-.flap.hit{color:#ff6b5e}
-.flap.hit.settled .half{background:#241014}
+.flap.flipping .half.bot{animation:unfoldBot .16s ease-out .16s forwards}
+@keyframes foldTop{from{transform:rotateX(0)}to{transform:rotateX(-92deg)}}
+@keyframes unfoldBot{from{transform:rotateX(90deg)}to{transform:rotateX(0)}}
+.flap.hit .half{background:#2a0f0d;border-color:#5a1c16}
+.flap.hit .ch{color:#ff6b5e}
 .cta{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;align-items:center}
 button{border:1px solid var(--amber);background:transparent;color:var(--amber);font:inherit;letter-spacing:.12em;font-size:13px;padding:13px 30px;border-radius:4px;cursor:pointer;transition:.25s}
 button:hover:not(:disabled){background:var(--amber);color:#070b10}
 button:disabled{opacity:.35;cursor:not-allowed}
-.dice{width:70px;height:70px;border:1px solid var(--line);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--amber);font-weight:700;background:#0b1118;transition:transform .2s}
-.dice.roll{animation:diceRoll .5s ease}
-@keyframes diceRoll{0%{transform:rotate(0) scale(1)}50%{transform:rotate(180deg) scale(1.15)}100%{transform:rotate(360deg) scale(1)}}
-.msg{font-size:13px;color:var(--muted);letter-spacing:.04em;min-height:22px;text-align:center;max-width:560px;line-height:1.7}
+.dice{width:70px;height:70px;border:1px solid var(--line);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--amber);font-weight:700;background:#0b1118}
+.msg{font-size:13px;color:var(--muted);letter-spacing:.04em;min-height:22px;text-align:center;max-width:640px;line-height:1.8}
 footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
-@media(max-width:560px){.row{flex-direction:column;align-items:flex-start;gap:8px}.row .k{width:auto}.flap{width:30px;height:42px;font-size:19px}.flap .ch{height:42px}.flap .half.bot .ch{top:-21px}}
+@media(max-width:560px){.row{flex-direction:column;align-items:flex-start;gap:8px}.row .k{width:auto}}
 </style>
 </head>
 <body>
@@ -66,13 +60,77 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
 
 <script>
 (function(){
-  var AIRPORTS=['羽田','成田','伊丹','那覇','新千歳','福岡','中部','関空'];
+  var AIRPORTS=[
+    {n:'羽田',p:'東京都'},
+    {n:'成田',p:'千葉県'},
+    {n:'伊丹',p:'大阪府'},
+    {n:'関空',p:'大阪府'},
+    {n:'那覇',p:'沖縄県'},
+    {n:'新千歳',p:'北海道'},
+    {n:'福岡',p:'福岡県'},
+    {n:'中部',p:'愛知県'}
+  ];
+  var ADJ={
+    '東京都':['千葉県','埼玉県','神奈川県','山梨県','群馬県'],
+    '千葉県':['東京都','埼玉県','茨城県'],
+    '大阪府':['奈良県','京都府','兵庫県','和歌山県'],
+    '沖縄県':[],
+    '北海道':[],
+    '福岡県':['佐賀県','熊本県','大分県'],
+    '愛知県':['静岡県','岐阜県','三重県','長野県']
+  };
   var PLANES=['ボーイング787','エアバスA350','ボーイング737','エアバスA321','セスナCJ4'];
   var WEATHER=['晴れ','くもり','雨','雪','霧','向かい風','追い風'];
   var WEATHER_MSG={'晴れ':'視界良好、快適なフライト。','くもり':'雲が多めだが問題なし。','雨':'滑走路が濡れている。','雪':'滑走路の雪かきが必要。','霧':'視界不良、進入に注意。','向かい風':'向かい風で到着が遅れそう。','追い風':'追い風で早く着きそう。'};
-  var ACCIDENTS=['なし','乱気流','エンジン片肺不調','燃料ギギリギリ','到着空港クローズ','気圧急変'];
+  var ACCIDENTS=['なし','乱気流','エンジン片肺不調','燃料ギリギリ','到着空港クローズ','気圧急変'];
   var ACC_WEIGHT=[0,0,0,1,1,2,2,2,3,3,4,4,5];
-  var GLYPHS='アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨ0123456789';
+  var GLYPHS='アイウエオカキクケコサシスセソタチツテトナニヌネノ空港機体天候風雨雪晴霧気流染料';
+
+  function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+
+  function isNear(dep, cand){
+    if(cand.p===dep.p) return true;
+    var adj=ADJ[dep.p]||[];
+    return adj.indexOf(cand.p)!==-1;
+  }
+
+  function makeFlap(){
+    var el=document.createElement('div'); el.className='flap';
+    el.innerHTML='<div class="half top"><span class="ch"> </span></div><div class="half bot"><span class="ch"> </span></div>';
+    return el;
+  }
+  function setFlap(el, ch){
+    el.querySelectorAll('.ch').forEach(function(c){ c.textContent=ch; });
+  }
+
+  function flapGroup(container, text, baseDelay){
+    container.innerHTML='';
+    var chars=text.split('');
+    var items=chars.map(function(){ var f=makeFlap(); container.appendChild(f); return f; });
+    var settle=baseDelay;
+    items.forEach(function(item, idx){
+      var fch=chars[idx];
+      var start=baseDelay+idx*110;
+      var dur=520+idx*25;
+      setTimeout(function(){
+        var t=0;
+        (function tick(){
+          t+=100;
+          if(t<dur){
+            setFlap(item, GLYPHS[Math.floor(Math.random()*GLYPHS.length)]);
+            item.classList.remove('flipping'); void item.offsetWidth; item.classList.add('flipping');
+            setTimeout(tick, 105);
+          } else {
+            setFlap(item, fch);
+            item.classList.remove('flipping'); void item.offsetWidth; item.classList.add('flipping');
+            item.classList.add('settled');
+          }
+        })();
+      }, start);
+      settle=Math.max(settle, start+dur);
+    });
+    return settle;
+  }
 
   var fDep=document.getElementById('f-dep');
   var fDest=document.getElementById('f-dest');
@@ -83,95 +141,48 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
   var msg=document.getElementById('msg');
   var rollBtn=document.getElementById('roll');
   var againBtn=document.getElementById('again');
-
-  function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
-
-  function makeCell(ch){
-    var el=document.createElement('div'); el.className='flap';
-    var top=document.createElement('div'); top.className='half top';
-    var bot=document.createElement('div'); bot.className='half bot';
-    var cTop=document.createElement('div'); cTop.className='ch'; cTop.textContent=ch;
-    var cBot=document.createElement('div'); cBot.className='ch'; cBot.textContent=ch;
-    top.appendChild(cTop); bot.appendChild(cBot);
-    el.appendChild(bot); el.appendChild(top);
-    el._cTop=cTop; el._cBot=cBot;
-    return el;
-  }
-
-  function flipTo(el, ch, done){
-    el._cTop.textContent=ch; el._cBot.textContent=ch;
-    el.classList.remove('flipping');
-    void el.offsetWidth;
-    el.classList.add('flipping');
-    setTimeout(function(){ el.classList.remove('flipping'); if(done) done(); }, 165);
-  }
-
-  function flapGroup(container, text, startDelay, cycleMs, onDone){
-    container.innerHTML='';
-    var chars=text.split('');
-    var cells=chars.map(function(){ var c=makeCell(' '); container.appendChild(c); return c; });
-
-    cells.forEach(function(cell, idx){
-      var finalCh=chars[idx];
-      var cycle=cycleMs + idx*70;
-      var t=0;
-      setTimeout(function loop(){
-        var step = 130;
-        t+=step;
-        if(t<cycle){
-          flipTo(cell, GLYPHS[Math.floor(Math.random()*GLYPHS.length)]);
-          setTimeout(loop, step);
-        } else {
-          flipTo(cell, finalCh, function(){ cell.classList.add('settled'); if(onDone) onDone(); });
-        }
-      }, startDelay + idx*80);
-    });
-  }
-
   var busy=false;
 
   function start(){
     if(busy) return;
     busy=true;
     rollBtn.disabled=true; againBtn.disabled=true;
-    diceEl.textContent='–'; diceEl.classList.remove('roll');
+    diceEl.textContent='–';
     [fDep,fDest,fPlane,fWeather,fAcc].forEach(function(el){ el.innerHTML=''; });
 
     var dice=1+Math.floor(Math.random()*6);
     var dep=pick(AIRPORTS);
-    var dest=pick(AIRPORTS.filter(function(a){return a!==dep;}));
+    var candidates=AIRPORTS.filter(function(a){ return a.n!==dep.n && !isNear(dep,a); });
+    if(!candidates.length){ candidates=AIRPORTS.filter(function(a){ return a.n!==dep.n; }); }
+    var dest=pick(candidates);
     var plane=pick(PLANES);
     var weather=pick(WEATHER);
     var acc=ACCIDENTS[ACC_WEIGHT[Math.floor(Math.random()*ACC_WEIGHT.length)]];
 
-    diceEl.classList.add('roll');
-    msg.textContent='サイコロを振っています…';
+    diceEl.textContent=dice;
+    msg.textContent='サイコロは「'+dice+'」！ すごろくスタート。';
+
+    var t1=flapGroup(fDep, dep.n, 100);
+    var t2=flapGroup(fDest, dest.n, t1+220);
+    var t3=flapGroup(fPlane, plane, t2+220);
+    var t4=flapGroup(fWeather, weather, t3+220);
+    var t5=flapGroup(fAcc, acc, t4+220);
 
     setTimeout(function(){
-      diceEl.textContent=dice;
-      msg.textContent='サイコロは「'+dice+'」！ すごろくスタート。';
-
-      var cyc=1000;
-      flapGroup(fDep, dep, 80, cyc);
-      flapGroup(fDest, dest, 380, cyc);
-      flapGroup(fPlane, plane, 680, cyc);
-      flapGroup(fWeather, weather, 980, cyc);
-      flapGroup(fAcc, acc, 1280, cyc, function(){
-        if(acc!=='なし'){
-          fAcc.querySelectorAll('.flap').forEach(function(c){ c.classList.add('hit'); });
-        }
-        var wx=WEATHER_MSG[weather]||'';
-        var accMsg=(acc==='なし')?'アクシデントなし、無事に到着。':'アクシデント発生!! 「'+acc+'」に備えて対応しよう。';
-        msg.textContent='出発は「'+dep+'」→「'+dest+'」、機体は'+plane+'。天候は'+weather+'（'+wx+'）'+accMsg;
-        busy=false;
-        rollBtn.disabled=false; againBtn.disabled=false;
-      });
-    }, 650);
+      if(acc!=='なし'){
+        fAcc.querySelectorAll('.flap').forEach(function(c){ c.classList.add('hit'); });
+      }
+      var wx=WEATHER_MSG[weather]||'';
+      var accMsg=(acc==='なし')?'アクシデントなし、無事に到着。':'アクシデント発生!! 「'+acc+'」に備えて対応しよう。';
+      msg.textContent='出発は「'+dep.n+'」→「'+dest.n+'」、機体は'+plane+'。天候は'+weather+'（'+wx+'）'+accMsg;
+      busy=false;
+      rollBtn.disabled=false; againBtn.disabled=false;
+    }, t5+200);
   }
 
-  var demoRun=start();
   rollBtn.addEventListener('click', start);
   againBtn.addEventListener('click', start);
+  setTimeout(start, 500);
 })();
 </script>
 </body>
