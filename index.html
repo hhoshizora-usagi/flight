@@ -72,6 +72,7 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
 <div class="cta">
   <button class="main" id="roll">サイコロを振る</button>
   <button class="main" id="again" disabled>もう一度</button>
+  <button class="main" id="fly" disabled>離陸して飛ぶ！</button>
   <div class="dice" id="dice">–</div>
 </div>
 <div class="msg" id="msg">サイコロを振って、すごろくスタート。</div>
@@ -167,11 +168,13 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
   var msg=document.getElementById('msg');
   var rollBtn=document.getElementById('roll');
   var againBtn=document.getElementById('again');
+  var flyBtn=document.getElementById('fly');
   var choicesEl=document.getElementById('choices');
   var choicesMsg=document.getElementById('choices-msg');
   var busy=false;
   var closedAirport=null;
   var depAirport=null;
+  var flyUrl='';
 
   function hideChoices(){
     choicesEl.classList.remove('show');
@@ -190,7 +193,6 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
     } else if(act==='hold'){
       choicesMsg.textContent='上空で周回して待機中…';
       (function(){
-        var n=document.createElement('span');
         var t=0;
         var timer=setInterval(function(){
           t++;
@@ -209,9 +211,9 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
   function start(){
     if(busy) return;
     busy=true;
-    rollBtn.disabled=true; againBtn.disabled=true;
+    rollBtn.disabled=true; againBtn.disabled=true; flyBtn.disabled=true;
     hideChoices();
-    closedAirport=null; depAirport=null;
+    closedAirport=null; depAirport=null; flyUrl='';
     diceEl.textContent='–';
     [fDep,fDest,fPlane,fWeather,fAcc].forEach(function(el){ el.innerHTML=''; });
 
@@ -247,6 +249,8 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
         choicesMsg.textContent='';
         choicesEl.classList.add('show');
       }
+      flyUrl='sim.html?dep='+encodeURIComponent(dep.n)+'&dest='+encodeURIComponent(dest.n)+'&plane='+encodeURIComponent(plane)+'&weather='+encodeURIComponent(weather)+'&acc='+encodeURIComponent(acc);
+      flyBtn.disabled=false;
       busy=false;
       rollBtn.disabled=false; againBtn.disabled=false;
     }, t5+200);
@@ -255,6 +259,7 @@ footer{font-size:11px;color:var(--muted);letter-spacing:.12em}
   choicesEl.querySelectorAll('.choices-btns button').forEach(function(b){
     b.addEventListener('click', function(){ chooseAction(b.getAttribute('data-act')); });
   });
+  flyBtn.addEventListener('click', function(){ if(flyUrl) location.href=flyUrl; });
   rollBtn.addEventListener('click', start);
   againBtn.addEventListener('click', start);
   setTimeout(start, 500);
