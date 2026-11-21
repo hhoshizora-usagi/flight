@@ -320,7 +320,8 @@ function update(dt){
 
   if(spd>0.5){ dist += spd*dt*0.03; }
   planeGroup.position.set(0, alt-29+0.9, -1400 + dist);
-  planeGroup.rotation.set(THREE.MathUtils.degToRad(pitch), THREE.MathUtils.degToRad(-90 + hdgWob*0.6), THREE.MathUtils.degToRad(roll));
+  // ピッチ(機首上下)はスパン軸(Z)、ロール(バンク)は機体長軸(X)に適用
+  planeGroup.rotation.set(THREE.MathUtils.degToRad(roll), THREE.MathUtils.degToRad(-90 + hdgWob*0.6), THREE.MathUtils.degToRad(pitch));
 
   if(rain){ var rp2=rain.geometry.attributes.position.array; for(var i3=0;i3<rp2.length;i3+=3){ rp2[i3+1]-=60*dt; if(rp2[i3+1]<-10){ rp2[i3+1]=120; rp2[i3]=(Math.random()-0.5)*260; rp2[i3+2]=(Math.random()-0.5)*260; } } rain.geometry.attributes.position.needsUpdate=true; }
   if(snow){ var sp2=snow.geometry.attributes.position.array; for(var k3=0;k3<sp2.length;k3+=3){ sp2[k3+1]-=12*dt; if(sp2[k3+1]<-10){ sp2[k3+1]=120; sp2[k3]=(Math.random()-0.5)*260; sp2[k3+2]=(Math.random()-0.5)*260; } } snow.geometry.attributes.position.needsUpdate=true; }
