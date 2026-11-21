@@ -18,32 +18,51 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 #vt button{border:1px solid #3a4a5a;background:rgba(7,11,16,.75);color:#c3d1dd;font:inherit;font-size:12px;letter-spacing:.06em;padding:9px 14px;border-radius:4px;cursor:pointer}
 #vt button.on{border-color:#f5b13c;color:#f5b13c;background:rgba(245,177,60,.12)}
 /* ---------- cockpit overlay ---------- */
-#cockpit{position:fixed;inset:0;pointer-events:none;display:none;z-index:3}
+#cockpit{position:fixed;inset:0;pointer-events:none;display:none;z-index:3;font-family:Arial,"Noto Sans JP",sans-serif}
 #cockpit.show{display:block}
-.cp-dash{position:absolute;left:0;right:0;bottom:0;height:36%;background:linear-gradient(180deg,#1a222c 0%,#121821 25%,#090d13 100%);border-top:3px solid #2a3948;box-shadow:0 -10px 40px rgba(0,0,0,.65), inset 0 2px 0 rgba(255,255,255,.04)}
-.cp-glare{position:absolute;left:0;right:0;top:0;height:34%;background:linear-gradient(180deg,#0c131b 0%,#0a1017 100%);border-bottom:1px solid #1f2c39;box-shadow:inset 0 6px 20px rgba(0,0,0,.5)}
-.cp-panel{position:absolute;bottom:8%;width:100%;display:flex;justify-content:center;gap:14px;align-items:center;padding:0 4%}
+/* cockpit structure around the view */
+.cp-struct{position:absolute;inset:0;pointer-events:none}
+.cp-struct:before{content:"";position:absolute;left:0;top:0;bottom:0;width:13%;background:linear-gradient(90deg,#0a0f15 40%,rgba(10,15,21,0));}
+.cp-struct:after{content:"";position:absolute;right:0;top:0;bottom:0;width:13%;background:linear-gradient(270deg,#0a0f15 40%,rgba(10,15,21,0));}
+.cp-top{position:absolute;left:0;right:0;top:0;height:11%;background:linear-gradient(180deg,#0b1118 20%,rgba(11,17,24,0));}
+/* overhead switch panel */
+.cp-overhead{position:absolute;left:50%;top:0;transform:translateX(-50%);width:50%;height:9%;background:linear-gradient(180deg,#111a24,#0a1018);border:1px solid #1e2c3a;border-top:0;border-radius:0 0 6px 6px;display:flex;align-items:center;justify-content:space-around;padding:0 3%}
+.cp-sw{width:16px;height:16px;border-radius:3px;background:#1c2a37;border:1px solid #2f4256;position:relative;box-shadow:0 1px 3px rgba(0,0,0,.6)}
+.cp-sw:before{content:"";position:absolute;left:50%;top:3px;width:2px;height:8px;background:#6a7f96;transform:translateX(-50%)}
+.cp-sw.lit{background:#0e2b1c;border-color:#2f7a4a;box-shadow:0 0 8px rgba(60,220,120,.6), inset 0 0 4px rgba(60,220,120,.4)}
+/* instrument panel */
+.cp-dash{position:absolute;left:0;right:0;bottom:0;height:34%;background:linear-gradient(180deg,#1b242e 0%,#121922 22%,#080c12 100%);border-top:3px solid #2a3948;box-shadow:0 -10px 40px rgba(0,0,0,.65), inset 0 2px 0 rgba(255,255,255,.05)}
+.cp-panel{position:absolute;top:37%;left:50%;transform:translateX(-50%);display:flex;gap:16px;align-items:center;justify-content:center;width:78%}
 .cp-label{position:absolute;bottom:1.2%;left:50%;transform:translateX(-50%);color:#5f7386;font-size:11px;letter-spacing:.24em;text-shadow:0 2px 6px rgba(0,0,0,.6)}
-/* instruments */
-.mfd{width:88px;height:60px;border-radius:3px;background:linear-gradient(180deg,#0a1520,#061018);border:2px solid #26343f;box-shadow:0 3px 10px rgba(0,0,0,.5), inset 0 0 24px rgba(80,160,220,.12);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#6fb9e8;font-size:9px;letter-spacing:.1em;position:relative;overflow:hidden}
-.mfd .line{position:absolute;left:8%;right:8%;height:1px;background:rgba(111,185,232,.25)}
-.mfd .pitch{position:absolute;left:50%;top:50%;width:34px;height:34px;border-radius:50%;border:1px solid rgba(111,185,232,.5);transform:translate(-50%,-50%)}
-.mfd .horizon{position:absolute;left:50%;top:50%;width:40px;height:1px;background:rgba(255,255,255,.55);transform:translate(-50%,-50%) rotate(var(--r,0deg))}
-.gauge{width:56px;height:56px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#2a333d,#0b0f14);border:2px solid #45505c;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#ffd27a;font-size:9px;letter-spacing:.06em;position:relative}
-.gauge .needle{position:absolute;left:50%;top:50%;width:22px;height:2px;background:#ffd27a;transform-origin:right center;transform:translate(-100%,-50%) rotate(var(--r,0deg))}
-.gauge .v{font-size:12px;font-weight:700;color:#ffe9b8}
-/* controls */
-.cp-yoke{position:absolute;bottom:24%;left:50%;transform:translateX(-50%);width:130px;height:16px;border-radius:8px;border:2px solid #46586a;background:rgba(26,36,46,.55)}
-.cp-yoke:before,.cp-yoke:after{content:"";position:absolute;top:4px;width:18px;height:10px;border-radius:3px;background:#2c3946}
-.cp-yoke:before{left:-12px}.cp-yoke:after{right:-12px}
-.cp-stick{position:absolute;bottom:22%;left:30%;width:12px;height:44px;border-radius:6px;border:2px solid #46586a;background:rgba(26,36,46,.6);transform:rotate(-14deg)}
-/* per aircraft tuning */
-.ct-787 .cp-dash{height:32%}
-.ct-a350 .cp-dash{height:28%}
-.ct-a350 .mfd{width:84px;height:46px}
-.ct-a321 .cp-dash{height:30%}
-.ct-737 .cp-dash{height:40%;background:linear-gradient(180deg,#222a33,#10151b 80%)}
+/* MFD display */
+.mfd{width:110px;height:74px;border-radius:4px;background:linear-gradient(180deg,#0a1520,#051017);border:2px solid #2a3946;box-shadow:0 4px 14px rgba(0,0,0,.55), inset 0 0 30px rgba(80,160,220,.14);position:relative;overflow:hidden;flex:none}
+.mfd .pitch{position:absolute;left:50%;top:50%;width:38px;height:38px;border-radius:50%;border:1px solid rgba(111,185,232,.5);transform:translate(-50%,-50%)}
+.mfd .horizon{position:absolute;left:50%;top:50%;width:46px;height:1px;background:rgba(180,230,255,.6);transform:translate(-50%,-50%) rotate(var(--r,0deg))}
+.mfd .lbl{position:absolute;left:6px;top:4px;font-size:8px;letter-spacing:.12em;color:#7fc4ea}
+.mfd .ladder{position:absolute;right:6px;top:12px;width:2px;height:50px;background:repeating-linear-gradient(180deg,rgba(111,185,232,.6) 0 1px,transparent 1px 8px)}
+.mfd .spd{position:absolute;left:4px;top:50%;transform:translateY(-50%);font-size:9px;letter-spacing:.04em;color:#9fe3ff}
+.mfd.wide{width:150px}
+/* round gauges */
+.gauge{width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#2b333d,#0b0f14);border:2px solid #45505c;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#ffd27a;font-size:9px;letter-spacing:.06em;position:relative;flex:none}
+.gauge .needle{position:absolute;left:50%;top:50%;width:24px;height:2px;background:#ffd27a;transform-origin:right center;transform:translate(-100%,-50%) rotate(var(--r,0deg));box-shadow:0 0 4px rgba(255,210,122,.7)}
+.gauge .v{font-size:12px;font-weight:700;color:#ffe9b8;line-height:1.1}
+/* center pedestal + throttle */
+.cp-pedestal{position:absolute;left:50%;bottom:14%;transform:translateX(-50%);width:22%;height:16%;background:linear-gradient(180deg,#131c26,#0b1118);border:1px solid #24333f;border-radius:4px 4px 0 0;display:flex;align-items:flex-start;justify-content:center;gap:26px;padding-top:6px}
+.thr{width:12px;height:46px;background:linear-gradient(180deg,#26343f,#121a22);border:1px solid #33465a;border-radius:3px;position:relative}
+.thr:before{content:"";position:absolute;left:-3px;top:42%;width:18px;height:14px;border-radius:3px;background:#3a4e60;border:1px solid #4d6379}
+/* control (yoke/side-stick) */
+.cp-yoke{position:absolute;bottom:27%;left:50%;transform:translateX(-50%);width:150px;height:18px;border-radius:9px;border:2px solid #46586a;background:rgba(26,36,46,.6);box-shadow:0 4px 12px rgba(0,0,0,.5)}
+.cp-yoke:before,.cp-yoke:after{content:"";position:absolute;top:5px;width:20px;height:10px;border-radius:3px;background:#2c3946}
+.cp-yoke:before{left:-14px}.cp-yoke:after{right:-14px}
+.cp-stick{position:absolute;bottom:26%;left:27%;width:12px;height:46px;border-radius:6px;border:2px solid #46586a;background:rgba(26,36,46,.65);transform:rotate(-15deg);box-shadow:0 4px 12px rgba(0,0,0,.5)}
+/* per aircraft */
+.ct-787 .cp-dash{height:30%;background:linear-gradient(180deg,#16202a,#0a1016 70%)}
+.ct-787 .mfd{box-shadow:0 4px 14px rgba(0,0,0,.55), inset 0 0 34px rgba(80,160,220,.2)}
+.ct-a350 .cp-dash{height:26%;background:linear-gradient(180deg,#101a26,#070c12 80%)}
+.ct-a350 .mfd{width:96px;height:60px}
+.ct-737 .cp-dash{height:40%;background:linear-gradient(180deg,#232b34,#11161c 80%)}
 .ct-737 .gauge{background:radial-gradient(circle at 40% 35%,#2b2f38,#0b0f14)}
+.ct-a321 .cp-dash{height:28%;background:linear-gradient(180deg,#0f1924,#070c12 80%)}
 </style>
 </head>
 <body>
@@ -70,10 +89,10 @@ var weather = q.get("weather") || "晴れ";
 var acc = q.get("acc") || "なし";
 
 var AC = {
-  "ボーイング787": { len:20, span:28, color:0xdfe6ee, cls:"ct-787", sideStick:false, style:"glass" },
-  "エアバスA350": { len:19, span:27, color:0xe8edf2, cls:"ct-a350", sideStick:true, style:"six" },
-  "ボーイング737": { len:15, span:22, color:0xd8dee6, cls:"ct-737", sideStick:false, style:"round" },
-  "エアバスA321": { len:14, span:21, color:0xe4e9ef, cls:"ct-a321", sideStick:true, style:"four" }
+  "ボーイング787": { len:20, span:28, color:0xdfe6ee, cls:"ct-787", sideStick:false, style:"glass", n:4 },
+  "エアバスA350": { len:19, span:27, color:0xe8edf2, cls:"ct-a350", sideStick:true, style:"six", n:6 },
+  "ボーイング737": { len:15, span:22, color:0xd8dee6, cls:"ct-737", sideStick:false, style:"round", n:6 },
+  "エアバスA321": { len:14, span:21, color:0xe4e9ef, cls:"ct-a321", sideStick:true, style:"four", n:4 }
 };
 var ac = AC[plane] || AC["ボーイング787"];
 
@@ -186,36 +205,39 @@ if(weather==="雪"){
   scene.add(snow);
 }
 
-// ---- cockpit overlay (per aircraft, faithful) ----
-function mfdRow(n){
-  var h='';
-  for(var i=0;i<n;i++){ h+='<div class="mfd"><span class="pitch"></span><span class="horizon"></span><span class="line"></span><span class="line" style="top:70%"></span></div>'; }
-  return '<div class="cp-panel">'+h+'</div>';
+// ---- cockpit (per aircraft, high fidelity) ----
+function mfdHTML(label, wide){
+  return '<div class="mfd'+(wide?' wide':'')+'"><span class="lbl">'+label+'</span><span class="pitch"></span><span class="horizon"></span><span class="ladder"></span><span class="spd">SPD</span></div>';
 }
-function gaugeRow(n){
-  var h='';
-  var names=["SPD","ATT","ALT","HDG","VSI","N1"];
-  for(var i=0;i<n;i++){ h+='<div class="gauge"><span class="needle"></span><span>'+names[i%6]+'</span><span class="v" id="gv'+i+'">0</span></div>'; }
-  return '<div class="cp-panel">'+h+'</div>';
+function gaugeHTML(name){
+  return '<div class="gauge"><span class="needle"></span><span>'+name+'</span><span class="v" data-g="'+name+'">0</span></div>';
+}
+function overheadHTML(n){
+  var h='<div class="cp-overhead">';
+  for(var i=0;i<n;i++){ h+='<div class="cp-sw'+(i%3===0?' lit':'')+'"></div>'; }
+  return h+'</div>';
 }
 function buildCockpit(){
   var el = document.getElementById("cockpit");
   el.className = "show " + ac.cls;
-  var html = '<div class="cp-glare"></div><div class="cp-dash"></div>';
+  var html = '<div class="cp-struct"></div><div class="cp-top"></div>';
+  html += overheadHTML(9);
+  html += '<div class="cp-dash"></div>';
+  html += '<div class="cp-pedestal"><div class="thr"></div><div class="thr"></div></div>';
   if(ac.style==="glass"){
-    html += mfdRow(4);
+    html += '<div class="cp-panel">'+mfdHTML("PFD",true)+mfdHTML("ND",true)+mfdHTML("EICAS",true)+mfdHTML("ND",true)+'</div>';
     html += '<div class="cp-yoke"></div>';
     html += '<div class="cp-label">ボーイング787 · YOKE · GLASS COCKPIT</div>';
   } else if(ac.style==="six"){
-    html += mfdRow(6);
+    html += '<div class="cp-panel">'+mfdHTML("PFD")+mfdHTML("ND")+mfdHTML("ECAM")+mfdHTML("PFD")+mfdHTML("ND")+mfdHTML("ECAM")+'</div>';
     html += '<div class="cp-stick"></div>';
     html += '<div class="cp-label">エアバスA350 · SIDE STICK · 6 DISPLAYS</div>';
   } else if(ac.style==="round"){
-    html += gaugeRow(6);
+    html += '<div class="cp-panel">'+gaugeHTML("SPD")+gaugeHTML("ATT")+gaugeHTML("ALT")+gaugeHTML("HDG")+gaugeHTML("VSI")+gaugeHTML("N1")+'</div>';
     html += '<div class="cp-yoke"></div>';
     html += '<div class="cp-label">ボーイング737 · YOKE · CLASSIC GAUGES</div>';
   } else {
-    html += mfdRow(4);
+    html += '<div class="cp-panel">'+mfdHTML("PFD")+mfdHTML("ND")+mfdHTML("E/WD")+mfdHTML("SD")+'</div>';
     html += '<div class="cp-stick"></div>';
     html += '<div class="cp-label">エアバスA321 · SIDE STICK · 4 DISPLAYS</div>';
   }
@@ -287,10 +309,18 @@ function update(dt){
 
   rtEl.innerHTML = "速度 " + Math.round(spd) + " kt<br>高度 " + Math.round(alt) + " ft<br>進行方位 " + (Math.round(hdg)+360)%360 + "°";
 
-  // cockpit instrument live update
-  var gv0=document.getElementById("gv0"), gv1=document.getElementById("gv1"), gv2=document.getElementById("gv2"), gv3=document.getElementById("gv3"), gv4=document.getElementById("gv4"), gv5=document.getElementById("gv5");
-  if(gv0){ gv0.textContent=Math.round(spd); gv1.textContent=Math.round(pitch); gv2.textContent=Math.round(alt); gv3.textContent=(Math.round(hdg)+360)%360; gv4.textContent=Math.round(Math.sin(t)*100); gv5.textContent="88"; }
-  // mfd pitch/horizon tilt
+  // live gauge values
+  document.querySelectorAll('[data-g]').forEach(function(el){
+    var g=el.getAttribute('data-g');
+    var val=0;
+    if(g==='SPD') val=Math.round(spd);
+    else if(g==='ATT') val=Math.round(pitch);
+    else if(g==='ALT') val=Math.round(alt);
+    else if(g==='HDG') val=(Math.round(hdg)+360)%360;
+    else if(g==='VSI') val=Math.round(Math.sin(t)*200);
+    else if(g==='N1') val=88;
+    el.textContent=val;
+  });
   document.querySelectorAll(".mfd .horizon").forEach(function(hEl, i){
     hEl.style.setProperty("--r", (roll + (i%2? pitch: -pitch)*0.4) + "deg");
   });
@@ -300,7 +330,7 @@ function update(dt){
     off.applyEuler(planeGroup.rotation);
     cam.position.copy(planeGroup.position).add(off);
     cam.rotation.copy(planeGroup.rotation);
-    cam.fov = 78;
+    cam.fov = 80;
   } else {
     var back = new THREE.Vector3(-ac.len - 8, 3.2, 0);
     back.applyEuler(planeGroup.rotation);
