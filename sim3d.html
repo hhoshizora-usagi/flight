@@ -195,7 +195,7 @@ function gaugeHTML(name){ return '<div class="gauge"><div class="ticks"></div><s
 function overheadHTML(n){ var h='<div class="cp-overhead">'; for(var i=0;i<n;i++){ h+='<div class="cp-sw'+(i%3===0?' lit':'')+'"></div>'; } return h+'</div>'; }
 function buildCockpit(){
   var el = document.getElementById("cockpit");
-  el.className = "show " + ac.cls;
+  el.className = (mode==="cockpit") ? ("show "+ac.cls) : "";
   var html = '<div class="cp-struct"></div><div class="cp-top"></div>'+overheadHTML(9)+'<div class="cp-dash"></div><div class="cp-pedestal"><div class="thr"></div><div class="thr"></div></div>';
   if(ac.style==="glass"){
     html += '<div class="cp-sub">CAPT</div><div class="cp-panel">'+pfdHTML("PFD","C",true)+ndHTML("ND","C",true)+ndHTML("ND","FO",true)+pfdHTML("PFD","FO",true)+'</div><div class="yoke"><div class="yoke-bar"></div><div class="yoke-grip l"></div><div class="yoke-grip r"></div><div class="yoke-hub"></div></div><div class="cp-label">ボーイング787 · YOKE · GLASS COCKPIT</div>';
