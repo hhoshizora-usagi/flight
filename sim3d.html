@@ -173,6 +173,17 @@ var runway = new THREE.Mesh(new THREE.PlaneGeometry(120,3400), new THREE.MeshSta
 var dashMat = new THREE.MeshBasicMaterial({color:0xf2f6fa});
 for(var di=0;di<50;di++){ var d=new THREE.Mesh(new THREE.PlaneGeometry(6,40), dashMat); d.rotation.x=-Math.PI/2; d.position.set(0,-29.1,-1450+di*70); scene.add(d); }
 
+// runway threshold markings (piano keys) at both ends
+for(var tci=0;tci<2;tci++){
+  var tcz = (tci===0) ? -2470 : 670;
+  for(var tk=0;tk<8;tk++){
+    var ts = new THREE.Mesh(new THREE.PlaneGeometry(5,22), dashMat);
+    ts.rotation.x=-Math.PI/2;
+    ts.position.set(-42+tk*12, -29.1, tcz);
+    scene.add(ts);
+  }
+}
+
 var edgeLampMat = new THREE.MeshBasicMaterial({color:0xfff0c0});
 for(var ei=0; ei<26; ei++){
   var ez = -2450 + ei*95;
