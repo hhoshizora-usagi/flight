@@ -38,11 +38,16 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 .mfd .hl{position:absolute;left:8%;right:8%;top:54%;height:2px;background:#eef4fa;box-shadow:0 0 5px rgba(255,255,255,.7)}
 .mfd .pitch{position:absolute;left:50%;top:54%;width:30px;height:30px;border-left:1px solid rgba(255,255,255,.6);border-right:1px solid rgba(255,255,255,.6);border-radius:50%;transform:translate(-50%,-50%)}
 .mfd .tick{position:absolute;left:50%;top:54%;width:60px;height:1px;background:rgba(255,255,255,.45);transform:translate(-50%,0)}
-.mfd .lbl{position:absolute;left:6px;top:4px;font-size:8px;letter-spacing:.12em;color:#e6f0f8;text-shadow:0 1px 2px rgba(0,0,0,.7)}
+.mfd .lbl{position:absolute;left:6px;top:4px;font-size:8px;letter-spacing:.12em;color:#e6f0f8;text-shadow:0 1px 2px rgba(0,0,0,.7);z-index:2}
 .mfd .lbl b{color:#7fc4ea;font-size:7px}
 .mfd .tape{position:absolute;right:5px;top:12px;bottom:12px;width:14px;background:rgba(0,0,0,.5);border:1px solid rgba(111,185,232,.5);display:flex;flex-direction:column;justify-content:space-between;font-size:7px;color:#cfeaff;padding:2px 0;align-items:center}
 .mfd .spd{position:absolute;left:5px;top:12px;bottom:12px;width:14px;background:rgba(0,0,0,.5);border:1px solid rgba(111,185,232,.5);display:flex;flex-direction:column;justify-content:space-between;font-size:7px;color:#cfeaff;padding:2px 0;align-items:center}
 .mfd.wide{width:150px}
+.nav{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:10px 8px 12px;font-family:"Courier New",monospace;color:#9fe3c0}
+.nav .nd-to{font-size:12px;font-weight:700;color:#c8fad8;letter-spacing:.04em;text-shadow:0 0 6px rgba(100,255,180,.4)}
+.nav .nd-from{font-size:9px;color:#6fbf92;letter-spacing:.04em;margin-top:2px}
+.nav .nd-hdg{font-size:9px;color:#8fd8b0;margin-top:4px;letter-spacing:.04em}
+.nav .nd-rng{position:absolute;right:6px;bottom:6px;font-size:8px;color:#5fae82;letter-spacing:.04em}
 .gauge{width:68px;height:68px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#2b333d,#0b0f14);border:2px solid #45505c;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#ffd27a;font-size:8px;letter-spacing:.06em;position:relative;flex:none;box-shadow:0 4px 12px rgba(0,0,0,.5)}
 .gauge .ticks{position:absolute;inset:5px;border-radius:50%;background:repeating-conic-gradient(from -140deg,rgba(255,210,122,.9) 0deg 2deg,transparent 2deg 26deg);mask:radial-gradient(circle,transparent 62%,#000 63%,#000 70%,transparent 71%);-webkit-mask:radial-gradient(circle,transparent 62%,#000 63%,#000 70%,transparent 71%)}
 .gauge .needle{position:absolute;left:50%;top:50%;width:26px;height:2px;background:#ffd27a;transform-origin:right center;transform:translate(-100%,-50%) rotate(var(--r,0deg));box-shadow:0 0 5px rgba(255,210,122,.8)}
@@ -165,10 +170,13 @@ var rain=null, snow=null;
 if(weather==="雨"){ var rn=1600,rg=new THREE.BufferGeometry(); var rp=new Float32Array(rn*3); for(var i2=0;i2<rn;i2++){ rp[i2*3]=(Math.random()-0.5)*260; rp[i2*3+1]=Math.random()*130-10; rp[i2*3+2]=(Math.random()-0.5)*260; } rg.setAttribute("position",new THREE.BufferAttribute(rp,3)); rain=new THREE.Points(rg,new THREE.PointsMaterial({color:0xaac4dd,size:0.6,transparent:true,opacity:0.7})); scene.add(rain); }
 if(weather==="雪"){ var sn=1000,sg=new THREE.BufferGeometry(); var sp=new Float32Array(sn*3); for(var j2=0;j2<sn;j2++){ sp[j2*3]=(Math.random()-0.5)*260; sp[j2*3+1]=Math.random()*130-10; sp[j2*3+2]=(Math.random()-0.5)*260; } sg.setAttribute("position",new THREE.BufferAttribute(sp,3)); snow=new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:1.1,transparent:true,opacity:0.85})); scene.add(snow); }
 
-/* ---- cockpit ---- */
 function pfdHTML(label, side, wide){
   var tag = '<span class="lbl">'+label+(side?' <b>'+side+'</b>':'')+'</span>';
   return '<div class="mfd'+(wide?' wide':'')+'"><div class="att"><div class="sky"></div><div class="gnd"></div><div class="hl"></div><div class="pitch"></div><div class="tick" style="top:44%"></div><div class="tick" style="top:64%"></div></div>'+tag+'<span class="spd"><span>240</span><span>260</span><span>280</span></span><span class="tape"><span>090</span><span>092</span><span>094</span></span></div>';
+}
+function ndHTML(label, side, wide){
+  var tag = '<span class="lbl">'+label+(side?' <b>'+side+'</b>':'')+'</span>';
+  return '<div class="mfd'+(wide?' wide':'')+'"><div class="nav"><span class="nd-to">TO '+dest+'</span><span class="nd-from">FROM '+dep+'</span><span class="nd-hdg">HDG 092°</span><span class="nd-rng">RNG 40NM</span></div>'+tag+'</div>';
 }
 function mfdSimple(label){ return '<div class="mfd"><div class="att"><div class="sky"></div><div class="gnd"></div><div class="hl"></div></div><span class="lbl">'+label+'</span></div>'; }
 function gaugeHTML(name){ return '<div class="gauge"><div class="ticks"></div><span class="needle"></span><span class="cap"></span><span>'+name+'</span><span class="v" data-g="'+name+'">0</span></div>'; }
@@ -178,13 +186,13 @@ function buildCockpit(){
   el.className = "show " + ac.cls;
   var html = '<div class="cp-struct"></div><div class="cp-top"></div>'+overheadHTML(9)+'<div class="cp-dash"></div><div class="cp-pedestal"><div class="thr"></div><div class="thr"></div></div>';
   if(ac.style==="glass"){
-    html += '<div class="cp-sub">CAPT</div><div class="cp-panel">'+pfdHTML("PFD","C",true)+pfdHTML("ND","C",true)+pfdHTML("ND","FO",true)+pfdHTML("PFD","FO",true)+'</div><div class="yoke"><div class="yoke-bar"></div><div class="yoke-grip l"></div><div class="yoke-grip r"></div><div class="yoke-hub"></div></div><div class="cp-label">ボーイング787 · YOKE · GLASS COCKPIT</div>';
+    html += '<div class="cp-sub">CAPT</div><div class="cp-panel">'+pfdHTML("PFD","C",true)+ndHTML("ND","C",true)+ndHTML("ND","FO",true)+pfdHTML("PFD","FO",true)+'</div><div class="yoke"><div class="yoke-bar"></div><div class="yoke-grip l"></div><div class="yoke-grip r"></div><div class="yoke-hub"></div></div><div class="cp-label">ボーイング787 · YOKE · GLASS COCKPIT</div>';
   } else if(ac.style==="six"){
-    html += '<div class="cp-sub">CAPT / FO</div><div class="cp-panel">'+pfdHTML("PFD","C")+pfdHTML("ND","C")+pfdHTML("PFD","FO")+pfdHTML("ND","FO")+mfdSimple("E/WD")+mfdSimple("SD")+'</div><div class="sstick"></div><div class="cp-label">エアバスA350 · SIDE STICK · 6 DISPLAYS</div>';
+    html += '<div class="cp-sub">CAPT / FO</div><div class="cp-panel">'+pfdHTML("PFD","C")+ndHTML("ND","C")+pfdHTML("PFD","FO")+ndHTML("ND","FO")+mfdSimple("E/WD")+mfdSimple("SD")+'</div><div class="sstick"></div><div class="cp-label">エアバスA350 · SIDE STICK · 6 DISPLAYS</div>';
   } else if(ac.style==="round"){
     html += '<div class="cp-panel">'+gaugeHTML("SPD")+gaugeHTML("ATT")+gaugeHTML("ALT")+gaugeHTML("HDG")+gaugeHTML("VSI")+gaugeHTML("N1")+'</div><div class="yoke"><div class="yoke-bar"></div><div class="yoke-grip l"></div><div class="yoke-grip r"></div><div class="yoke-hub"></div></div><div class="cp-label">ボーイング737 · YOKE · CLASSIC GAUGES</div>';
   } else {
-    html += '<div class="cp-sub">CAPT / FO</div><div class="cp-panel">'+pfdHTML("PFD","C")+pfdHTML("ND","C")+pfdHTML("PFD","FO")+pfdHTML("ND","FO")+'</div><div class="sstick"></div><div class="cp-label">エアバスA321 · SIDE STICK · 4 DISPLAYS</div>';
+    html += '<div class="cp-sub">CAPT / FO</div><div class="cp-panel">'+pfdHTML("PFD","C")+ndHTML("ND","C")+pfdHTML("PFD","FO")+ndHTML("ND","FO")+'</div><div class="sstick"></div><div class="cp-label">エアバスA321 · SIDE STICK · 4 DISPLAYS</div>';
   }
   el.innerHTML = html;
 }
@@ -212,17 +220,10 @@ function update(dt){
   phaseIdx = u<PHASE_T[0]?0:(u<PHASE_T[1]?1:(u<PHASE_T[2]?2:3));
   phaseEl.textContent = PHASE[phaseIdx];
 
-  if(phaseIdx===0){ /* taxi: 0 -> 60kt, still on ground */
-    var k=u/PHASE_T[0]; spd=60*k; alt=0; pitch=0;
-  } else if(phaseIdx===1){ /* takeoff: 60 -> 280kt, climb to cruise */
-    var k2=(u-PHASE_T[0])/(PHASE_T[1]-PHASE_T[0]); spd=60+k2*220; alt=k2*900; pitch=4+k2*10;
-  } else if(phaseIdx===2){ /* cruise */
-    spd=280; alt=900+Math.sin(t*0.6)*18; pitch=2;
-  } else { /* landing: decelerate to a full stop */
-    var v=(u-PHASE_T[2])/(1-PHASE_T[2]);
-    spd=280*(1-v); alt=900*(1-v); pitch=-6-v*6;
-    if(v>0.97){ spd=0; alt=0; pitch=0; }
-  }
+  if(phaseIdx===0){ var k=u/PHASE_T[0]; spd=60*k; alt=0; pitch=0; }
+  else if(phaseIdx===1){ var k2=(u-PHASE_T[0])/(PHASE_T[1]-PHASE_T[0]); spd=60+k2*220; alt=k2*900; pitch=4+k2*10; }
+  else if(phaseIdx===2){ spd=280; alt=900+Math.sin(t*0.6)*18; pitch=2; }
+  else { var v=(u-PHASE_T[2])/(1-PHASE_T[2]); spd=280*(1-v); alt=900*(1-v); pitch=-6-v*6; if(v>0.97){ spd=0; alt=0; pitch=0; } }
   roll = Math.sin(t*0.7)*4 + (acc==="乱気流"? Math.sin(t*5.5)*9:0);
   hdg = Math.sin(t*0.3)*8;
   if(acc==="乱気流") pitch += Math.sin(t*4.2)*3;
