@@ -269,6 +269,7 @@ function update(dt){
   var s=PH_START[phaseIdx], e=PH_END[phaseIdx], k=Math.min((t-s)/(e-s),1);
 
   var VR = ac.vr || 150;
+  var touchdown = (phaseIdx===3 && k>=0.55);
   if(phaseIdx===0){ spd=60*k; alt=0; pitch=0; }
   else if(phaseIdx===1){
     if(k<0.25){ spd=60+(VR-60)*(k/0.25); alt=0; pitch=0; }
@@ -292,7 +293,8 @@ function update(dt){
   if(snow){ var sp2=snow.geometry.attributes.position.array; for(var k3=0;k3<sp2.length;k3+=3){ sp2[k3+1]-=12*dt; if(sp2[k3+1]<-10){ sp2[k3+1]=120; sp2[k3]=(Math.random()-0.5)*260; sp2[k3+2]=(Math.random()-0.5)*260; } } snow.geometry.attributes.position.needsUpdate=true; }
   clouds.forEach(function(cl){ cl.position.z -= cfg.drift*dt*50; if(cl.position.z < -16000){ cl.position.z = 11000 + Math.random()*4500; } });
 
-  rtEl.innerHTML = "速度 "+Math.round(spd)+" kt<br>高度 "+Math.round(alt).toLocaleString()+" ft<br>ピッチ "+Math.round(pitch)+"°<br>進行方位 "+Math.round(hdg)+"°";
+  var spdLabel = (phaseIdx===2 || (phaseIdx===3 && !touchdown)) ? "巡行速度" : "速度";
+  rtEl.innerHTML = spdLabel+" "+Math.round(spd)+" kt<br>高度 "+Math.round(alt).toLocaleString()+" ft<br>ピッチ "+Math.round(pitch)+"°<br>進行方位 "+Math.round(hdg)+"°";
 
   document.querySelectorAll('[data-g]').forEach(function(el){
     var g=el.getAttribute('data-g'); var val=0;
