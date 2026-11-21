@@ -314,6 +314,7 @@ var PH_END=[20,260,440,860];
 var PH_START=[0,20,260,440];
 var totalDur=860;
 var dist=0;
+var prevAlt=0;
 
 function update(dt){
   t += dt;
@@ -343,6 +344,9 @@ function update(dt){
 
   gearGroup.visible = alt < 1000;
 
+  var vsi = (dt>0) ? ((alt - prevAlt) / dt) * 60 : 0;
+  prevAlt = alt;
+
   if(spd>0.5){ dist += spd*dt*0.03; }
   planeGroup.position.set(0, alt-29+0.9, -1400 + dist);
   planeGroup.rotation.set(THREE.MathUtils.degToRad(roll), THREE.MathUtils.degToRad(-90 + hdgWob*0.6), THREE.MathUtils.degToRad(pitch));
@@ -352,9 +356,8 @@ function update(dt){
   clouds.forEach(function(cl){ cl.position.z -= cfg.drift*dt*50; if(cl.position.z < -16000){ cl.position.z = 11000 + Math.random()*4500; } });
 
   var spdLabel = ((phaseIdx===1 && k>=0.25) || phaseIdx===2 || (phaseIdx===3 && !touchdown)) ? "巡行速度" : "速度";
-  rtEl.innerHTML = spdLabel+" "+Math.round(spd)+" kt<br>高度 "+Math.round(alt).toLocaleString()+" ft<br>ピッチ "+Math.round(pitch)+"°<br>進行方位 "+Math.round(hdg)+"°";
+  rtEl.innerHTML = spdLabel+" "+Math.round(spd)+" kt<br>高度 "+Math.round(alt).toLocaleString()+" ft<br>ピッチ "+Math.round(pitch)+"°<br>VSI "+Math.round(vsi).toLocaleString()+" ft/min<br>進行方位 "+Math.round(hdg)+"°";
 
-  var vsi = Math.sin(t)*200;
   var n1v = Math.round(88*(spd>1?1:0.2));
   document.querySelectorAll('.gauge').forEach(function(gEl){
     var gElName = gEl.querySelector('[data-g]');
