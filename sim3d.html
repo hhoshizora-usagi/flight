@@ -137,7 +137,7 @@ sunDisk.position.set(900,1100,-2200); scene.add(sunDisk);
 
 var gGeo = new THREE.PlaneGeometry(6000,6000,120,120); gGeo.rotateX(-Math.PI/2);
 var gp = gGeo.attributes.position;
-for(var gi=0;gi<gp.count;gi++){ var gx=gp.getX(gi), gz=gp.getZ(gi); var dist=Math.sqrt(gx*gx+gz*gz); var amp=Math.min(dist/900,1); var h=(Math.sin(gx*0.0035)*9+Math.cos(gz*0.0028)*12+Math.sin((gx+gz)*0.0019)*15)*amp; gp.setY(gi,h); }
+for(var gi=0;gi<gp.count;gi++){ var gx=gp.getX(gi), gz=gp.getZ(gi); var dist0=Math.sqrt(gx*gx+gz*gz); var amp=Math.min(dist0/900,1); var h=(Math.sin(gx*0.0035)*9+Math.cos(gz*0.0028)*12+Math.sin((gx+gz)*0.0019)*15)*amp; gp.setY(gi,h); }
 gGeo.computeVertexNormals();
 var ground = new THREE.Mesh(gGeo, new THREE.MeshStandardMaterial({color:0x2f4a2c, roughness:1})); ground.position.y=-30; scene.add(ground);
 var water = new THREE.Mesh(new THREE.PlaneGeometry(6000,2400), new THREE.MeshStandardMaterial({color:0x1b4c74, roughness:0.35, metalness:0.3})); water.rotation.x=-Math.PI/2; water.position.set(0,-31.2,3200); scene.add(water);
@@ -227,7 +227,7 @@ var t=0, PHASE=["タキシング","離陸","巡航","着陸"], phaseIdx=0, alt=0
 var PH_END=[20,200,380,860];
 var PH_START=[0,20,200,380];
 var totalDur=860;
-var dist=0, prevT=0;
+var dist=0;
 
 function update(dt){
   t += dt;
@@ -249,10 +249,10 @@ function update(dt){
   hdg = Math.sin(t*0.3)*8;
   if(acc==="乱気流") pitch += Math.sin(t*4.2)*3;
 
-  // move forward at a rate proportional to speed so the runway slides by
   if(spd>0.5){ dist += spd*dt*0.12; }
   planeGroup.position.set(0, alt-29+0.9, -1400 + dist);
-  planeGroup.rotation.set(THREE.MathUtils.degToRad(pitch*0.6), THREE.MathUtils.degToRad(hdg*0.4), THREE.MathUtils.degToRad(roll));
+  // base -90 yaw so the nose points along the runway (the moving direction)
+  planeGroup.rotation.set(THREE.MathUtils.degToRad(pitch*0.6), THREE.MathUtils.degToRad(hdg*0.4-90), THREE.MathUtils.degToRad(roll));
 
   if(rain){ var rp2=rain.geometry.attributes.position.array; for(var i3=0;i3<rp2.length;i3+=3){ rp2[i3+1]-=60*dt; if(rp2[i3+1]<-10){ rp2[i3+1]=120; rp2[i3]=(Math.random()-0.5)*260; rp2[i3+2]=(Math.random()-0.5)*260; } } rain.geometry.attributes.position.needsUpdate=true; }
   if(snow){ var sp2=snow.geometry.attributes.position.array; for(var k3=0;k3<sp2.length;k3+=3){ sp2[k3+1]-=12*dt; if(sp2[k3+1]<-10){ sp2[k3+1]=120; sp2[k3]=(Math.random()-0.5)*260; sp2[k3+2]=(Math.random()-0.5)*260; } } snow.geometry.attributes.position.needsUpdate=true; }
