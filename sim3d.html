@@ -126,14 +126,18 @@ var skyTop = new THREE.Color(sc[0]), skyBot = new THREE.Color(sc[1]);
 var fogColor = skyBot.clone().lerp(skyTop, 0.35);
 scene.fog = new THREE.Fog(fogColor, weather==="霧"?60:(weather==="雨"?250:500), weather==="霧"?340:(weather==="雨"?1000:1800));
 
-var skyGeo = new THREE.SphereGeometry(90000, 32, 16);
-var skyMat = new THREE.ShaderMaterial({
-  uniforms: { topColor:{value:skyTop}, botColor:{value:skyBot} },
-  vertexShader: "varying vec3 vWorldPosition; void main(){ vec4 wp = modelMatrix * vec4(position,1.0); vWorldPosition = wp.xyz; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }",
-  fragmentShader: "uniform vec3 topColor; uniform vec3 botColor; varying vec3 vWorldPosition; void main(){ float h = normalize(vWorldPosition).y; float t = pow(max(h,0.0),0.6); gl_FragColor = vec4(mix(botColor, topColor, t), 1.0); }",
-  side: THREE.BackSide, depthWrite:false
-});
-scene.add(new THREE.Mesh(skyGeo, skyMat));
+// sky as gradient background (reliable at high altitude)
+var skyCanvas = document.createElement("canvas");
+skyCanvas.width = 4; skyCanvas.height = 256;
+var sctx = skyCanvas.getContext("2d");
+var lg = sctx.createLinearGradient(0,0,0,256);
+lg.addColorStop(0, "#"+skyTop.getHexString());
+lg.addColorStop(1, "#"+skyBot.getHexString());
+sctx.fillStyle = lg;
+sctx.fillRect(0,0,4,256);
+var skyTex = new THREE.CanvasTexture(skyCanvas);
+skyTex.magFilter = THREE.LinearFilter;
+scene.background = skyTex;
 
 var sun = new THREE.DirectionalLight(0xfff2d0, 1.6); sun.position.set(120,420,80); scene.add(sun);
 var hemi = new THREE.HemisphereLight(0xffffff, 0x2a3a2a, 0.9); scene.add(hemi);
@@ -162,7 +166,7 @@ var CLOUD_CFG = {
   "追い風":   { n:18, color:0xffffff, op:0.5,  drift:5 }
 };
 var cfg = CLOUD_CFG[weather] || CLOUD_CFG["晴れ"];
-var cloudMat = new THREE.MeshLambertMaterial({color:cfg.color, transparent:true, opacity:cfg.op});
+var cloudMat = new THREE.MeshLambertMaterial({color:cfg.color, transparent:true, opacity:cfg.op, fog:false});
 var clouds=[];
 for(var c=0;c<cfg.n;c++){
   var cl=new THREE.Mesh(new THREE.SphereGeometry(200+Math.random()*300,10,8), cloudMat);
