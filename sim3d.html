@@ -29,9 +29,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 .mcp-knob:before{content:"";position:absolute;left:50%;top:2px;width:2px;height:3px;background:#8fa6ba;transform:translateX(-50%)}
 .mcp-knob.kn{background:radial-gradient(circle at 35% 30%,#3b5468,#16222c);border-color:#4e6b82}
 .mcp-lbl{color:#7f95a8;font-size:6px;letter-spacing:.16em;margin-top:1px;text-align:center}
-.mcp-secs{display:flex;justify-content:center;gap:6px}
+.mcp-sec{display:flex;justify-content:center;gap:6px}
 .mcp-sec{flex:none}
-.mcp-caution{width:20px;height:20px;border-radius:4px;background:#2b1a10;border:1px solid #5a3a1e;display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:700;color:#e8a45a;box-shadow:0 0 8px rgba(232,164,90,.5)}
+.mcp-cautionw{width:20px;height:20px;border-radius:4px;background:#2b1a10;border:1px solid #5a3a1e;display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:700;color:#e8a45a;box-shadow:0 0 8px rgba(232,164,90,.5)}
 .cp-dash{position:absolute;left:0;right:0;bottom:0;height:18%;background:linear-gradient(180deg,#232e39 0%,#1a232d 15%,#0e151c 60%,#070b10 100%);border-top:2px solid #33465a;box-shadow:0 -12px 44px rgba(0,0,0,.7), inset 0 2px 0 rgba(255,255,255,.05);z-index:2}
 .cp-panel{position:absolute;top:52%;left:50%;transform:translateX(-50%);display:flex;gap:14px;align-items:center;justify-content:center;width:88%}
 .cp-label{position:absolute;bottom:2%;left:50%;transform:translateX(-50%);color:#5f7386;font-size:11px;letter-spacing:.24em;text-shadow:0 2px 6px rgba(0,0,0,.6);z-index:3}
@@ -59,7 +59,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 .gauge .needle{position:absolute;left:50%;top:50%;width:26px;height:2px;background:#ffd27a;transform-origin:right center;transform:translate(-100%,-50%) rotate(var(--r,0deg));box-shadow:0 0 5px rgba(255,210,122,.8);z-index:2}
 .gauge .cap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:5px;height:5px;border-radius:50%;background:#ffd27a;box-shadow:0 0 4px rgba(255,210,122,.8);z-index:3}
 .gauge .v{font-size:12px;font-weight:700;color:#ffe9b8;line-height:1.1;margin-top:10px;position:relative;z-index:2}
-.cp-pedestal{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);width:22%;height:8%;background:linear-gradient(180deg,#1a242e,#0e151d);border:1px solid #2a3a48;border-radius:6px 6px 0 0;display:flex;align-items:flex-start;justify-content:center;gap:180px;padding-top:6px;z-index:2;box-shadow:0 -6px 20px rgba(0,0,0,.5)}
+.cp-pedestal{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);width:22%;height:8%;background:linear-gradient(180deg,#1a242e,#0e151d);border:1px solid #2a3a48;border-radius:6px 6px 0 0;display:flex;align-items:flex-start;justify-content:center;gap:18px;padding-top:6px;z-index:2;box-shadow:0 -6px 20px rgba(0,0,0,.5)}
 .thr{ width:11px;height:36px;background:linear-gradient(180deg,#2a3844,#121a22);border:1px solid #36495a;border-radius:3px;position:relative}
 .thr:before{content:"";position:absolute;left:-4px;top:32%;width:17px;height:12px;border-radius:4px;background:linear-gradient(180deg,#4f6276,#2c3a46);border:1px solid #5f7689;box-shadow:0 2px 4px rgba(0,0,0,.6)}
 .yoke{position:absolute;bottom:12%;left:50%;transform:translateX(-50%);width:196px;height:42px;z-index:2}
@@ -88,26 +88,24 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 </div>
 <div id="cockpit"></div>
 <div id="vt">
-  <button id="vChase">後方視点</button>
-  <button id="vCockpit">コックピット</button>
+  <button id="vChase">後方覦硹</button>
+  <button id="vCockpit">コックピット（コックピット）</button>
 </div>
-<a id="back" href="index.html">← すごゝかに 戻゛</a>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<a id="back" href="index.html">← すぐろくに戻゛</a>
+<script src="https://cdn.jsdelivr.net/npm/three 0.160.0/build/three.min.js"></script>
 <script>
 (function(){
 "use strict";
 var q = new URLSearchParams(location.search);
-var dep = q.get("dep") || "羽田";
-var dest = q.get("dest") || "邩戢";
-var plane = q.get("plane") || "ボーつング787";
-var weather = q.get("weather") || "曲れ";
-var acc = q.get("acc") || "なご";
+var dep = q.get("dep") || "羇田";
+var dest = q.get("dest") || "邙戨";
+var plane = q.get("plane") || "ボーイング787";
+var weather = q.get("weather") || "晴が";
+var acc = q.get("acc") || "な旧";
 
 var AC = {
-  "ボ㎱イング787": { len:20, span:28, color:0xdfe6ee, cls:"ct-787", sideStick:false, style:"glass", vr:152, vcr:490 },
-  "エアバパA350": { len:19, span:27, color:0xe8edf2, cls:"ct-a350", sideStick:true, style:"six", vr:148, vcr:488 },
-  "ボーつング737": { len:15, span:22, color:0xd8dee6, cls:"ct-737", sideStick:false, style:"round", vr:142, vcr:450 },
-  "エアバスA321": { len:14, span:21, color:0xe4e9ef, cls:"ct-a321", sideStick:true, style:"four", vr:138, vcr:447 }
+  "ボーつング787": { len:20, span:28, color:0xdfe6ee, cls:"ct-787", sideStick:false, style:"glass", vr:152, vcr:490 },
+  "エアバヹA321": { len:14, span:21, color:0xe4e9ef, cls:"ct-a321", sideStick:true, style:"four", vr:138, vcr:447 }
 };
 var ac = AC[plane] || AC["ボーつング787"];
 var VCR = ac.vcr || 280;
@@ -404,7 +402,7 @@ function update(dt){
   if(mode==="cockpit"){
     var off=new THREE.Vector3(ac.len/2-0.9,1.7,0); off.applyEuler(planeGroup.rotation);
     cam.position.copy(planeGroup.position).add(off);
-    var lookAtPt = new THREE.Vector3(ac.len/2+900,6,0); lookAtPt.applyEuler(planeGroup.rotation); lookAtPt.add(planeGroup.position);
+    var lookAtPt = new THREE.Vector3(ac.len/2+900,120,0); lookAtPt.applyEuler(planeGroup.rotation); lookAtPt.add(planeGroup.position);
     cam.lookAt(lookAtPt);
     cam.fov=72;
   } else {
