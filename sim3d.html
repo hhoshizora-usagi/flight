@@ -203,16 +203,26 @@ vbtnCockpit.onclick = function(){ setMode("cockpit"); };
 setMode("chase");
 buildCockpit();
 
-var t=0, PHASE=["離陸","巡航","着陸"], phaseIdx=0, alt=0, spd=0, pitch=0, roll=0, hdg=0, duration=22;
+var t=0, PHASE=["タキシング","離陸","巡航","着陸"], phaseIdx=0, alt=0, spd=0, pitch=0, roll=0, hdg=0, duration=24;
+var PHASE_T=[0.10,0.26,0.86];
 
 function update(dt){
   t += dt;
   var u = Math.min(t/duration,1);
-  phaseIdx = u<0.22?0:(u<0.82?1:2);
+  phaseIdx = u<PHASE_T[0]?0:(u<PHASE_T[1]?1:(u<PHASE_T[2]?2:3));
   phaseEl.textContent = PHASE[phaseIdx];
-  if(phaseIdx===0){ spd=60+(u/0.22)*220; alt=(u/0.22)*900; pitch=4+(u/0.22)*10; }
-  else if(phaseIdx===1){ spd=280; alt=900+Math.sin(t*0.6)*18; pitch=2; }
-  else { var v=(u-0.82)/0.18; spd=280-v*200; alt=900*(1-v); pitch=-6-v*6; }
+
+  if(phaseIdx===0){ /* taxi: 0 -> 60kt, still on ground */
+    var k=u/PHASE_T[0]; spd=60*k; alt=0; pitch=0;
+  } else if(phaseIdx===1){ /* takeoff: 60 -> 280kt, climb to cruise */
+    var k2=(u-PHASE_T[0])/(PHASE_T[1]-PHASE_T[0]); spd=60+k2*220; alt=k2*900; pitch=4+k2*10;
+  } else if(phaseIdx===2){ /* cruise */
+    spd=280; alt=900+Math.sin(t*0.6)*18; pitch=2;
+  } else { /* landing: decelerate to a full stop */
+    var v=(u-PHASE_T[2])/(1-PHASE_T[2]);
+    spd=280*(1-v); alt=900*(1-v); pitch=-6-v*6;
+    if(v>0.97){ spd=0; alt=0; pitch=0; }
+  }
   roll = Math.sin(t*0.7)*4 + (acc==="乱気流"? Math.sin(t*5.5)*9:0);
   hdg = Math.sin(t*0.3)*8;
   if(acc==="乱気流") pitch += Math.sin(t*4.2)*3;
@@ -228,7 +238,7 @@ function update(dt){
 
   document.querySelectorAll('[data-g]').forEach(function(el){
     var g=el.getAttribute('data-g'); var val=0;
-    if(g==='SPD') val=Math.round(spd); else if(g==='ATT') val=Math.round(pitch); else if(g==='ALT') val=Math.round(alt); else if(g==='HDG') val=(Math.round(hdg)+360)%360; else if(g==='VSI') val=Math.round(Math.sin(t)*200); else if(g==='N1') val=88;
+    if(g==='SPD') val=Math.round(spd); else if(g==='ATT') val=Math.round(pitch); else if(g==='ALT') val=Math.round(alt); else if(g==='HDG') val=(Math.round(hdg)+360)%360; else if(g==='VSI') val=Math.round(Math.sin(t)*200); else if(g==='N1') val=Math.round(88*(spd>1?1:0.2));
     el.textContent=val;
   });
   document.querySelectorAll(".mfd .hl").forEach(function(hl){ hl.style.transform='rotate('+(roll*0.5)+'deg)'; });
