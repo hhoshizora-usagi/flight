@@ -248,8 +248,8 @@ setMode("cockpit");
 buildCockpit();
 
 var t=0, PHASE=["タキシング","離陸","巡航","着陸"], phaseIdx=0, alt=0, spd=0, pitch=0, roll=0, hdg=0;
-var PH_END=[20,200,380,860];
-var PH_START=[0,20,200,380];
+var PH_END=[20,260,440,860];
+var PH_START=[0,20,260,440];
 var totalDur=860;
 var dist=0;
 
@@ -262,8 +262,8 @@ function update(dt){
   var VR = ac.vr || 150;
   if(phaseIdx===0){ spd=60*k; alt=0; pitch=0; }
   else if(phaseIdx===1){
-    if(k<0.55){ spd=60+(VR-60)*(k/0.55); alt=0; pitch=0; }
-    else { var r=(k-0.55)/0.45; spd=smooth(VR,280,r); alt=smooth(0,CRUISE_ALT,r); pitch=smooth(12,26,r); }
+    if(k<0.25){ spd=60+(VR-60)*(k/0.25); alt=0; pitch=0; }
+    else { var r=(k-0.25)/0.75; spd=smooth(VR,280,r); alt=smooth(0,CRUISE_ALT,r); pitch=smooth(10,24,r); }
   }
   else if(phaseIdx===2){ spd=280; alt=CRUISE_ALT + Math.sin(t*0.6)*30; pitch=2; }
   else {
