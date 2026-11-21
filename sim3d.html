@@ -75,7 +75,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 <body>
 <canvas id="cv"></canvas>
 <div id="hud">
-  <div class="l"><div class="phase" id="phase">離陸</div><div class="cond" id="cond"></div></div>
+  <div class="l"><div class="phase" id="phase">タキシング</div><div class="cond" id="cond"></div></div>
   <div class="rt" id="rt"></div>
 </div>
 <div id="cockpit"></div>
@@ -223,19 +223,23 @@ vbtnCockpit.onclick = function(){ setMode("cockpit"); };
 setMode("chase");
 buildCockpit();
 
-var t=0, PHASE=["タキシング","離陸","巡航","着陸"], phaseIdx=0, alt=0, spd=0, pitch=0, roll=0, hdg=0, duration=24;
-var PHASE_T=[0.10,0.26,0.86];
+var t=0, PHASE=["タキシング","離陸","巡航","着陸"], phaseIdx=0, alt=0, spd=0, pitch=0, roll=0, hdg=0;
+// phase end times: taxi 20s / takeoff 3min / cruise(AP) 3min / landing 8min
+var PH_END=[20,200,380,860];
+var PH_START=[0,20,200,380];
+var totalDur=860;
 
 function update(dt){
   t += dt;
-  var u = Math.min(t/duration,1);
-  phaseIdx = u<PHASE_T[0]?0:(u<PHASE_T[1]?1:(u<PHASE_T[2]?2:3));
+  var u = Math.min(t/totalDur,1);
+  phaseIdx = t<PH_END[0]?0:(t<PH_END[1]?1:(t<PH_END[2]?2:3));
   phaseEl.textContent = PHASE[phaseIdx];
+  var s=PH_START[phaseIdx], e=PH_END[phaseIdx], k=Math.min((t-s)/(e-s),1);
 
-  if(phaseIdx===0){ var k=u/PHASE_T[0]; spd=60*k; alt=0; pitch=0; }
-  else if(phaseIdx===1){ var k2=(u-PHASE_T[0])/(PHASE_T[1]-PHASE_T[0]); spd=60+k2*220; alt=k2*900; pitch=4+k2*10; }
+  if(phaseIdx===0){ spd=60*k; alt=0; pitch=0; }
+  else if(phaseIdx===1){ spd=60+k*220; alt=k*900; pitch=4+k*10; }
   else if(phaseIdx===2){ spd=280; alt=900+Math.sin(t*0.6)*18; pitch=2; }
-  else { var v=(u-PHASE_T[2])/(1-PHASE_T[2]); spd=280*(1-v); alt=900*(1-v); pitch=-6-v*6; if(v>0.97){ spd=0; alt=0; pitch=0; } }
+  else { spd=280*(1-k); alt=900*(1-k); pitch=-6-k*6; if(k>0.97){ spd=0; alt=0; pitch=0; } }
   roll = Math.sin(t*0.7)*4 + (acc==="乱気流"? Math.sin(t*5.5)*9:0);
   hdg = Math.sin(t*0.3)*8;
   if(acc==="乱気流") pitch += Math.sin(t*4.2)*3;
