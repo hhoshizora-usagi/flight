@@ -165,6 +165,37 @@ var runway = new THREE.Mesh(new THREE.PlaneGeometry(120,3400), new THREE.MeshSta
 var dashMat = new THREE.MeshBasicMaterial({color:0xf2f6fa});
 for(var di=0;di<50;di++){ var d=new THREE.Mesh(new THREE.PlaneGeometry(6,40), dashMat); d.rotation.x=-Math.PI/2; d.position.set(0,-29.1,-1450+di*70); scene.add(d); }
 
+// runway edge lights
+var edgeLampMat = new THREE.MeshBasicMaterial({color:0xfff0c0});
+for(var ei=0; ei<26; ei++){
+  var ez = -2450 + ei*95;
+  for(var sd=-1; sd<=1; sd+=2){
+    var el2 = new THREE.Mesh(new THREE.SphereGeometry(2.0,8,6), edgeLampMat);
+    el2.position.set(sd*62, -29.2, ez); scene.add(el2);
+  }
+}
+// approach lights leading in from the approach side
+var appLampMat = new THREE.MeshBasicMaterial({color:0xffe9a8});
+for(var ai=0; ai<10; ai++){
+  var ap = new THREE.Mesh(new THREE.SphereGeometry(1.8,8,6), appLampMat);
+  ap.position.set(0, -29.2, -2470 - ai*60); scene.add(ap);
+}
+// runway direction numbers (09 at west threshold, 27 at east threshold)
+function makeRwyNum(txt){
+  var rcv = document.createElement("canvas"); rcv.width=256; rcv.height=256;
+  var rcx = rcv.getContext("2d");
+  rcx.clearRect(0,0,256,256);
+  rcx.fillStyle = "#f2f6fa"; rcx.font = "bold 190px Arial";
+  rcx.textAlign="center"; rcx.textBaseline="middle";
+  rcx.fillText(txt, 128, 128);
+  var rtx = new THREE.CanvasTexture(rcv);
+  var m = new THREE.Mesh(new THREE.PlaneGeometry(36,36), new THREE.MeshBasicMaterial({map:rtx, transparent:true}));
+  m.rotation.x=-Math.PI/2;
+  return m;
+}
+var rn09 = makeRwyNum("09"); rn09.position.set(0,-29.5,-2380); scene.add(rn09);
+var rn27 = makeRwyNum("27"); rn27.rotation.z=Math.PI; rn27.position.set(0,-29.5,720); scene.add(rn27);
+
 var CLOUD_CFG = {
   "晴れ":     { n:16, color:0xffffff, op:0.55, drift:10 },
   "くもり":   { n:36, color:0xdfe6ec, op:0.72, drift:8 },
