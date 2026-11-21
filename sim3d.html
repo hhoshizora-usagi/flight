@@ -118,7 +118,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 var scene = new THREE.Scene();
-var cam = new THREE.PerspectiveCamera(62, window.innerWidth/window.innerHeight, 0.1, 6000);
+var cam = new THREE.PerspectiveCamera(62, window.innerWidth/window.innerHeight, 0.5, 300000);
 
 var SKYC = { "晴れ":[0x1e6fb8,0xbfe0f5], "くもり":[0x7f95a8,0xc7d2da], "雨":[0x3d4c59,0x8a99a6], "雪":[0x7d8b98,0xd3dbe2], "霧":[0x9aa6b0,0xc9d1d8], "向かい風":[0x1e6fb8,0xbfe0f5], "追い風":[0x1e6fb8,0xbfe0f5] };
 var sc = SKYC[weather] || SKYC["晴れ"];
