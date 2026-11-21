@@ -172,8 +172,9 @@ for(var bi=0;bi<40;bi++){ var bh=20+Math.random()*90; var b=new THREE.Mesh(new T
 var runway = new THREE.Mesh(new THREE.PlaneGeometry(120,3400), new THREE.MeshStandardMaterial({color:0x5b646d, roughness:0.7, emissive:0x1a2026, emissiveIntensity:0.6})); runway.rotation.x=-Math.PI/2; runway.position.set(0,-29.75,-900); scene.add(runway);
 var dashMat = new THREE.MeshBasicMaterial({color:0xf2f6fa});
 for(var di=0;di<50;di++){ var d=new THREE.Mesh(new THREE.PlaneGeometry(6,40), dashMat); d.rotation.x=-Math.PI/2; d.position.set(0,-29.1,-1450+di*70); scene.add(d); }
-
-// 滑走路入口の白い帯（しきし）を両端に追加
+for(var el=-1; el<=1; el+=2){
+  var line = new THREE.Mesh(new THREE.PlaneGeometry(2.6,3200), dashMat); line.rotation.x=-Math.PI/2; line.position.set(el*56, -29.2, -900); scene.add(line);
+}
 for(var tci=0;tci<2;tci++){
   var tcz = (tci===0) ? -2470 : 670;
   for(var tk=0;tk<8;tk++){
@@ -322,9 +323,9 @@ setMode("cockpit");
 buildCockpit();
 
 var t=0, PHASE=["タキシング","離陸","巡航","着陸"], phaseIdx=0, alt=0, spd=0, pitch=0, roll=0, hdg=0;
-var PH_END=[20,260,440,860];
-var PH_START=[0,20,260,440];
-var totalDur=860;
+var PH_END=[150,390,570,990];
+var PH_START=[0,150,390,570];
+var totalDur=990;
 var dist=0;
 var prevAlt=0;
 
