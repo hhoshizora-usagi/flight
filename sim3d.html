@@ -75,16 +75,16 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 .yoke-grip{position:absolute;top:0;width:36px;height:40px;border-radius:9px;background:linear-gradient(180deg,#55697d,#2c3946);border:1px solid #64798e;box-shadow:0 4px 10px rgba(0,0,0,.55)}
 .yoke-grip.l{left:3%}.yoke-grip.r{right:3%}
 .yoke-hub{position:absolute;left:50%;bottom:-12px;transform:translateX(-50%);width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#3d4e5e,#1f2830);border:2px solid #5c7084;box-shadow:0 2px 6px rgba(0,0,0,.6)}
-.sstick{position:absolute;bottom:25%;left:26%;width:15px;height:62px;border-radius:8px;background:linear-gradient(180deg,#3a4a5a,#232e38);border:2px solid #55697d;transform:rotate(-15deg);box-shadow:0 4px 12px rgba(0,0,0,.55);z-index:2}
+.sstick{position:absolute;bottom:25%;left:24%;width:15px;height:62px;border-radius:8px;background:linear-gradient(180deg,#3a4a5a,#232e38);border:2px solid #55697d;transform:rotate(-15deg);box-shadow:0 4px 12px rgba(0,0,0,.55);z-index:2}
 .sstick:before{content:"";position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:24px;height:26px;border-radius:7px;background:linear-gradient(180deg,#4a5a6a,#2c3946);border:2px solid #55697d}
-.sstick.r{left:auto;right:26%;transform:rotate(15deg)}
+.sstick.r{left:auto;right:24%;transform:rotate(15deg)}
 /* per-aircraft tweaks */
 .ct-787 .cp-dash{height:34%;background:linear-gradient(180deg,#26323f 0%,#1b2530 12%,#0f161d 55%,#070b10 100%)}
 .ct-a350 .cp-dash{height:30%;background:linear-gradient(180deg,#1a242f 0%,#121b24 15%,#0b1118 60%,#070b10 100%)}
-.ct-a350 .mfd{width:86px;height:58px}
-.ct-a350 .cp-panel{gap:8px;width:92%}
+.ct-a350 .mfd{width:78px;height:54px}
+.ct-a350 .cp-panel{gap:6px;width:90%}
 .ct-a350 .cp-sw.lit{background:#3a2a12;border-color:#8a6a2a;box-shadow:0 0 8px rgba(240,180,80,.7), inset 0 0 4px rgba(240,180,80,.5)}
-.ct-a350 .nd-rose{width:66px;height:66px}
+.ct-a350 .nd-rose{width:56px;height:56px}
 .ct-737 .cp-dash{height:42%;background:linear-gradient(180deg,#2b343f 0%,#222b35 15%,#141b22 65%,#090d12 100%)}
 .ct-a321 .cp-dash{height:32%;background:linear-gradient(180deg,#1b2530 0%,#141c25 15%,#0c1218 60%,#070b10 100%)}
 </style>
@@ -125,7 +125,6 @@ var CRUISE_ALT = 30000;
 
 function smooth(a, b, x){ x = Math.max(0, Math.min(1, x)); var u = x*x*(3-2*x); return a + (b-a)*u; }
 
-// 数段階に分けて徐々に降りる高度
 function stagedDescend(progress, stages){
   var x = Math.min(progress*stages, stages-0.0001);
   var i = Math.floor(x);
@@ -152,7 +151,6 @@ var skyTop = new THREE.Color(sc[0]), skyBot = new THREE.Color(sc[1]);
 var fogColor = skyBot.clone().lerp(skyTop, 0.35);
 scene.fog = new THREE.Fog(fogColor, weather==="霧"?60:(weather==="雨"?250:500), weather==="霧"?340:(weather==="雨"?1000:1800));
 
-// sky as gradient background (reliable at high altitude)
 var skyCanvas = document.createElement("canvas");
 skyCanvas.width = 4; skyCanvas.height = 256;
 var sctx = skyCanvas.getContext("2d");
@@ -182,7 +180,6 @@ var runway = new THREE.Mesh(new THREE.PlaneGeometry(120,3400), new THREE.MeshSta
 var dashMat = new THREE.MeshBasicMaterial({color:0xf2f6fa});
 for(var di=0;di<50;di++){ var d=new THREE.Mesh(new THREE.PlaneGeometry(6,40), dashMat); d.rotation.x=-Math.PI/2; d.position.set(0,-29.1,-1450+di*70); scene.add(d); }
 
-// runway edge lights
 var edgeLampMat = new THREE.MeshBasicMaterial({color:0xfff0c0});
 for(var ei=0; ei<26; ei++){
   var ez = -2450 + ei*95;
@@ -191,13 +188,11 @@ for(var ei=0; ei<26; ei++){
     el2.position.set(sd*62, -29.2, ez); scene.add(el2);
   }
 }
-// approach lights leading in from the approach side
 var appLampMat = new THREE.MeshBasicMaterial({color:0xffe9a8});
 for(var ai=0; ai<10; ai++){
   var ap = new THREE.Mesh(new THREE.SphereGeometry(1.8,8,6), appLampMat);
   ap.position.set(0, -29.2, -2470 - ai*60); scene.add(ap);
 }
-// runway direction numbers (09 at west threshold, 27 at east threshold)
 function makeRwyNum(txt){
   var rcv = document.createElement("canvas"); rcv.width=256; rcv.height=256;
   var rcx = rcv.getContext("2d");
@@ -331,7 +326,6 @@ function update(dt){
     if(k<0.55){ var ra=k/0.55; spd=280; alt=stagedDescend(ra,6); pitch=smooth(-8,-15,ra); }
     else { var rb=(k-0.55)/0.45; spd=280*(1-rb); alt=0; pitch=0; if(rb>0.97){ spd=0; } }
   }
-  // 乱気流は上空（一定高度以上）でのみ発生
   var highUp = alt > 8000;
   roll = Math.sin(t*0.7)*4 + ((acc==="乱気流" && highUp)? Math.sin(t*5.5)*9:0);
   var hdgWob = ((acc==="乱気流" && highUp) ? Math.sin(t*2.5)*4 : 0);
