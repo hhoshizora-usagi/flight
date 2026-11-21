@@ -105,12 +105,13 @@ var weather = q.get("weather") || "晴れ";
 var acc = q.get("acc") || "なし";
 
 var AC = {
-  "ボーイング787": { len:20, span:28, color:0xdfe6ee, cls:"ct-787", sideStick:false, style:"glass", vr:152 },
-  "エアバスA350": { len:19, span:27, color:0xe8edf2, cls:"ct-a350", sideStick:true, style:"six", vr:148 },
-  "ボーイング737": { len:15, span:22, color:0xd8dee6, cls:"ct-737", sideStick:false, style:"round", vr:142 },
-  "エアバスA321": { len:14, span:21, color:0xe4e9ef, cls:"ct-a321", sideStick:true, style:"four", vr:138 }
+  "ボーイング787": { len:20, span:28, color:0xdfe6ee, cls:"ct-787", sideStick:false, style:"glass", vr:152, vcr:490 },
+  "エアバスA350": { len:19, span:27, color:0xe8edf2, cls:"ct-a350", sideStick:true, style:"six", vr:148, vcr:488 },
+  "ボーイング737": { len:15, span:22, color:0xd8dee6, cls:"ct-737", sideStick:false, style:"round", vr:142, vcr:450 },
+  "エアバスA321": { len:14, span:21, color:0xe4e9ef, cls:"ct-a321", sideStick:true, style:"four", vr:138, vcr:447 }
 };
 var ac = AC[plane] || AC["ボーイング787"];
+var VCR = ac.vcr || 280;
 
 var CRUISE_HDG = 92;
 var CRUISE_ALT = 30000;
@@ -327,12 +328,12 @@ function update(dt){
   if(phaseIdx===0){ spd=60*k; alt=0; pitch=0; }
   else if(phaseIdx===1){
     if(k<0.25){ spd=60+(VR-60)*(k/0.25); alt=0; pitch=0; }
-    else { var r=(k-0.25)/0.75; spd=smooth(VR,280,r); alt=smooth(0,CRUISE_ALT,r); pitch=smooth(10,24,r); }
+    else { var r=(k-0.25)/0.75; spd=smooth(VR,VCR,r); alt=smooth(0,CRUISE_ALT,r); pitch=smooth(10,24,r); }
   }
-  else if(phaseIdx===2){ spd=280; alt=CRUISE_ALT + Math.sin(t*0.6)*30; pitch=2; }
+  else if(phaseIdx===2){ spd=VCR; alt=CRUISE_ALT + Math.sin(t*0.6)*30; pitch=2; }
   else {
-    if(k<0.55){ var ra=k/0.55; spd=280; alt=stagedDescend(ra,6); pitch=smooth(-8,-15,ra); }
-    else { var rb=(k-0.55)/0.45; spd=280*(1-rb); alt=0; pitch=0; if(rb>0.97){ spd=0; } }
+    if(k<0.55){ var ra=k/0.55; spd=VCR; alt=stagedDescend(ra,6); pitch=smooth(-8,-15,ra); }
+    else { var rb=(k-0.55)/0.45; spd=VCR*(1-rb); alt=0; pitch=0; if(rb>0.97){ spd=0; } }
   }
   var airborne = alt > 1000;
   var highUp = alt > 8000;
@@ -364,7 +365,7 @@ function update(dt){
     var g = gElName.getAttribute('data-g');
     var needle = gEl.querySelector('.needle');
     var val=0, ang=0;
-    if(g==='SPD'){ val=spd; ang=-135+(spd/280)*270; }
+    if(g==='SPD'){ val=spd; ang=-135+(spd/VCR)*270; }
     else if(g==='ATT'){ val=pitch; ang=-135+((pitch+30)/60)*270; }
     else if(g==='ALT'){ val=alt; ang=-135+(alt/30000)*270; }
     else if(g==='HDG'){ val=hdg; ang=-135+(hdg/360)*270; }
