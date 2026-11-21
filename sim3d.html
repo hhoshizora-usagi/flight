@@ -43,11 +43,13 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 .mfd .tape{position:absolute;right:5px;top:12px;bottom:12px;width:14px;background:rgba(0,0,0,.5);border:1px solid rgba(111,185,232,.5);display:flex;flex-direction:column;justify-content:space-between;font-size:7px;color:#cfeaff;padding:2px 0;align-items:center}
 .mfd .spd{position:absolute;left:5px;top:12px;bottom:12px;width:14px;background:rgba(0,0,0,.5);border:1px solid rgba(111,185,232,.5);display:flex;flex-direction:column;justify-content:space-between;font-size:7px;color:#cfeaff;padding:2px 0;align-items:center}
 .mfd.wide{width:150px}
-.nav{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:10px 8px 12px;font-family:"Courier New",monospace;color:#9fe3c0}
-.nav .nd-to{font-size:12px;font-weight:700;color:#c8fad8;letter-spacing:.04em;text-shadow:0 0 6px rgba(100,255,180,.4)}
-.nav .nd-from{font-size:9px;color:#6fbf92;letter-spacing:.04em;margin-top:2px}
-.nav .nd-hdg{font-size:9px;color:#8fd8b0;margin-top:4px;letter-spacing:.04em}
-.nav .nd-rng{position:absolute;right:6px;bottom:6px;font-size:8px;color:#5fae82;letter-spacing:.04em}
+.nd-rose{position:absolute;left:50%;top:50%;width:78px;height:78px;transform:translate(-50%,-50%);opacity:.95}
+.nd-rose text{font-family:"Courier New",monospace;fill:#9fe3c0;font-size:9px}
+.nav{position:absolute;inset:0;pointer-events:none}
+.nav .nd-to{position:absolute;left:7px;top:6px;font-size:10px;font-weight:700;color:#c8fad8;font-family:"Courier New",monospace;text-shadow:0 0 6px rgba(100,255,180,.4)}
+.nav .nd-from{position:absolute;left:7px;bottom:7px;font-size:8px;color:#6fbf92;font-family:"Courier New",monospace}
+.nav .nd-hdg{position:absolute;right:7px;top:6px;font-size:8px;color:#8fd8b0;font-family:"Courier New",monospace}
+.nav .nd-rng{position:absolute;right:7px;bottom:7px;font-size:8px;color:#5fae82;font-family:"Courier New",monospace}
 .gauge{width:68px;height:68px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#2b333d,#0b0f14);border:2px solid #45505c;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#ffd27a;font-size:8px;letter-spacing:.06em;position:relative;flex:none;box-shadow:0 4px 12px rgba(0,0,0,.5)}
 .gauge .ticks{position:absolute;inset:5px;border-radius:50%;background:repeating-conic-gradient(from -140deg,rgba(255,210,122,.9) 0deg 2deg,transparent 2deg 26deg);mask:radial-gradient(circle,transparent 62%,#000 63%,#000 70%,transparent 71%);-webkit-mask:radial-gradient(circle,transparent 62%,#000 63%,#000 70%,transparent 71%)}
 .gauge .needle{position:absolute;left:50%;top:50%;width:26px;height:2px;background:#ffd27a;transform-origin:right center;transform:translate(-100%,-50%) rotate(var(--r,0deg));box-shadow:0 0 5px rgba(255,210,122,.8)}
@@ -176,7 +178,17 @@ function pfdHTML(label, side, wide){
 }
 function ndHTML(label, side, wide){
   var tag = '<span class="lbl">'+label+(side?' <b>'+side+'</b>':'')+'</span>';
-  return '<div class="mfd'+(wide?' wide':'')+'"><div class="nav"><span class="nd-to">TO '+dest+'</span><span class="nd-from">FROM '+dep+'</span><span class="nd-hdg">HDG 092°</span><span class="nd-rng">RNG 40NM</span></div>'+tag+'</div>';
+  var svg = '<svg class="nd-rose" viewBox="0 0 100 100">'
+    + '<circle cx="50" cy="50" r="38" fill="none" stroke="rgba(111,232,160,.3)" stroke-width="1"/>'
+    + '<circle cx="50" cy="50" r="30" fill="none" stroke="rgba(111,232,160,.15)" stroke-width="1"/>'
+    + '<text x="50" y="11">N</text>'
+    + '<line x1="50" y1="74" x2="50" y2="30" stroke="rgba(170,255,205,.85)" stroke-width="1.4" stroke-dasharray="4 3"/>'
+    + '<polygon points="50,26 45,35 55,35" fill="#c8fad8"/>'
+    + '<circle cx="50" cy="62" r="2.6" fill="#b5f5c8"/>'
+    + '<circle cx="50" cy="50" r="3" fill="#7fe0a8"/>'
+    + '</svg>';
+  var nav = '<div class="nav"><span class="nd-to">TO '+dest+'</span><span class="nd-from">FROM '+dep+'</span><span class="nd-hdg">HDG 092°</span><span class="nd-rng">RNG 40NM</span></div>';
+  return '<div class="mfd'+(wide?' wide':'')+'">'+svg+nav+tag+'</div>';
 }
 function mfdSimple(label){ return '<div class="mfd"><div class="att"><div class="sky"></div><div class="gnd"></div><div class="hl"></div></div><span class="lbl">'+label+'</span></div>'; }
 function gaugeHTML(name){ return '<div class="gauge"><div class="ticks"></div><span class="needle"></span><span class="cap"></span><span>'+name+'</span><span class="v" data-g="'+name+'">0</span></div>'; }
