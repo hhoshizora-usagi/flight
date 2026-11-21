@@ -35,7 +35,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 .mfd .att{position:absolute;inset:0}
 .mfd .sky{position:absolute;left:0;right:0;top:0;height:54%;background:linear-gradient(180deg,#2f6fa8,#5093c8)}
 .mfd .gnd{position:absolute;left:0;right:0;bottom:0;height:46%;background:linear-gradient(180deg,#8a5a26,#5f4016)}
-.mfd .hl{position:absolute;left:8%;right:8%;top:54%;height:2px;background:#eef4fa;box-shadow:0 0 5px rgba(255,255,255,.7)}
+.mfd .hl{position:absolute;left:8%;right:8%;top:54%;height:2px;background:#eef4fa;box-shadow:0 0 5px rgba(0,0,0,.7)}
 .mfd .pitch{position:absolute;left:50%;top:54%;width:30px;height:30px;border-left:1px solid rgba(255,255,255,.6);border-right:1px solid rgba(255,255,255,.6);border-radius:50%;transform:translate(-50%,-50%)}
 .mfd .tick{position:absolute;left:50%;top:54%;width:60px;height:1px;background:rgba(255,255,255,.45);transform:translate(-50%,0)}
 .mfd .lbl{position:absolute;left:6px;top:4px;font-size:8px;letter-spacing:.12em;color:#e6f0f8;text-shadow:0 1px 2px rgba(0,0,0,.7);z-index:2}
@@ -161,7 +161,7 @@ var ground = new THREE.Mesh(gGeo, new THREE.MeshStandardMaterial({color:0x2f4a2c
 var water = new THREE.Mesh(new THREE.PlaneGeometry(6000,2400), new THREE.MeshStandardMaterial({color:0x1b4c74, roughness:0.35, metalness:0.3})); water.rotation.x=-Math.PI/2; water.position.set(0,-31.2,3200); scene.add(water);
 for(var bi=0;bi<40;bi++){ var bh=20+Math.random()*90; var b=new THREE.Mesh(new THREE.BoxGeometry(14+Math.random()*16,bh,14+Math.random()*16), new THREE.MeshStandardMaterial({color:0x3a4652, roughness:0.85})); b.position.set(-900+Math.random()*1800,-30+bh/2,-1600-Math.random()*1200); scene.add(b); }
 
-var runway = new THREE.Mesh(new THREE.PlaneGeometry(80,3000), new THREE.MeshStandardMaterial({color:0x3d444b, roughness:0.85})); runway.rotation.x=-Math.PI/2; runway.position.set(0,-29.75,-900); scene.add(runway);
+var runway = new THREE.Mesh(new THREE.PlaneGeometry(120,3400), new THREE.MeshStandardMaterial({color:0x5b646d, roughness:0.7, emissive:0x1a2026, emissiveIntensity:0.6})); runway.rotation.x=-Math.PI/2; runway.position.set(0,-29.75,-900); scene.add(runway);
 var dashMat = new THREE.MeshBasicMaterial({color:0xf2f6fa});
 for(var di=0;di<50;di++){ var d=new THREE.Mesh(new THREE.PlaneGeometry(6,40), dashMat); d.rotation.x=-Math.PI/2; d.position.set(0,-29.1,-1450+di*70); scene.add(d); }
 
