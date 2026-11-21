@@ -263,23 +263,24 @@ function update(dt){
     else { var rb=(k-0.55)/0.45; spd=280*(1-rb); alt=0; pitch=0; if(rb>0.97){ spd=0; } }
   }
   roll = Math.sin(t*0.7)*4 + (acc==="乱気流"? Math.sin(t*5.5)*9:0);
-  hdg = CRUISE_HDG; // 巡航方位は固定
+  // 巡航方位は保持。乱気流のときだけ僅かに揺れて戻る
+  var hdgWob = (acc==="乱気流") ? Math.sin(t*2.5)*4 : 0;
+  hdg = CRUISE_HDG + hdgWob;
   if(acc==="乱気流") pitch += Math.sin(t*4.2)*3;
 
   if(spd>0.5){ dist += spd*dt*0.03; }
   planeGroup.position.set(0, alt-29+0.9, -1400 + dist);
-  // 機首を滑走路方向に固定（-90°）
-  planeGroup.rotation.set(THREE.MathUtils.degToRad(pitch*0.6), THREE.MathUtils.degToRad(-90), THREE.MathUtils.degToRad(roll));
+  planeGroup.rotation.set(THREE.MathUtils.degToRad(pitch*0.6), THREE.MathUtils.degToRad(-90 + hdgWob*0.6), THREE.MathUtils.degToRad(roll));
 
   if(rain){ var rp2=rain.geometry.attributes.position.array; for(var i3=0;i3<rp2.length;i3+=3){ rp2[i3+1]-=60*dt; if(rp2[i3+1]<-10){ rp2[i3+1]=120; rp2[i3]=(Math.random()-0.5)*260; rp2[i3+2]=(Math.random()-0.5)*260; } } rain.geometry.attributes.position.needsUpdate=true; }
   if(snow){ var sp2=snow.geometry.attributes.position.array; for(var k3=0;k3<sp2.length;k3+=3){ sp2[k3+1]-=12*dt; if(sp2[k3+1]<-10){ sp2[k3+1]=120; sp2[k3]=(Math.random()-0.5)*260; sp2[k3+2]=(Math.random()-0.5)*260; } } snow.geometry.attributes.position.needsUpdate=true; }
   clouds.forEach(function(cl){ cl.position.z -= cfg.drift*dt; if(cl.position.z < -3200){ cl.position.z = 2200 + Math.random()*900; } });
 
-  rtEl.innerHTML = "速度 "+Math.round(spd)+" kt<br>高度 "+Math.round(alt)+" ft<br>巡航方位 "+CRUISE_HDG+"°";
+  rtEl.innerHTML = "速度 "+Math.round(spd)+" kt<br>高度 "+Math.round(alt)+" ft<br>進行方位 "+Math.round(hdg)+"°";
 
   document.querySelectorAll('[data-g]').forEach(function(el){
     var g=el.getAttribute('data-g'); var val=0;
-    if(g==='SPD') val=Math.round(spd); else if(g==='ATT') val=Math.round(pitch); else if(g==='ALT') val=Math.round(alt); else if(g==='HDG') val=CRUISE_HDG; else if(g==='VSI') val=Math.round(Math.sin(t)*200); else if(g==='N1') val=Math.round(88*(spd>1?1:0.2));
+    if(g==='SPD') val=Math.round(spd); else if(g==='ATT') val=Math.round(pitch); else if(g==='ALT') val=Math.round(alt); else if(g==='HDG') val=Math.round(hdg); else if(g==='VSI') val=Math.round(Math.sin(t)*200); else if(g==='N1') val=Math.round(88*(spd>1?1:0.2));
     el.textContent=val;
   });
   document.querySelectorAll(".mfd .hl").forEach(function(hl){ hl.style.transform='rotate('+(roll*0.5)+'deg)'; });
