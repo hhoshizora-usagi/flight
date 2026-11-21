@@ -143,9 +143,9 @@ var ground = new THREE.Mesh(gGeo, new THREE.MeshStandardMaterial({color:0x2f4a2c
 var water = new THREE.Mesh(new THREE.PlaneGeometry(6000,2400), new THREE.MeshStandardMaterial({color:0x1b4c74, roughness:0.35, metalness:0.3})); water.rotation.x=-Math.PI/2; water.position.set(0,-31.2,3200); scene.add(water);
 for(var bi=0;bi<40;bi++){ var bh=20+Math.random()*90; var b=new THREE.Mesh(new THREE.BoxGeometry(14+Math.random()*16,bh,14+Math.random()*16), new THREE.MeshStandardMaterial({color:0x3a4652, roughness:0.85})); b.position.set(-900+Math.random()*1800,-30+bh/2,-1600-Math.random()*1200); scene.add(b); }
 
-var runway = new THREE.Mesh(new THREE.PlaneGeometry(40,2400), new THREE.MeshStandardMaterial({color:0x2c3236, roughness:0.9})); runway.rotation.x=-Math.PI/2; runway.position.set(0,-29.8,-260); scene.add(runway);
-var dashMat = new THREE.MeshBasicMaterial({color:0xd7dde2});
-for(var di=0;di<40;di++){ var d=new THREE.Mesh(new THREE.PlaneGeometry(1.6,14), dashMat); d.rotation.x=-Math.PI/2; d.position.set(0,-29.7,-260-di*55); scene.add(d); }
+var runway = new THREE.Mesh(new THREE.PlaneGeometry(70,3000), new THREE.MeshStandardMaterial({color:0x3d444b, roughness:0.85})); runway.rotation.x=-Math.PI/2; runway.position.set(0,-29.75,-900); scene.add(runway);
+var dashMat = new THREE.MeshBasicMaterial({color:0xe8eef4});
+for(var di=0;di<60;di++){ var d=new THREE.Mesh(new THREE.PlaneGeometry(1.8,16), dashMat); d.rotation.x=-Math.PI/2; d.position.set(0,-29.7,-1450+di*52); scene.add(d); }
 
 var cloudMat = new THREE.MeshLambertMaterial({color:0xffffff, transparent:true, opacity: weather==="霧"?0.9:0.7});
 var clouds=[];
@@ -249,9 +249,8 @@ function update(dt){
   hdg = Math.sin(t*0.3)*8;
   if(acc==="乱気流") pitch += Math.sin(t*4.2)*3;
 
-  if(spd>0.5){ dist += spd*dt*0.12; }
+  if(spd>0.5){ dist += spd*dt*0.03; }
   planeGroup.position.set(0, alt-29+0.9, -1400 + dist);
-  // base -90 yaw so the nose points along the runway (the moving direction)
   planeGroup.rotation.set(THREE.MathUtils.degToRad(pitch*0.6), THREE.MathUtils.degToRad(hdg*0.4-90), THREE.MathUtils.degToRad(roll));
 
   if(rain){ var rp2=rain.geometry.attributes.position.array; for(var i3=0;i3<rp2.length;i3+=3){ rp2[i3+1]-=60*dt; if(rp2[i3+1]<-10){ rp2[i3+1]=120; rp2[i3]=(Math.random()-0.5)*260; rp2[i3+2]=(Math.random()-0.5)*260; } } rain.geometry.attributes.position.needsUpdate=true; }
