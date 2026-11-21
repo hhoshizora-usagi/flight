@@ -92,20 +92,20 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
   <button id="vCockpit">コックピット（コックピット）</button>
 </div>
 <a id="back" href="index.html">← すぐろくに戻゛</a>
-<script src="https://cdn.jsdelivr.net/npm/three 0.160.0/build/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r160/three.min.js"></script>
 <script>
 (function(){
 "use strict";
 var q = new URLSearchParams(location.search);
-var dep = q.get("dep") || "羇田";
-var dest = q.get("dest") || "邙戨";
-var plane = q.get("plane") || "ボーイング787";
+var dep = q.get("dep") || "羇巰";
+var dest = q.get("dest") || "那蜇";
+var plane = q.get("plane") || "ボ㎣ビング787";
 var weather = q.get("weather") || "晴が";
-var acc = q.get("acc") || "な旧";
+var acc = q.get("acc") || "なしょ";
 
 var AC = {
-  "ボーつング787": { len:20, span:28, color:0xdfe6ee, cls:"ct-787", sideStick:false, style:"glass", vr:152, vcr:490 },
-  "エアバスA321": { len:14, span:21, color:0xe4e9ef, cls:"ct-a321", sideStick:true, style:"four", vr:138, vcr:447 }
+  "ボーイング787": { len:20, span:28, color:0xdfe6ee, cls:"ct-787", sideStick:false, style:"glass", vr:152, vcr:490 },
+  "エアバスン321": { len:14, span:21, color:0xe4e9ef, cls:"ct-a321", sideStick:true, style:"four", vr:138, vcr:447 }
 };
 var ac = AC[plane] || AC["ボーつング787"];
 var VCR = ac.vcr || 280;
