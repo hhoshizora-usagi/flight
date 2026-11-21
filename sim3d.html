@@ -154,7 +154,7 @@ for(var bi=0;bi<40;bi++){ var bh=20+Math.random()*90; var b=new THREE.Mesh(new T
 
 var runway = new THREE.Mesh(new THREE.PlaneGeometry(80,3000), new THREE.MeshStandardMaterial({color:0x3d444b, roughness:0.85})); runway.rotation.x=-Math.PI/2; runway.position.set(0,-29.75,-900); scene.add(runway);
 var dashMat = new THREE.MeshBasicMaterial({color:0xf2f6fa});
-for(var di=0;di<60;di++){ var d=new THREE.Mesh(new THREE.PlaneGeometry(3,26), dashMat); d.rotation.x=-Math.PI/2; d.position.set(0,-29.35,-1450+di*62); scene.add(d); }
+for(var di=0;di<50;di++){ var d=new THREE.Mesh(new THREE.PlaneGeometry(6,40), dashMat); d.rotation.x=-Math.PI/2; d.position.set(0,-29.1,-1450+di*70); scene.add(d); }
 
 var CLOUD_CFG = {
   "晴れ":     { n:16, color:0xffffff, op:0.55, drift:10 },
