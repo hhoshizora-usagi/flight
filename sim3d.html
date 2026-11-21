@@ -32,7 +32,6 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 .mcp-lbl{color:#7f95a8;font-size:6px;letter-spacing:.16em;margin-top:2px;text-align:center}
 .mcp-secs{display:flex;justify-content:center;gap:10px}
 .mcp-sec{flex:none}
-/* master caution */
 .mcp-caution{width:26px;height:26px;border-radius:4px;background:#2b1a10;border:1px solid #5a3a1e;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#e8a45a;box-shadow:0 0 8px rgba(232,164,90,.5)}
 .mcp-caution.off{background:#141a20;border-color:#2a3540;color:#5f7386;box-shadow:none}
 /* main panel */
@@ -78,10 +77,13 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 .yoke-hub{position:absolute;left:50%;bottom:-12px;transform:translateX(-50%);width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#3d4e5e,#1f2830);border:2px solid #5c7084;box-shadow:0 2px 6px rgba(0,0,0,.6)}
 .sstick{position:absolute;bottom:25%;left:26%;width:15px;height:62px;border-radius:8px;background:linear-gradient(180deg,#3a4a5a,#232e38);border:2px solid #55697d;transform:rotate(-15deg);box-shadow:0 4px 12px rgba(0,0,0,.55);z-index:2}
 .sstick:before{content:"";position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:24px;height:26px;border-radius:7px;background:linear-gradient(180deg,#4a5a6a,#2c3946);border:2px solid #55697d}
+.sstick.r{left:auto;right:26%;transform:rotate(15deg)}
 /* per-aircraft tweaks */
 .ct-787 .cp-dash{height:34%;background:linear-gradient(180deg,#26323f 0%,#1b2530 12%,#0f161d 55%,#070b10 100%)}
 .ct-a350 .cp-dash{height:30%;background:linear-gradient(180deg,#1a242f 0%,#121b24 15%,#0b1118 60%,#070b10 100%)}
-.ct-a350 .mfd{width:96px;height:62px}
+.ct-a350 .mfd{width:120px;height:80px}
+.ct-a350 .cp-panel{gap:12px;width:88%}
+.ct-a350 .cp-sw.lit{background:#3a2a12;border-color:#8a6a2a;box-shadow:0 0 8px rgba(240,180,80,.7), inset 0 0 4px rgba(240,180,80,.5)}
 .ct-737 .cp-dash{height:42%;background:linear-gradient(180deg,#2b343f 0%,#222b35 15%,#141b22 65%,#090d12 100%)}
 .ct-a321 .cp-dash{height:32%;background:linear-gradient(180deg,#1b2530 0%,#141c25 15%,#0c1218 60%,#070b10 100%)}
 </style>
@@ -271,7 +273,6 @@ function ndHTML(label, side, wide){
 function mfdSimple(label){ return '<div class="mfd"><div class="att"><div class="sky"></div><div class="gnd"></div><div class="hl"></div></div><span class="lbl">'+label+'</span></div>'; }
 function gaugeHTML(name){ return '<div class="gauge"><div class="ticks"></div><span class="needle"></span><span class="cap"></span><span>'+name+'</span><span class="v" data-g="'+name+'">0</span></div>'; }
 
-// モードコントロールパネルの列を作る
 function mcpCol(n, k){ var s='<div class="mcp-sec"><div class="mcp-row">'; for(var i=0;i<n;i++){ s+='<div class="mcp-knob'+(k?' kn':'')+'"></div>'; } return s+'</div></div>'; }
 function mcpHTML(){ return '<div class="cp-mcp"><div class="mcp-secs">'+mcpCol(3)+mcpCol(3,1)+mcpCol(3)+mcpCol(3,1)+'</div><div class="mcp-row" style="margin-top:4px"><div class="mcp-caution">MC</div><div class="mcp-lbl" style="margin:0 0 0 6px">MASTER CAUTION</div></div></div>'; }
 
@@ -282,7 +283,7 @@ function buildCockpit(){
   if(ac.style==="glass"){
     html += '<div class="cp-sub">CAPT</div><div class="cp-panel">'+pfdHTML("PFD","C",true)+ndHTML("ND","C",true)+ndHTML("ND","FO",true)+pfdHTML("PFD","FO",true)+'</div><div class="yoke"><div class="yoke-bar"></div><div class="yoke-grip l"></div><div class="yoke-grip r"></div><div class="yoke-hub"></div></div><div class="cp-label">ボーイング787 · YOKE · GLASS COCKPIT</div>';
   } else if(ac.style==="six"){
-    html += '<div class="cp-sub">CAPT / FO</div><div class="cp-panel">'+pfdHTML("PFD","C")+ndHTML("ND","C")+pfdHTML("PFD","FO")+ndHTML("ND","FO")+mfdSimple("E/WD")+mfdSimple("SD")+'</div><div class="sstick"></div><div class="cp-label">エアバスA350 · SIDE STICK · 6 DISPLAYS</div>';
+    html += '<div class="cp-sub">CAPT / FO</div><div class="cp-panel">'+pfdHTML("PFD","C",true)+ndHTML("ND","C",true)+pfdHTML("PFD","FO",true)+ndHTML("ND","FO",true)+mfdSimple("E/WD")+mfdSimple("SD")+'</div><div class="sstick"></div><div class="sstick r"></div><div class="cp-label">エアバスA350 · SIDE STICK · 6 DISPLAYS</div>';
   } else if(ac.style==="round"){
     html += '<div class="cp-panel">'+gaugeHTML("SPD")+gaugeHTML("ATT")+gaugeHTML("ALT")+gaugeHTML("HDG")+gaugeHTML("VSI")+gaugeHTML("N1")+'</div><div class="yoke"><div class="yoke-bar"></div><div class="yoke-grip l"></div><div class="yoke-grip r"></div><div class="yoke-hub"></div></div><div class="cp-label">ボーイング737 · YOKE · CLASSIC GAUGES</div>';
   } else {
