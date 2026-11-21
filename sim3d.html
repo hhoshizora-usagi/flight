@@ -147,9 +147,25 @@ var runway = new THREE.Mesh(new THREE.PlaneGeometry(70,3000), new THREE.MeshStan
 var dashMat = new THREE.MeshBasicMaterial({color:0xe8eef4});
 for(var di=0;di<60;di++){ var d=new THREE.Mesh(new THREE.PlaneGeometry(1.8,16), dashMat); d.rotation.x=-Math.PI/2; d.position.set(0,-29.7,-1450+di*52); scene.add(d); }
 
-var cloudMat = new THREE.MeshLambertMaterial({color:0xffffff, transparent:true, opacity: weather==="霧"?0.9:0.7});
+/* ---- clouds by weather ---- */
+var CLOUD_CFG = {
+  "晴れ":     { n:16, color:0xffffff, op:0.55, drift:10 },
+  "くもり":   { n:36, color:0xdfe6ec, op:0.72, drift:8 },
+  "雨":       { n:44, color:0x8a97a2, op:0.8,  drift:18 },
+  "雪":       { n:38, color:0xffffff, op:0.88, drift:6 },
+  "霧":       { n:52, color:0xdfe6ec, op:0.92, drift:3 },
+  "向かい風": { n:22, color:0xffffff, op:0.55, drift:26 },
+  "追い風":   { n:18, color:0xffffff, op:0.5,  drift:5 }
+};
+var cfg = CLOUD_CFG[weather] || CLOUD_CFG["晴れ"];
+var cloudMat = new THREE.MeshLambertMaterial({color:cfg.color, transparent:true, opacity:cfg.op});
 var clouds=[];
-for(var c=0;c<28;c++){ var cl=new THREE.Mesh(new THREE.SphereGeometry(18+Math.random()*26,10,8), cloudMat); cl.scale.set(1.6,0.7,1.2); cl.position.set((Math.random()-0.5)*1500,90+Math.random()*200,-1200-Math.random()*1500); scene.add(cl); clouds.push(cl); }
+for(var c=0;c<cfg.n;c++){
+  var cl=new THREE.Mesh(new THREE.SphereGeometry(20+Math.random()*30,10,8), cloudMat);
+  cl.scale.set(1.7,0.7,1.3);
+  cl.position.set((Math.random()-0.5)*1800, 480+Math.random()*700, -2600+Math.random()*4200);
+  scene.add(cl); clouds.push(cl);
+}
 
 var planeGroup = new THREE.Group(); scene.add(planeGroup);
 var bodyMat = new THREE.MeshStandardMaterial({color:ac.color, roughness:0.45, metalness:0.2});
@@ -255,7 +271,8 @@ function update(dt){
 
   if(rain){ var rp2=rain.geometry.attributes.position.array; for(var i3=0;i3<rp2.length;i3+=3){ rp2[i3+1]-=60*dt; if(rp2[i3+1]<-10){ rp2[i3+1]=120; rp2[i3]=(Math.random()-0.5)*260; rp2[i3+2]=(Math.random()-0.5)*260; } } rain.geometry.attributes.position.needsUpdate=true; }
   if(snow){ var sp2=snow.geometry.attributes.position.array; for(var k3=0;k3<sp2.length;k3+=3){ sp2[k3+1]-=12*dt; if(sp2[k3+1]<-10){ sp2[k3+1]=120; sp2[k3]=(Math.random()-0.5)*260; sp2[k3+2]=(Math.random()-0.5)*260; } } snow.geometry.attributes.position.needsUpdate=true; }
-  clouds.forEach(function(cl){ cl.position.z+=6*dt; if(cl.position.z>1600){ cl.position.z=-2800; } });
+  // clouds flow with the weather
+  clouds.forEach(function(cl){ cl.position.z -= cfg.drift*dt; if(cl.position.z < -3200){ cl.position.z = 2200 + Math.random()*900; } });
 
   rtEl.innerHTML = "速度 "+Math.round(spd)+" kt<br>高度 "+Math.round(alt)+" ft<br>進行方位 "+(Math.round(hdg)+360)%360+"°";
 
