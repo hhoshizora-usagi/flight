@@ -340,8 +340,8 @@ function update(dt){
     var off=new THREE.Vector3(ac.len/2-0.9,1.3,0); off.applyEuler(planeGroup.rotation);
     cam.position.copy(planeGroup.position).add(off); cam.rotation.copy(planeGroup.rotation); cam.fov=80;
   } else {
-    var back=new THREE.Vector3(-ac.len-9,7.5,0); back.applyEuler(planeGroup.rotation);
-    cam.position.copy(planeGroup.position).add(back); cam.lookAt(planeGroup.position); cam.fov=60;
+    var back=new THREE.Vector3(-ac.len-20,11,0); back.applyEuler(planeGroup.rotation);
+    cam.position.copy(planeGroup.position).add(back); cam.lookAt(planeGroup.position); cam.fov=55;
   }
   cam.updateProjectionMatrix();
 }
