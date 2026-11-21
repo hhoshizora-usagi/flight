@@ -173,7 +173,7 @@ var runway = new THREE.Mesh(new THREE.PlaneGeometry(120,3400), new THREE.MeshSta
 var dashMat = new THREE.MeshBasicMaterial({color:0xf2f6fa});
 for(var di=0;di<50;di++){ var d=new THREE.Mesh(new THREE.PlaneGeometry(6,40), dashMat); d.rotation.x=-Math.PI/2; d.position.set(0,-29.1,-1450+di*70); scene.add(d); }
 
-// runway threshold markings (piano keys) at both ends
+// 滑走路入口の白い帯（しきし）を両端に追加
 for(var tci=0;tci<2;tci++){
   var tcz = (tci===0) ? -2470 : 670;
   for(var tk=0;tk<8;tk++){
