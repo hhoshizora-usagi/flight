@@ -81,7 +81,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 <div id="cockpit"></div>
 <div id="vt">
   <button id="vChase">後方視点</button>
-  <button id="vCockpit">コクピット</button>
+  <button id="vCockpit">コックピット</button>
 </div>
 <a id="back" href="index.html">← すごろくに戻る</a>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
@@ -233,7 +233,7 @@ function buildCockpit(){
   el.innerHTML = html;
 }
 
-var mode = "chase";
+var mode = "cockpit";
 var vbtnChase = document.getElementById("vChase");
 var vbtnCockpit = document.getElementById("vCockpit");
 function setMode(m){
@@ -244,7 +244,7 @@ function setMode(m){
 }
 vbtnChase.onclick = function(){ setMode("chase"); };
 vbtnCockpit.onclick = function(){ setMode("cockpit"); };
-setMode("chase");
+setMode("cockpit");
 buildCockpit();
 
 var t=0, PHASE=["タキシング","離陸","巡航","着陸"], phaseIdx=0, alt=0, spd=0, pitch=0, roll=0, hdg=0;
@@ -263,11 +263,11 @@ function update(dt){
   if(phaseIdx===0){ spd=60*k; alt=0; pitch=0; }
   else if(phaseIdx===1){
     if(k<0.55){ spd=60+(VR-60)*(k/0.55); alt=0; pitch=0; }
-    else { var r=(k-0.55)/0.45; spd=smooth(VR,280,r); alt=smooth(0,CRUISE_ALT,r); pitch=smooth(5,8,r); }
+    else { var r=(k-0.55)/0.45; spd=smooth(VR,280,r); alt=smooth(0,CRUISE_ALT,r); pitch=smooth(12,26,r); }
   }
   else if(phaseIdx===2){ spd=280; alt=CRUISE_ALT + Math.sin(t*0.6)*30; pitch=2; }
   else {
-    if(k<0.55){ var ra=k/0.55; spd=280; alt=smooth(CRUISE_ALT,0,ra); pitch=smooth(-3,-7,ra); }
+    if(k<0.55){ var ra=k/0.55; spd=280; alt=smooth(CRUISE_ALT,0,ra); pitch=smooth(-8,-15,ra); }
     else { var rb=(k-0.55)/0.45; spd=280*(1-rb); alt=0; pitch=0; if(rb>0.97){ spd=0; } }
   }
   roll = Math.sin(t*0.7)*4 + (acc==="乱気流"? Math.sin(t*5.5)*9:0);
@@ -277,13 +277,13 @@ function update(dt){
 
   if(spd>0.5){ dist += spd*dt*0.03; }
   planeGroup.position.set(0, alt-29+0.9, -1400 + dist);
-  planeGroup.rotation.set(THREE.MathUtils.degToRad(pitch*0.6), THREE.MathUtils.degToRad(-90 + hdgWob*0.6), THREE.MathUtils.degToRad(roll));
+  planeGroup.rotation.set(THREE.MathUtils.degToRad(pitch), THREE.MathUtils.degToRad(-90 + hdgWob*0.6), THREE.MathUtils.degToRad(roll));
 
   if(rain){ var rp2=rain.geometry.attributes.position.array; for(var i3=0;i3<rp2.length;i3+=3){ rp2[i3+1]-=60*dt; if(rp2[i3+1]<-10){ rp2[i3+1]=120; rp2[i3]=(Math.random()-0.5)*260; rp2[i3+2]=(Math.random()-0.5)*260; } } rain.geometry.attributes.position.needsUpdate=true; }
   if(snow){ var sp2=snow.geometry.attributes.position.array; for(var k3=0;k3<sp2.length;k3+=3){ sp2[k3+1]-=12*dt; if(sp2[k3+1]<-10){ sp2[k3+1]=120; sp2[k3]=(Math.random()-0.5)*260; sp2[k3+2]=(Math.random()-0.5)*260; } } snow.geometry.attributes.position.needsUpdate=true; }
   clouds.forEach(function(cl){ cl.position.z -= cfg.drift*dt*50; if(cl.position.z < -16000){ cl.position.z = 11000 + Math.random()*4500; } });
 
-  rtEl.innerHTML = "速度 "+Math.round(spd)+" kt<br>高度 "+Math.round(alt).toLocaleString()+" ft<br>進行方位 "+Math.round(hdg)+"°";
+  rtEl.innerHTML = "速度 "+Math.round(spd)+" kt<br>高度 "+Math.round(alt).toLocaleString()+" ft<br>ピッチ "+Math.round(pitch)+"°<br>進行方位 "+Math.round(hdg)+"°";
 
   document.querySelectorAll('[data-g]').forEach(function(el){
     var g=el.getAttribute('data-g'); var val=0;
