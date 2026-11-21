@@ -17,24 +17,19 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 #vt{position:fixed;right:16px;bottom:16px;display:flex;gap:8px;z-index:6}
 #vt button{border:1px solid #3a4a5a;background:rgba(7,11,16,.75);color:#c3d1dd;font:inherit;font-size:12px;letter-spacing:.06em;padding:9px 14px;border-radius:4px;cursor:pointer}
 #vt button.on{border-color:#f5b13c;color:#f5b13c;background:rgba(245,177,60,.12)}
-/* ---------- cockpit overlay ---------- */
 #cockpit{position:fixed;inset:0;pointer-events:none;display:none;z-index:3;font-family:Arial,"Noto Sans JP",sans-serif}
 #cockpit.show{display:block}
-/* cockpit structure around the view */
 .cp-struct{position:absolute;inset:0;pointer-events:none}
-.cp-struct:before{content:"";position:absolute;left:0;top:0;bottom:0;width:13%;background:linear-gradient(90deg,#0a0f15 40%,rgba(10,15,21,0));}
-.cp-struct:after{content:"";position:absolute;right:0;top:0;bottom:0;width:13%;background:linear-gradient(270deg,#0a0f15 40%,rgba(10,15,21,0));}
-.cp-top{position:absolute;left:0;right:0;top:0;height:11%;background:linear-gradient(180deg,#0b1118 20%,rgba(11,17,24,0));}
-/* overhead switch panel */
+.cp-struct:before{content:"";position:absolute;left:0;top:0;bottom:0;width:13%;background:linear-gradient(90deg,#0a0f15 40%,rgba(10,15,21,0))}
+.cp-struct:after{content:"";position:absolute;right:0;top:0;bottom:0;width:13%;background:linear-gradient(270deg,#0a0f15 40%,rgba(10,15,21,0))}
+.cp-top{position:absolute;left:0;right:0;top:0;height:11%;background:linear-gradient(180deg,#0b1118 20%,rgba(11,17,24,0))}
 .cp-overhead{position:absolute;left:50%;top:0;transform:translateX(-50%);width:50%;height:9%;background:linear-gradient(180deg,#111a24,#0a1018);border:1px solid #1e2c3a;border-top:0;border-radius:0 0 6px 6px;display:flex;align-items:center;justify-content:space-around;padding:0 3%}
 .cp-sw{width:16px;height:16px;border-radius:3px;background:#1c2a37;border:1px solid #2f4256;position:relative;box-shadow:0 1px 3px rgba(0,0,0,.6)}
 .cp-sw:before{content:"";position:absolute;left:50%;top:3px;width:2px;height:8px;background:#6a7f96;transform:translateX(-50%)}
 .cp-sw.lit{background:#0e2b1c;border-color:#2f7a4a;box-shadow:0 0 8px rgba(60,220,120,.6), inset 0 0 4px rgba(60,220,120,.4)}
-/* instrument panel */
 .cp-dash{position:absolute;left:0;right:0;bottom:0;height:34%;background:linear-gradient(180deg,#1b242e 0%,#121922 22%,#080c12 100%);border-top:3px solid #2a3948;box-shadow:0 -10px 40px rgba(0,0,0,.65), inset 0 2px 0 rgba(255,255,255,.05)}
 .cp-panel{position:absolute;top:37%;left:50%;transform:translateX(-50%);display:flex;gap:16px;align-items:center;justify-content:center;width:78%}
 .cp-label{position:absolute;bottom:1.2%;left:50%;transform:translateX(-50%);color:#5f7386;font-size:11px;letter-spacing:.24em;text-shadow:0 2px 6px rgba(0,0,0,.6)}
-/* MFD display */
 .mfd{width:110px;height:74px;border-radius:4px;background:linear-gradient(180deg,#0a1520,#051017);border:2px solid #2a3946;box-shadow:0 4px 14px rgba(0,0,0,.55), inset 0 0 30px rgba(80,160,220,.14);position:relative;overflow:hidden;flex:none}
 .mfd .pitch{position:absolute;left:50%;top:50%;width:38px;height:38px;border-radius:50%;border:1px solid rgba(111,185,232,.5);transform:translate(-50%,-50%)}
 .mfd .horizon{position:absolute;left:50%;top:50%;width:46px;height:1px;background:rgba(180,230,255,.6);transform:translate(-50%,-50%) rotate(var(--r,0deg))}
@@ -42,22 +37,17 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 .mfd .ladder{position:absolute;right:6px;top:12px;width:2px;height:50px;background:repeating-linear-gradient(180deg,rgba(111,185,232,.6) 0 1px,transparent 1px 8px)}
 .mfd .spd{position:absolute;left:4px;top:50%;transform:translateY(-50%);font-size:9px;letter-spacing:.04em;color:#9fe3ff}
 .mfd.wide{width:150px}
-/* round gauges */
 .gauge{width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#2b333d,#0b0f14);border:2px solid #45505c;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#ffd27a;font-size:9px;letter-spacing:.06em;position:relative;flex:none}
 .gauge .needle{position:absolute;left:50%;top:50%;width:24px;height:2px;background:#ffd27a;transform-origin:right center;transform:translate(-100%,-50%) rotate(var(--r,0deg));box-shadow:0 0 4px rgba(255,210,122,.7)}
 .gauge .v{font-size:12px;font-weight:700;color:#ffe9b8;line-height:1.1}
-/* center pedestal + throttle */
 .cp-pedestal{position:absolute;left:50%;bottom:14%;transform:translateX(-50%);width:22%;height:16%;background:linear-gradient(180deg,#131c26,#0b1118);border:1px solid #24333f;border-radius:4px 4px 0 0;display:flex;align-items:flex-start;justify-content:center;gap:26px;padding-top:6px}
 .thr{width:12px;height:46px;background:linear-gradient(180deg,#26343f,#121a22);border:1px solid #33465a;border-radius:3px;position:relative}
 .thr:before{content:"";position:absolute;left:-3px;top:42%;width:18px;height:14px;border-radius:3px;background:#3a4e60;border:1px solid #4d6379}
-/* control (yoke/side-stick) */
 .cp-yoke{position:absolute;bottom:27%;left:50%;transform:translateX(-50%);width:150px;height:18px;border-radius:9px;border:2px solid #46586a;background:rgba(26,36,46,.6);box-shadow:0 4px 12px rgba(0,0,0,.5)}
 .cp-yoke:before,.cp-yoke:after{content:"";position:absolute;top:5px;width:20px;height:10px;border-radius:3px;background:#2c3946}
 .cp-yoke:before{left:-14px}.cp-yoke:after{right:-14px}
 .cp-stick{position:absolute;bottom:26%;left:27%;width:12px;height:46px;border-radius:6px;border:2px solid #46586a;background:rgba(26,36,46,.65);transform:rotate(-15deg);box-shadow:0 4px 12px rgba(0,0,0,.5)}
-/* per aircraft */
 .ct-787 .cp-dash{height:30%;background:linear-gradient(180deg,#16202a,#0a1016 70%)}
-.ct-787 .mfd{box-shadow:0 4px 14px rgba(0,0,0,.55), inset 0 0 34px rgba(80,160,220,.2)}
 .ct-a350 .cp-dash{height:26%;background:linear-gradient(180deg,#101a26,#070c12 80%)}
 .ct-a350 .mfd{width:96px;height:60px}
 .ct-737 .cp-dash{height:40%;background:linear-gradient(180deg,#232b34,#11161c 80%)}
@@ -89,10 +79,10 @@ var weather = q.get("weather") || "晴れ";
 var acc = q.get("acc") || "なし";
 
 var AC = {
-  "ボーイング787": { len:20, span:28, color:0xdfe6ee, cls:"ct-787", sideStick:false, style:"glass", n:4 },
-  "エアバスA350": { len:19, span:27, color:0xe8edf2, cls:"ct-a350", sideStick:true, style:"six", n:6 },
-  "ボーイング737": { len:15, span:22, color:0xd8dee6, cls:"ct-737", sideStick:false, style:"round", n:6 },
-  "エアバスA321": { len:14, span:21, color:0xe4e9ef, cls:"ct-a321", sideStick:true, style:"four", n:4 }
+  "ボーイング787": { len:20, span:28, color:0xdfe6ee, cls:"ct-787", sideStick:false, style:"glass" },
+  "エアバスA350": { len:19, span:27, color:0xe8edf2, cls:"ct-a350", sideStick:true, style:"six" },
+  "ボーイング737": { len:15, span:22, color:0xd8dee6, cls:"ct-737", sideStick:false, style:"round" },
+  "エアバスA321": { len:14, span:21, color:0xe4e9ef, cls:"ct-a321", sideStick:true, style:"four" }
 };
 var ac = AC[plane] || AC["ボーイング787"];
 
@@ -108,139 +98,183 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 var scene = new THREE.Scene();
 var cam = new THREE.PerspectiveCamera(62, window.innerWidth/window.innerHeight, 0.1, 6000);
 
-var SKY = { "晴れ":0x8ec5e8, "くもり":0x9aa7b3, "雨":0x5a6b7c, "雪":0xaebcc9, "霧":0xb9c3cc, "向かい風":0x8ec5e8, "追い風":0x8ec5e8 };
-var skyBase = SKY[weather] || SKY["晴れ"];
-scene.background = new THREE.Color(skyBase);
-var fogNear = weather==="霧" ? 60 : (weather==="雨"? 250 : 500);
-var fogFar  = weather==="霧" ? 320 : (weather==="雨"? 900 : 1600);
-scene.fog = new THREE.Fog(skyBase, fogNear, fogFar);
+// ---- sky gradient + weather colors ----
+var SKYC = {
+  "晴れ": [0x1e6fb8, 0xbfe0f5],
+  "くもり": [0x7f95a8, 0xc7d2da],
+  "雨": [0x3d4c59, 0x8a99a6],
+  "雪": [0x7d8b98, 0xd3dbe2],
+  "霧": [0x9aa6b0, 0xc9d1d8],
+  "向かい風": [0x1e6fb8, 0xbfe0f5],
+  "追い風": [0x1e6fb8, 0xbfe0f5]
+};
+var sc = SKYC[weather] || SKYC["晴れ"];
+var skyTop = new THREE.Color(sc[0]);
+var skyBot = new THREE.Color(sc[1]);
+var fogColor = skyBot.clone().lerp(skyTop, 0.35);
+scene.fog = new THREE.Fog(fogColor, weather==="霧"?60:(weather==="雨"?250:500), weather==="霧"?340:(weather==="雨"?1000:1800));
 
-var hemi = new THREE.HemisphereLight(0xffffff, 0x334455, 1.1);
-scene.add(hemi);
-var sun = new THREE.DirectionalLight(0xffffff, 1.4);
+var skyGeo = new THREE.SphereGeometry(3500, 32, 16);
+var skyMat = new THREE.ShaderMaterial({
+  uniforms: { topColor: {value: skyTop}, botColor: {value: skyBot} },
+  vertexShader: "varying vec3 vWorldPosition; void main(){ vec4 wp = modelMatrix * vec4(position,1.0); vWorldPosition = wp.xyz; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }",
+  fragmentShader: "uniform vec3 topColor; uniform vec3 botColor; varying vec3 vWorldPosition; void main(){ float h = normalize(vWorldPosition).y; float t = pow(max(h,0.0),0.6); gl_FragColor = vec4(mix(botColor, topColor, t), 1.0); }",
+  side: THREE.BackSide, depthWrite: false
+});
+scene.add(new THREE.Mesh(skyGeo, skyMat));
+
+// sun
+var sunColor = weather==="晴れ"||weather==="向かい風"||weather==="追い風" ? 0xfff2d0 : 0xcfd6dd;
+var sun = new THREE.DirectionalLight(sunColor, 1.6);
 sun.position.set(120, 220, 80);
 scene.add(sun);
+var hemi = new THREE.HemisphereLight(0xffffff, 0x2a3a2a, 0.9);
+scene.add(hemi);
+var sunDisk = new THREE.Mesh(new THREE.SphereGeometry(60,16,12), new THREE.MeshBasicMaterial({color:0xfff4d6}));
+sunDisk.position.set(900, 1100, -2200);
+scene.add(sunDisk);
 
-var ground = new THREE.Mesh(
-  new THREE.PlaneGeometry(6000, 6000, 1, 1),
-  new THREE.MeshStandardMaterial({color:0x24332a, roughness:1})
-);
-ground.rotation.x = -Math.PI/2;
+// ---- terrain (rolling hills, flat near runway) ----
+var gGeo = new THREE.PlaneGeometry(6000, 6000, 120, 120);
+gGeo.rotateX(-Math.PI/2);
+var gp = gGeo.attributes.position;
+for(var gi=0; gi<gp.count; gi++){
+  var gx = gp.getX(gi), gz = gp.getZ(gi);
+  var dist = Math.sqrt(gx*gx + gz*gz);
+  var amp = Math.min(dist/900, 1);
+  var h = (Math.sin(gx*0.0035)*9 + Math.cos(gz*0.0028)*12 + Math.sin((gx+gz)*0.0019)*15) * amp;
+  gp.setY(gi, h);
+}
+gGeo.computeVertexNormals();
+var ground = new THREE.Mesh(gGeo, new THREE.MeshStandardMaterial({color:0x2f4a2c, roughness:1}));
 ground.position.y = -30;
 scene.add(ground);
 
-var runway = new THREE.Mesh(
-  new THREE.PlaneGeometry(40, 2400),
-  new THREE.MeshStandardMaterial({color:0x2c3236, roughness:0.9})
-);
+// water (sea) on the far side
+var water = new THREE.Mesh(new THREE.PlaneGeometry(6000, 2400), new THREE.MeshStandardMaterial({color:0x1b4c74, roughness:0.35, metalness:0.3}));
+water.rotation.x = -Math.PI/2;
+water.position.set(0, -31.2, 3200);
+scene.add(water);
+
+// distant city boxes
+for(var bi=0; bi<40; bi++){
+  var bh = 20+Math.random()*90;
+  var b = new THREE.Mesh(new THREE.BoxGeometry(14+Math.random()*16, bh, 14+Math.random()*16), new THREE.MeshStandardMaterial({color:0x3a4652, roughness:0.85}));
+  b.position.set(-900+Math.random()*1800, -30+bh/2, -1600 - Math.random()*1200);
+  scene.add(b);
+}
+
+// ---- runway ----
+var runway = new THREE.Mesh(new THREE.PlaneGeometry(40, 2400), new THREE.MeshStandardMaterial({color:0x2c3236, roughness:0.9}));
 runway.rotation.x = -Math.PI/2;
 runway.position.set(0, -29.8, -260);
 scene.add(runway);
-
 var dashMat = new THREE.MeshBasicMaterial({color:0xd7dde2});
-for(var i=0;i<40;i++){
+for(var di=0; di<40; di++){
   var d = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 14), dashMat);
   d.rotation.x = -Math.PI/2;
-  d.position.set(0, -29.7, -260 - i*55);
+  d.position.set(0, -29.7, -260 - di*55);
   scene.add(d);
 }
 
-var cloudMat = new THREE.MeshLambertMaterial({color:0xffffff, transparent:true, opacity: weather==="霧"?0.9:0.75});
+// clouds
+var cloudMat = new THREE.MeshLambertMaterial({color:0xffffff, transparent:true, opacity: weather==="霧"?0.9:0.7});
 var clouds = [];
-for(var c=0;c<26;c++){
+for(var c=0;c<28;c++){
   var cl = new THREE.Mesh(new THREE.SphereGeometry(18+Math.random()*26, 10, 8), cloudMat);
   cl.scale.set(1.6,0.7,1.2);
-  cl.position.set((Math.random()-0.5)*1400, 90+Math.random()*180, -1200 - Math.random()*1400);
+  cl.position.set((Math.random()-0.5)*1500, 90+Math.random()*200, -1200 - Math.random()*1500);
   scene.add(cl); clouds.push(cl);
 }
 
+// ---- aircraft ----
 var planeGroup = new THREE.Group();
 scene.add(planeGroup);
-var bodyMat = new THREE.MeshStandardMaterial({color:ac.color, roughness:0.5, metalness:0.15});
-var wingMat = new THREE.MeshStandardMaterial({color:0xc7d0d9, roughness:0.6});
-var glassMat = new THREE.MeshStandardMaterial({color:0x22303c, roughness:0.2, metalness:0.4});
+var bodyMat = new THREE.MeshStandardMaterial({color:ac.color, roughness:0.45, metalness:0.2});
+var wingMat = new THREE.MeshStandardMaterial({color:0xc7d0d9, roughness:0.55});
+var glassMat = new THREE.MeshStandardMaterial({color:0x22303c, roughness:0.15, metalness:0.5});
+var stripeMat = new THREE.MeshStandardMaterial({color:0x2d6fb0, roughness:0.5});
 
-var fus = new THREE.Mesh(new THREE.CylinderGeometry(2.1,2.1,ac.len,16), bodyMat);
+var fus = new THREE.Mesh(new THREE.CylinderGeometry(2.1,2.1,ac.len,20), bodyMat);
 fus.rotation.z = Math.PI/2;
 planeGroup.add(fus);
-var nose = new THREE.Mesh(new THREE.ConeGeometry(2.1, 3.2, 16), bodyMat);
+var belly = new THREE.Mesh(new THREE.BoxGeometry(ac.len*0.9, 1.2, 2.6), wingMat);
+belly.position.set(0, -1.4, 0);
+planeGroup.add(belly);
+var nose = new THREE.Mesh(new THREE.ConeGeometry(2.1, 3.4, 20), bodyMat);
 nose.rotation.z = -Math.PI/2;
-nose.position.x = ac.len/2 + 1.4;
+nose.position.x = ac.len/2 + 1.5;
 planeGroup.add(nose);
-var ck = new THREE.Mesh(new THREE.SphereGeometry(1.4, 12, 10), glassMat);
+var ck = new THREE.Mesh(new THREE.SphereGeometry(1.4, 14, 12), glassMat);
 ck.scale.set(1,0.8,1);
 ck.position.set(ac.len/2 - 0.6, 0.9, 0);
 planeGroup.add(ck);
-var wing = new THREE.Mesh(new THREE.BoxGeometry(ac.span, 0.5, 6), wingMat);
-wing.position.set(-1, -0.3, 0);
-planeGroup.add(wing);
+// wings with slight sweep
+var wingL = new THREE.Mesh(new THREE.BoxGeometry(ac.span*0.46, 0.45, 5.5), wingMat);
+wingL.position.set(-1.5, -0.3, -ac.span*0.22);
+wingL.rotation.y = -0.12;
+planeGroup.add(wingL);
+var wingR = new THREE.Mesh(new THREE.BoxGeometry(ac.span*0.46, 0.45, 5.5), wingMat);
+wingR.position.set(-1.5, -0.3, ac.span*0.22);
+wingR.rotation.y = 0.12;
+planeGroup.add(wingR);
+// livery stripe along the side
+var strL = new THREE.Mesh(new THREE.BoxGeometry(ac.len*0.85, 0.35, 0.08), stripeMat);
+strL.position.set(0, 0.3, 2.12);
+planeGroup.add(strL);
+var strR = new THREE.Mesh(new THREE.BoxGeometry(ac.len*0.85, 0.35, 0.08), stripeMat);
+strR.position.set(0, 0.3, -2.12);
+planeGroup.add(strR);
+// engines (nacelles)
 for(var e=-1;e<=1;e+=2){
-  var eng = new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.1,4,12), bodyMat);
+  var eng = new THREE.Mesh(new THREE.CylinderGeometry(1.15,1.05,4.4,14), bodyMat);
   eng.rotation.x = Math.PI/2;
-  eng.position.set(-1, -1.1, e*9);
+  eng.position.set(-1.5, -1.15, e*ac.span*0.34);
   planeGroup.add(eng);
+  var fan = new THREE.Mesh(new THREE.CylinderGeometry(1.0,1.0,0.3,14), glassMat);
+  fan.rotation.x = Math.PI/2;
+  fan.position.set(0.85 + (-1.5), -1.15, e*ac.span*0.34);
+  planeGroup.add(fan);
 }
-var tail = new THREE.Mesh(new THREE.BoxGeometry(0.4, 5, 4.5), wingMat);
-tail.position.set(-ac.len/2 + 1, 2.4, 0);
-planeGroup.add(tail);
-var hstab = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 9), wingMat);
-hstab.position.set(-ac.len/2 + 0.6, 0.6, 0);
+// tail
+var vfin = new THREE.Mesh(new THREE.BoxGeometry(0.45, 5.4, 4.8), wingMat);
+vfin.position.set(-ac.len/2 + 1, 2.6, 0);
+planeGroup.add(vfin);
+var hstab = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.45, 9.5), wingMat);
+hstab.position.set(-ac.len/2 + 0.6, 0.7, 0);
 planeGroup.add(hstab);
 
+// ---- weather particles ----
 var rain = null, snow = null;
 if(weather==="雨"){
-  var rn = 1400, rg = new THREE.BufferGeometry();
+  var rn = 1600, rg = new THREE.BufferGeometry();
   var rp = new Float32Array(rn*3);
-  for(var i2=0;i2<rn;i2++){ rp[i2*3]=(Math.random()-0.5)*240; rp[i2*3+1]=Math.random()*120-10; rp[i2*3+2]=(Math.random()-0.5)*240; }
+  for(var i2=0;i2<rn;i2++){ rp[i2*3]=(Math.random()-0.5)*260; rp[i2*3+1]=Math.random()*130-10; rp[i2*3+2]=(Math.random()-0.5)*260; }
   rg.setAttribute("position", new THREE.BufferAttribute(rp,3));
   rain = new THREE.Points(rg, new THREE.PointsMaterial({color:0xaac4dd, size:0.6, transparent:true, opacity:0.7}));
   scene.add(rain);
 }
 if(weather==="雪"){
-  var sn = 900, sg = new THREE.BufferGeometry();
+  var sn = 1000, sg = new THREE.BufferGeometry();
   var sp = new Float32Array(sn*3);
-  for(var j2=0;j2<sn;j2++){ sp[j2*3]=(Math.random()-0.5)*240; sp[j2*3+1]=Math.random()*120-10; sp[j2*3+2]=(Math.random()-0.5)*240; }
+  for(var j2=0;j2<sn;j2++){ sp[j2*3]=(Math.random()-0.5)*260; sp[j2*3+1]=Math.random()*130-10; sp[j2*3+2]=(Math.random()-0.5)*260; }
   sg.setAttribute("position", new THREE.BufferAttribute(sp,3));
   snow = new THREE.Points(sg, new THREE.PointsMaterial({color:0xffffff, size:1.1, transparent:true, opacity:0.85}));
   scene.add(snow);
 }
 
-// ---- cockpit (per aircraft, high fidelity) ----
-function mfdHTML(label, wide){
-  return '<div class="mfd'+(wide?' wide':'')+'"><span class="lbl">'+label+'</span><span class="pitch"></span><span class="horizon"></span><span class="ladder"></span><span class="spd">SPD</span></div>';
-}
-function gaugeHTML(name){
-  return '<div class="gauge"><span class="needle"></span><span>'+name+'</span><span class="v" data-g="'+name+'">0</span></div>';
-}
-function overheadHTML(n){
-  var h='<div class="cp-overhead">';
-  for(var i=0;i<n;i++){ h+='<div class="cp-sw'+(i%3===0?' lit':'')+'"></div>'; }
-  return h+'</div>';
-}
+// ---- cockpit ----
+function mfdHTML(label, wide){ return '<div class="mfd'+(wide?' wide':'')+'"><span class="lbl">'+label+'</span><span class="pitch"></span><span class="horizon"></span><span class="ladder"></span><span class="spd">SPD</span></div>'; }
+function gaugeHTML(name){ return '<div class="gauge"><span class="needle"></span><span>'+name+'</span><span class="v" data-g="'+name+'">0</span></div>'; }
+function overheadHTML(n){ var h='<div class="cp-overhead">'; for(var i=0;i<n;i++){ h+='<div class="cp-sw'+(i%3===0?' lit':'')+'"></div>'; } return h+'</div>'; }
 function buildCockpit(){
   var el = document.getElementById("cockpit");
   el.className = "show " + ac.cls;
-  var html = '<div class="cp-struct"></div><div class="cp-top"></div>';
-  html += overheadHTML(9);
-  html += '<div class="cp-dash"></div>';
-  html += '<div class="cp-pedestal"><div class="thr"></div><div class="thr"></div></div>';
-  if(ac.style==="glass"){
-    html += '<div class="cp-panel">'+mfdHTML("PFD",true)+mfdHTML("ND",true)+mfdHTML("EICAS",true)+mfdHTML("ND",true)+'</div>';
-    html += '<div class="cp-yoke"></div>';
-    html += '<div class="cp-label">ボーイング787 · YOKE · GLASS COCKPIT</div>';
-  } else if(ac.style==="six"){
-    html += '<div class="cp-panel">'+mfdHTML("PFD")+mfdHTML("ND")+mfdHTML("ECAM")+mfdHTML("PFD")+mfdHTML("ND")+mfdHTML("ECAM")+'</div>';
-    html += '<div class="cp-stick"></div>';
-    html += '<div class="cp-label">エアバスA350 · SIDE STICK · 6 DISPLAYS</div>';
-  } else if(ac.style==="round"){
-    html += '<div class="cp-panel">'+gaugeHTML("SPD")+gaugeHTML("ATT")+gaugeHTML("ALT")+gaugeHTML("HDG")+gaugeHTML("VSI")+gaugeHTML("N1")+'</div>';
-    html += '<div class="cp-yoke"></div>';
-    html += '<div class="cp-label">ボーイング737 · YOKE · CLASSIC GAUGES</div>';
-  } else {
-    html += '<div class="cp-panel">'+mfdHTML("PFD")+mfdHTML("ND")+mfdHTML("E/WD")+mfdHTML("SD")+'</div>';
-    html += '<div class="cp-stick"></div>';
-    html += '<div class="cp-label">エアバスA321 · SIDE STICK · 4 DISPLAYS</div>';
-  }
+  var html = '<div class="cp-struct"></div><div class="cp-top"></div>' + overheadHTML(9) + '<div class="cp-dash"></div>' + '<div class="cp-pedestal"><div class="thr"></div><div class="thr"></div></div>';
+  if(ac.style==="glass"){ html += '<div class="cp-panel">'+mfdHTML("PFD",true)+mfdHTML("ND",true)+mfdHTML("EICAS",true)+mfdHTML("ND",true)+'</div><div class="cp-yoke"></div><div class="cp-label">ボーイング787 · YOKE · GLASS COCKPIT</div>'; }
+  else if(ac.style==="six"){ html += '<div class="cp-panel">'+mfdHTML("PFD")+mfdHTML("ND")+mfdHTML("ECAM")+mfdHTML("PFD")+mfdHTML("ND")+mfdHTML("ECAM")+'</div><div class="cp-stick"></div><div class="cp-label">エアバスA350 · SIDE STICK · 6 DISPLAYS</div>'; }
+  else if(ac.style==="round"){ html += '<div class="cp-panel">'+gaugeHTML("SPD")+gaugeHTML("ATT")+gaugeHTML("ALT")+gaugeHTML("HDG")+gaugeHTML("VSI")+gaugeHTML("N1")+'</div><div class="cp-yoke"></div><div class="cp-label">ボーイング737 · YOKE · CLASSIC GAUGES</div>'; }
+  else { html += '<div class="cp-panel">'+mfdHTML("PFD")+mfdHTML("ND")+mfdHTML("E/WD")+mfdHTML("SD")+'</div><div class="cp-stick"></div><div class="cp-label">エアバスA321 · SIDE STICK · 4 DISPLAYS</div>'; }
   el.innerHTML = html;
 }
 
@@ -269,17 +303,9 @@ function update(dt){
   var u = Math.min(t/duration, 1);
   phaseIdx = u < 0.22 ? 0 : (u < 0.82 ? 1 : 2);
   phaseEl.textContent = PHASE[phaseIdx];
-
-  if(phaseIdx===0){
-    spd = 60 + (u/0.22)*220;
-    alt = (u/0.22)*900;
-    pitch = 4 + (u/0.22)*10;
-  } else if(phaseIdx===1){
-    spd = 280; alt = 900 + Math.sin(t*0.6)*18; pitch = 2;
-  } else {
-    var v = (u-0.82)/0.18;
-    spd = 280 - v*200; alt = 900*(1-v); pitch = -6 - v*6;
-  }
+  if(phaseIdx===0){ spd = 60 + (u/0.22)*220; alt = (u/0.22)*900; pitch = 4 + (u/0.22)*10; }
+  else if(phaseIdx===1){ spd = 280; alt = 900 + Math.sin(t*0.6)*18; pitch = 2; }
+  else { var v = (u-0.82)/0.18; spd = 280 - v*200; alt = 900*(1-v); pitch = -6 - v*6; }
   roll = Math.sin(t*0.7)*4 + (acc==="乱気流"? Math.sin(t*5.5)*9 : 0);
   hdg = Math.sin(t*0.3)*8;
   if(acc==="乱気流") pitch += Math.sin(t*4.2)*3;
@@ -293,68 +319,38 @@ function update(dt){
 
   if(rain){
     var rp2 = rain.geometry.attributes.position.array;
-    for(var i3=0;i3<rp2.length;i3+=3){
-      rp2[i3+1] -= 60*dt; if(rp2[i3+1]<-10){ rp2[i3+1]=110; rp2[i3]=(Math.random()-0.5)*240; rp2[i3+2]=(Math.random()-0.5)*240; }
-    }
+    for(var i3=0;i3<rp2.length;i3+=3){ rp2[i3+1] -= 60*dt; if(rp2[i3+1]<-10){ rp2[i3+1]=120; rp2[i3]=(Math.random()-0.5)*260; rp2[i3+2]=(Math.random()-0.5)*260; } }
     rain.geometry.attributes.position.needsUpdate = true;
   }
   if(snow){
     var sp2 = snow.geometry.attributes.position.array;
-    for(var k3=0;k3<sp2.length;k3+=3){
-      sp2[k3+1] -= 12*dt; if(sp2[k3+1]<-10){ sp2[k3+1]=110; sp2[k3]=(Math.random()-0.5)*240; sp2[k3+2]=(Math.random()-0.5)*240; }
-    }
+    for(var k3=0;k3<sp2.length;k3+=3){ sp2[k3+1] -= 12*dt; if(sp2[k3+1]<-10){ sp2[k3+1]=120; sp2[k3]=(Math.random()-0.5)*260; sp2[k3+2]=(Math.random()-0.5)*260; } }
     snow.geometry.attributes.position.needsUpdate = true;
   }
-  clouds.forEach(function(cl){ cl.position.z += 6*dt; if(cl.position.z>1400){ cl.position.z=-2600; } });
+  clouds.forEach(function(cl){ cl.position.z += 6*dt; if(cl.position.z>1600){ cl.position.z=-2800; } });
 
   rtEl.innerHTML = "速度 " + Math.round(spd) + " kt<br>高度 " + Math.round(alt) + " ft<br>進行方位 " + (Math.round(hdg)+360)%360 + "°";
-
-  // live gauge values
   document.querySelectorAll('[data-g]').forEach(function(el){
-    var g=el.getAttribute('data-g');
-    var val=0;
-    if(g==='SPD') val=Math.round(spd);
-    else if(g==='ATT') val=Math.round(pitch);
-    else if(g==='ALT') val=Math.round(alt);
-    else if(g==='HDG') val=(Math.round(hdg)+360)%360;
-    else if(g==='VSI') val=Math.round(Math.sin(t)*200);
-    else if(g==='N1') val=88;
+    var g=el.getAttribute('data-g'); var val=0;
+    if(g==='SPD') val=Math.round(spd); else if(g==='ATT') val=Math.round(pitch); else if(g==='ALT') val=Math.round(alt); else if(g==='HDG') val=(Math.round(hdg)+360)%360; else if(g==='VSI') val=Math.round(Math.sin(t)*200); else if(g==='N1') val=88;
     el.textContent=val;
   });
-  document.querySelectorAll(".mfd .horizon").forEach(function(hEl, i){
-    hEl.style.setProperty("--r", (roll + (i%2? pitch: -pitch)*0.4) + "deg");
-  });
+  document.querySelectorAll(".mfd .horizon").forEach(function(hEl, i){ hEl.style.setProperty("--r", (roll + (i%2? pitch: -pitch)*0.4) + "deg"); });
 
   if(mode==="cockpit"){
-    var off = new THREE.Vector3(ac.len/2 - 0.9, 1.3, 0);
-    off.applyEuler(planeGroup.rotation);
-    cam.position.copy(planeGroup.position).add(off);
-    cam.rotation.copy(planeGroup.rotation);
-    cam.fov = 80;
+    var off = new THREE.Vector3(ac.len/2 - 0.9, 1.3, 0); off.applyEuler(planeGroup.rotation);
+    cam.position.copy(planeGroup.position).add(off); cam.rotation.copy(planeGroup.rotation); cam.fov = 80;
   } else {
-    var back = new THREE.Vector3(-ac.len - 8, 3.2, 0);
-    back.applyEuler(planeGroup.rotation);
-    cam.position.copy(planeGroup.position).add(back);
-    cam.lookAt(planeGroup.position);
-    cam.fov = 60;
+    var back = new THREE.Vector3(-ac.len - 8, 3.2, 0); back.applyEuler(planeGroup.rotation);
+    cam.position.copy(planeGroup.position).add(back); cam.lookAt(planeGroup.position); cam.fov = 60;
   }
   cam.updateProjectionMatrix();
 }
 
 var last = performance.now();
-function loop(now){
-  var dt = Math.min((now-last)/1000, 0.05); last = now;
-  update(dt);
-  renderer.render(scene, cam);
-  requestAnimationFrame(loop);
-}
+function loop(now){ var dt = Math.min((now-last)/1000, 0.05); last = now; update(dt); renderer.render(scene, cam); requestAnimationFrame(loop); }
 requestAnimationFrame(loop);
-
-window.addEventListener("resize", function(){
-  cam.aspect = window.innerWidth/window.innerHeight;
-  cam.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
+window.addEventListener("resize", function(){ cam.aspect = window.innerWidth/window.innerHeight; cam.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
 })();
 </script>
 </body>
