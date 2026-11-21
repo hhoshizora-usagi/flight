@@ -28,9 +28,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 .cp-sw:before{content:"";position:absolute;left:50%;top:3px;width:2px;height:8px;background:#6a7f96;transform:translateX(-50%)}
 .cp-sw.lit{background:#0e2b1c;border-color:#2f7a4a;box-shadow:0 0 8px rgba(60,220,120,.6), inset 0 0 4px rgba(60,220,120,.4)}
 .cp-dash{position:absolute;left:0;right:0;bottom:0;height:34%;background:linear-gradient(180deg,#1b242e 0%,#121922 22%,#080c12 100%);border-top:3px solid #2a3948;box-shadow:0 -10px 40px rgba(0,0,0,.65), inset 0 2px 0 rgba(255,255,255,.05)}
-.cp-panel{position:absolute;top:37%;left:50%;transform:translateX(-50%);display:flex;gap:16px;align-items:center;justify-content:center;width:80%}
+.cp-panel{position:absolute;top:36%;left:50%;transform:translateX(-50%);display:flex;gap:14px;align-items:center;justify-content:center;width:82%}
 .cp-label{position:absolute;bottom:1.2%;left:50%;transform:translateX(-50%);color:#5f7386;font-size:11px;letter-spacing:.24em;text-shadow:0 2px 6px rgba(0,0,0,.6)}
-/* ---- PFD / MFD ---- */
+.cp-sub{position:absolute;top:32.5%;left:50%;transform:translateX(-50%);color:#4a5f73;font-size:9px;letter-spacing:.3em}
 .mfd{width:112px;height:76px;border-radius:4px;overflow:hidden;border:2px solid #26323d;box-shadow:0 4px 14px rgba(0,0,0,.55);position:relative;flex:none;background:#050a10}
 .mfd .att{position:absolute;inset:0}
 .mfd .sky{position:absolute;left:0;right:0;top:0;height:54%;background:linear-gradient(180deg,#2f6fa8,#5093c8)}
@@ -39,26 +39,23 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 .mfd .pitch{position:absolute;left:50%;top:54%;width:30px;height:30px;border-left:1px solid rgba(255,255,255,.6);border-right:1px solid rgba(255,255,255,.6);border-radius:50%;transform:translate(-50%,-50%)}
 .mfd .tick{position:absolute;left:50%;top:54%;width:60px;height:1px;background:rgba(255,255,255,.45);transform:translate(-50%,0)}
 .mfd .lbl{position:absolute;left:6px;top:4px;font-size:8px;letter-spacing:.12em;color:#e6f0f8;text-shadow:0 1px 2px rgba(0,0,0,.7)}
+.mfd .lbl b{color:#7fc4ea;font-size:7px}
 .mfd .tape{position:absolute;right:5px;top:12px;bottom:12px;width:14px;background:rgba(0,0,0,.5);border:1px solid rgba(111,185,232,.5);display:flex;flex-direction:column;justify-content:space-between;font-size:7px;color:#cfeaff;padding:2px 0;align-items:center}
 .mfd .spd{position:absolute;left:5px;top:12px;bottom:12px;width:14px;background:rgba(0,0,0,.5);border:1px solid rgba(111,185,232,.5);display:flex;flex-direction:column;justify-content:space-between;font-size:7px;color:#cfeaff;padding:2px 0;align-items:center}
 .mfd.wide{width:150px}
-/* ---- round gauges ---- */
 .gauge{width:68px;height:68px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#2b333d,#0b0f14);border:2px solid #45505c;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#ffd27a;font-size:8px;letter-spacing:.06em;position:relative;flex:none;box-shadow:0 4px 12px rgba(0,0,0,.5)}
 .gauge .ticks{position:absolute;inset:5px;border-radius:50%;background:repeating-conic-gradient(from -140deg,rgba(255,210,122,.9) 0deg 2deg,transparent 2deg 26deg);mask:radial-gradient(circle,transparent 62%,#000 63%,#000 70%,transparent 71%);-webkit-mask:radial-gradient(circle,transparent 62%,#000 63%,#000 70%,transparent 71%)}
 .gauge .needle{position:absolute;left:50%;top:50%;width:26px;height:2px;background:#ffd27a;transform-origin:right center;transform:translate(-100%,-50%) rotate(var(--r,0deg));box-shadow:0 0 5px rgba(255,210,122,.8)}
 .gauge .cap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:5px;height:5px;border-radius:50%;background:#ffd27a;box-shadow:0 0 4px rgba(255,210,122,.8)}
 .gauge .v{font-size:12px;font-weight:700;color:#ffe9b8;line-height:1.1;margin-top:10px}
-/* ---- throttle pedestal ---- */
 .cp-pedestal{position:absolute;left:50%;bottom:14%;transform:translateX(-50%);width:22%;height:16%;background:linear-gradient(180deg,#131c26,#0b1118);border:1px solid #24333f;border-radius:4px 4px 0 0;display:flex;align-items:flex-start;justify-content:center;gap:28px;padding-top:8px}
 .thr{width:12px;height:50px;background:linear-gradient(180deg,#26343f,#121a22);border:1px solid #33465a;border-radius:3px;position:relative}
 .thr:before{content:"";position:absolute;left:-4px;top:34%;width:20px;height:16px;border-radius:4px;background:linear-gradient(180deg,#4a5c6e,#2c3a46);border:1px solid #5a7088;box-shadow:0 2px 4px rgba(0,0,0,.6)}
-/* ---- yoke (Boeing) ---- */
 .yoke{position:absolute;bottom:27%;left:50%;transform:translateX(-50%);width:210px;height:52px}
 .yoke-bar{position:absolute;left:8%;right:8%;top:2px;height:12px;border-radius:6px;background:linear-gradient(180deg,#4d5c6c,#2c3946);border:1px solid #5c6f82;box-shadow:0 3px 8px rgba(0,0,0,.5)}
 .yoke-grip{position:absolute;top:0;width:32px;height:36px;border-radius:8px;background:linear-gradient(180deg,#4d5c6c,#2c3946);border:1px solid #5c6f82;box-shadow:0 3px 8px rgba(0,0,0,.5)}
 .yoke-grip.l{left:4%}.yoke-grip.r{right:4%}
 .yoke-hub{position:absolute;left:50%;bottom:-10px;transform:translateX(-50%);width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#3a4a5a,#1f2830);border:2px solid #55697d;box-shadow:0 2px 6px rgba(0,0,0,.6)}
-/* ---- side-stick (Airbus) ---- */
 .sstick{position:absolute;bottom:25%;left:26%;width:15px;height:62px;border-radius:8px;background:linear-gradient(180deg,#3a4a5a,#232e38);border:2px solid #55697d;transform:rotate(-15deg);box-shadow:0 4px 12px rgba(0,0,0,.55)}
 .sstick:before{content:"";position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:24px;height:26px;border-radius:7px;background:linear-gradient(180deg,#4a5a6a,#2c3946);border:2px solid #55697d}
 .ct-787 .cp-dash{height:30%;background:linear-gradient(180deg,#16202a,#0a1016 70%)}
@@ -169,8 +166,9 @@ if(weather==="雨"){ var rn=1600,rg=new THREE.BufferGeometry(); var rp=new Float
 if(weather==="雪"){ var sn=1000,sg=new THREE.BufferGeometry(); var sp=new Float32Array(sn*3); for(var j2=0;j2<sn;j2++){ sp[j2*3]=(Math.random()-0.5)*260; sp[j2*3+1]=Math.random()*130-10; sp[j2*3+2]=(Math.random()-0.5)*260; } sg.setAttribute("position",new THREE.BufferAttribute(sp,3)); snow=new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:1.1,transparent:true,opacity:0.85})); scene.add(snow); }
 
 /* ---- cockpit ---- */
-function pfdHTML(label,wide){
-  return '<div class="mfd'+(wide?' wide':'')+'"><div class="att"><div class="sky"></div><div class="gnd"></div><div class="hl"></div><div class="pitch"></div><div class="tick" style="top:44%"></div><div class="tick" style="top:64%"></div></div><span class="lbl">'+label+'</span><span class="spd"><span>240</span><span>260</span><span>280</span></span><span class="tape"><span>090</span><span>092</span><span>094</span></span></div>';
+function pfdHTML(label, side, wide){
+  var tag = '<span class="lbl">'+label+(side?' <b>'+side+'</b>':'')+'</span>';
+  return '<div class="mfd'+(wide?' wide':'')+'"><div class="att"><div class="sky"></div><div class="gnd"></div><div class="hl"></div><div class="pitch"></div><div class="tick" style="top:44%"></div><div class="tick" style="top:64%"></div></div>'+tag+'<span class="spd"><span>240</span><span>260</span><span>280</span></span><span class="tape"><span>090</span><span>092</span><span>094</span></span></div>';
 }
 function mfdSimple(label){ return '<div class="mfd"><div class="att"><div class="sky"></div><div class="gnd"></div><div class="hl"></div></div><span class="lbl">'+label+'</span></div>'; }
 function gaugeHTML(name){ return '<div class="gauge"><div class="ticks"></div><span class="needle"></span><span class="cap"></span><span>'+name+'</span><span class="v" data-g="'+name+'">0</span></div>'; }
@@ -180,13 +178,13 @@ function buildCockpit(){
   el.className = "show " + ac.cls;
   var html = '<div class="cp-struct"></div><div class="cp-top"></div>'+overheadHTML(9)+'<div class="cp-dash"></div><div class="cp-pedestal"><div class="thr"></div><div class="thr"></div></div>';
   if(ac.style==="glass"){
-    html += '<div class="cp-panel">'+pfdHTML("PFD",true)+pfdHTML("ND",true)+mfdSimple("EICAS")+pfdHTML("ND",true)+'</div><div class="yoke"><div class="yoke-bar"></div><div class="yoke-grip l"></div><div class="yoke-grip r"></div><div class="yoke-hub"></div></div><div class="cp-label">ボーイング787 · YOKE · GLASS COCKPIT</div>';
+    html += '<div class="cp-sub">CAPT</div><div class="cp-panel">'+pfdHTML("PFD","C",true)+pfdHTML("ND","C",true)+pfdHTML("ND","FO",true)+pfdHTML("PFD","FO",true)+'</div><div class="yoke"><div class="yoke-bar"></div><div class="yoke-grip l"></div><div class="yoke-grip r"></div><div class="yoke-hub"></div></div><div class="cp-label">ボーイング787 · YOKE · GLASS COCKPIT</div>';
   } else if(ac.style==="six"){
-    html += '<div class="cp-panel">'+pfdHTML("PFD")+pfdHTML("ND")+mfdSimple("ECAM")+pfdHTML("PFD")+pfdHTML("ND")+mfdSimple("ECAM")+'</div><div class="sstick"></div><div class="cp-label">エアバスA350 · SIDE STICK · 6 DISPLAYS</div>';
+    html += '<div class="cp-sub">CAPT / FO</div><div class="cp-panel">'+pfdHTML("PFD","C")+pfdHTML("ND","C")+pfdHTML("PFD","FO")+pfdHTML("ND","FO")+mfdSimple("E/WD")+mfdSimple("SD")+'</div><div class="sstick"></div><div class="cp-label">エアバスA350 · SIDE STICK · 6 DISPLAYS</div>';
   } else if(ac.style==="round"){
     html += '<div class="cp-panel">'+gaugeHTML("SPD")+gaugeHTML("ATT")+gaugeHTML("ALT")+gaugeHTML("HDG")+gaugeHTML("VSI")+gaugeHTML("N1")+'</div><div class="yoke"><div class="yoke-bar"></div><div class="yoke-grip l"></div><div class="yoke-grip r"></div><div class="yoke-hub"></div></div><div class="cp-label">ボーイング737 · YOKE · CLASSIC GAUGES</div>';
   } else {
-    html += '<div class="cp-panel">'+pfdHTML("PFD")+pfdHTML("ND")+mfdSimple("E/WD")+mfdSimple("SD")+'</div><div class="sstick"></div><div class="cp-label">エアバスA321 · SIDE STICK · 4 DISPLAYS</div>';
+    html += '<div class="cp-sub">CAPT / FO</div><div class="cp-panel">'+pfdHTML("PFD","C")+pfdHTML("ND","C")+pfdHTML("PFD","FO")+pfdHTML("ND","FO")+'</div><div class="sstick"></div><div class="cp-label">エアバスA321 · SIDE STICK · 4 DISPLAYS</div>';
   }
   el.innerHTML = html;
 }
@@ -233,9 +231,7 @@ function update(dt){
     if(g==='SPD') val=Math.round(spd); else if(g==='ATT') val=Math.round(pitch); else if(g==='ALT') val=Math.round(alt); else if(g==='HDG') val=(Math.round(hdg)+360)%360; else if(g==='VSI') val=Math.round(Math.sin(t)*200); else if(g==='N1') val=88;
     el.textContent=val;
   });
-  document.querySelectorAll(".mfd .att").forEach(function(aEl,i){
-    var hl=aEl.querySelector('.hl'); if(hl){ hl.style.transform='rotate('+(roll*0.5)+'deg)'; }
-  });
+  document.querySelectorAll(".mfd .hl").forEach(function(hl){ hl.style.transform='rotate('+(roll*0.5)+'deg)'; });
 
   if(mode==="cockpit"){
     var off=new THREE.Vector3(ac.len/2-0.9,1.3,0); off.applyEuler(planeGroup.rotation);
