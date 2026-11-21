@@ -391,9 +391,9 @@ function update(dt){
   if(mode==="cockpit"){
     var off=new THREE.Vector3(ac.len/2-0.9,1.3,0); off.applyEuler(planeGroup.rotation);
     cam.position.copy(planeGroup.position).add(off);
-    var lookAtPt = new THREE.Vector3(ac.len/2+300,-70,0); lookAtPt.applyEuler(planeGroup.rotation); lookAtPt.add(planeGroup.position);
+    var lookAtPt = new THREE.Vector3(ac.len/2+600,-40,0); lookAtPt.applyEuler(planeGroup.rotation); lookAtPt.add(planeGroup.position);
     cam.lookAt(lookAtPt);
-    cam.fov=72;
+    cam.fov=70;
   } else {
     var back=new THREE.Vector3(-ac.len-20,11,0); back.applyEuler(planeGroup.rotation);
     cam.position.copy(planeGroup.position).add(back); cam.lookAt(planeGroup.position); cam.fov=55;
