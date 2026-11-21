@@ -57,9 +57,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 .nav .nd-rng{position:absolute;right:7px;bottom:7px;font-size:8px;color:#5fae82;font-family:"Courier New",monospace}
 .gauge{width:68px;height:68px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#2b333d,#0b0f14);border:2px solid #45505c;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#ffd27a;font-size:8px;letter-spacing:.06em;position:relative;flex:none;box-shadow:0 4px 12px rgba(0,0,0,.5)}
 .gauge .ticks{position:absolute;inset:5px;border-radius:50%;background:repeating-conic-gradient(from -140deg,rgba(255,210,122,.9) 0deg 2deg,transparent 2deg 26deg);mask:radial-gradient(circle,transparent 62%,#000 63%,#000 70%,transparent 71%);-webkit-mask:radial-gradient(circle,transparent 62%,#000 63%,#000 70%,transparent 71%)}
-.gauge .needle{position:absolute;left:50%;top:50%;width:26px;height:2px;background:#ffd27a;transform-origin:right center;transform:translate(-100%,-50%) rotate(var(--r,0deg));box-shadow:0 0 5px rgba(255,210,122,.8)}
-.gauge .cap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:5px;height:5px;border-radius:50%;background:#ffd27a;box-shadow:0 0 4px rgba(255,210,122,.8)}
-.gauge .v{font-size:12px;font-weight:700;color:#ffe9b8;line-height:1.1;margin-top:10px}
+.gauge .needle{position:absolute;left:50%;top:50%;width:26px;height:2px;background:#ffd27a;transform-origin:right center;transform:translate(-100%,-50%) rotate(var(--r,0deg));box-shadow:0 0 5px rgba(255,210,122,.8);z-index:2}
+.gauge .cap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:5px;height:5px;border-radius:50%;background:#ffd27a;box-shadow:0 0 4px rgba(255,210,122,.8);z-index:3}
+.gauge .v{font-size:12px;font-weight:700;color:#ffe9b8;line-height:1.1;margin-top:10px;position:relative;z-index:2}
 .cp-pedestal{position:absolute;left:50%;bottom:21%;transform:translateX(-50%);width:30%;height:16%;background:linear-gradient(180deg,#1a242e,#0e151d);border:1px solid #2a3a48;border-radius:6px 6px 0 0;display:flex;align-items:flex-start;justify-content:center;gap:26px;padding-top:10px;z-index:2;box-shadow:0 -6px 20px rgba(0,0,0,.5)}
 .thr{width:13px;height:54px;background:linear-gradient(180deg,#2a3844,#121a22);border:1px solid #36495a;border-radius:3px;position:relative}
 .thr:before{content:"";position:absolute;left:-5px;top:32%;width:22px;height:17px;border-radius:4px;background:linear-gradient(180deg,#4f6276,#2c3a46);border:1px solid #5f7689;box-shadow:0 2px 4px rgba(0,0,0,.6)}
@@ -333,7 +333,6 @@ function update(dt){
     if(k<0.55){ var ra=k/0.55; spd=280; alt=stagedDescend(ra,6); pitch=smooth(-8,-15,ra); }
     else { var rb=(k-0.55)/0.45; spd=280*(1-rb); alt=0; pitch=0; if(rb>0.97){ spd=0; } }
   }
-  // 機体が地面にあるとき（離陸直後まで）は揺れさせない
   var airborne = alt > 1000;
   var highUp = alt > 8000;
   var turb = (acc==="乱気流" && highUp);
@@ -355,10 +354,21 @@ function update(dt){
   var spdLabel = ((phaseIdx===1 && k>=0.25) || phaseIdx===2 || (phaseIdx===3 && !touchdown)) ? "巡行速度" : "速度";
   rtEl.innerHTML = spdLabel+" "+Math.round(spd)+" kt<br>高度 "+Math.round(alt).toLocaleString()+" ft<br>ピッチ "+Math.round(pitch)+"°<br>進行方位 "+Math.round(hdg)+"°";
 
-  document.querySelectorAll('[data-g]').forEach(function(el){
-    var g=el.getAttribute('data-g'); var val=0;
-    if(g==='SPD') val=Math.round(spd); else if(g==='ATT') val=Math.round(pitch); else if(g==='ALT') val=Math.round(alt); else if(g==='HDG') val=Math.round(hdg); else if(g==='VSI') val=Math.round(Math.sin(t)*200); else if(g==='N1') val=Math.round(88*(spd>1?1:0.2));
-    el.textContent=val;
+  var vsi = Math.sin(t)*200;
+  var n1v = Math.round(88*(spd>1?1:0.2));
+  document.querySelectorAll('.gauge').forEach(function(gEl){
+    var gElName = gEl.querySelector('[data-g]');
+    var g = gElName.getAttribute('data-g');
+    var needle = gEl.querySelector('.needle');
+    var val=0, ang=0;
+    if(g==='SPD'){ val=spd; ang=-135+(spd/280)*270; }
+    else if(g==='ATT'){ val=pitch; ang=-135+((pitch+30)/60)*270; }
+    else if(g==='ALT'){ val=alt; ang=-135+(alt/30000)*270; }
+    else if(g==='HDG'){ val=hdg; ang=-135+(hdg/360)*270; }
+    else if(g==='VSI'){ val=vsi; ang=-135+((vsi+2000)/4000)*270; }
+    else if(g==='N1'){ val=n1v; ang=-135+(n1v/100)*270; }
+    gElName.textContent=Math.round(val);
+    if(needle) needle.style.setProperty('--r', ang+'deg');
   });
   document.querySelectorAll(".mfd .hl").forEach(function(hl){ hl.style.transform='rotate('+(roll*0.5)+'deg)'; });
 
