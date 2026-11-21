@@ -81,9 +81,10 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 /* per-aircraft tweaks */
 .ct-787 .cp-dash{height:34%;background:linear-gradient(180deg,#26323f 0%,#1b2530 12%,#0f161d 55%,#070b10 100%)}
 .ct-a350 .cp-dash{height:30%;background:linear-gradient(180deg,#1a242f 0%,#121b24 15%,#0b1118 60%,#070b10 100%)}
-.ct-a350 .mfd{width:120px;height:80px}
-.ct-a350 .cp-panel{gap:12px;width:88%}
+.ct-a350 .mfd{width:86px;height:58px}
+.ct-a350 .cp-panel{gap:8px;width:92%}
 .ct-a350 .cp-sw.lit{background:#3a2a12;border-color:#8a6a2a;box-shadow:0 0 8px rgba(240,180,80,.7), inset 0 0 4px rgba(240,180,80,.5)}
+.ct-a350 .nd-rose{width:66px;height:66px}
 .ct-737 .cp-dash{height:42%;background:linear-gradient(180deg,#2b343f 0%,#222b35 15%,#141b22 65%,#090d12 100%)}
 .ct-a321 .cp-dash{height:32%;background:linear-gradient(180deg,#1b2530 0%,#141c25 15%,#0c1218 60%,#070b10 100%)}
 </style>
@@ -283,7 +284,7 @@ function buildCockpit(){
   if(ac.style==="glass"){
     html += '<div class="cp-sub">CAPT</div><div class="cp-panel">'+pfdHTML("PFD","C",true)+ndHTML("ND","C",true)+ndHTML("ND","FO",true)+pfdHTML("PFD","FO",true)+'</div><div class="yoke"><div class="yoke-bar"></div><div class="yoke-grip l"></div><div class="yoke-grip r"></div><div class="yoke-hub"></div></div><div class="cp-label">ボーイング787 · YOKE · GLASS COCKPIT</div>';
   } else if(ac.style==="six"){
-    html += '<div class="cp-sub">CAPT / FO</div><div class="cp-panel">'+pfdHTML("PFD","C",true)+ndHTML("ND","C",true)+pfdHTML("PFD","FO",true)+ndHTML("ND","FO",true)+mfdSimple("E/WD")+mfdSimple("SD")+'</div><div class="sstick"></div><div class="sstick r"></div><div class="cp-label">エアバスA350 · SIDE STICK · 6 DISPLAYS</div>';
+    html += '<div class="cp-sub">CAPT / FO</div><div class="cp-panel">'+pfdHTML("PFD","C")+ndHTML("ND","C")+pfdHTML("PFD","FO")+ndHTML("ND","FO")+mfdSimple("E/WD")+mfdSimple("SD")+'</div><div class="sstick"></div><div class="sstick r"></div><div class="cp-label">エアバスA350 · SIDE STICK · 6 DISPLAYS</div>';
   } else if(ac.style==="round"){
     html += '<div class="cp-panel">'+gaugeHTML("SPD")+gaugeHTML("ATT")+gaugeHTML("ALT")+gaugeHTML("HDG")+gaugeHTML("VSI")+gaugeHTML("N1")+'</div><div class="yoke"><div class="yoke-bar"></div><div class="yoke-grip l"></div><div class="yoke-grip r"></div><div class="yoke-hub"></div></div><div class="cp-label">ボーイング737 · YOKE · CLASSIC GAUGES</div>';
   } else {
