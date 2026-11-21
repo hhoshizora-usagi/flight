@@ -96,10 +96,10 @@ var weather = q.get("weather") || "晴れ";
 var acc = q.get("acc") || "なし";
 
 var AC = {
-  "ボーイング787": { len:20, span:28, color:0xdfe6ee, cls:"ct-787", sideStick:false, style:"glass" },
-  "エアバスA350": { len:19, span:27, color:0xe8edf2, cls:"ct-a350", sideStick:true, style:"six" },
-  "ボーイング737": { len:15, span:22, color:0xd8dee6, cls:"ct-737", sideStick:false, style:"round" },
-  "エアバスA321": { len:14, span:21, color:0xe4e9ef, cls:"ct-a321", sideStick:true, style:"four" }
+  "ボーイング787": { len:20, span:28, color:0xdfe6ee, cls:"ct-787", sideStick:false, style:"glass", vr:152 },
+  "エアバスA350": { len:19, span:27, color:0xe8edf2, cls:"ct-a350", sideStick:true, style:"six", vr:148 },
+  "ボーイング737": { len:15, span:22, color:0xd8dee6, cls:"ct-737", sideStick:false, style:"round", vr:142 },
+  "エアバスA321": { len:14, span:21, color:0xe4e9ef, cls:"ct-a321", sideStick:true, style:"four", vr:138 }
 };
 var ac = AC[plane] || AC["ボーイング787"];
 
@@ -126,7 +126,6 @@ var skyTop = new THREE.Color(sc[0]), skyBot = new THREE.Color(sc[1]);
 var fogColor = skyBot.clone().lerp(skyTop, 0.35);
 scene.fog = new THREE.Fog(fogColor, weather==="霧"?60:(weather==="雨"?250:500), weather==="霧"?340:(weather==="雨"?1000:1800));
 
-// sky as gradient background (reliable at high altitude)
 var skyCanvas = document.createElement("canvas");
 skyCanvas.width = 4; skyCanvas.height = 256;
 var sctx = skyCanvas.getContext("2d");
@@ -259,10 +258,11 @@ function update(dt){
   phaseEl.textContent = PHASE[phaseIdx];
   var s=PH_START[phaseIdx], e=PH_END[phaseIdx], k=Math.min((t-s)/(e-s),1);
 
+  var vr = ac.vr;
   if(phaseIdx===0){ spd=60*k; alt=0; pitch=0; }
   else if(phaseIdx===1){
-    if(k<0.5){ spd=60+(k/0.5)*220; alt=0; pitch=0; }
-    else { var r=(k-0.5)/0.5; spd=280; alt=smooth(0,CRUISE_ALT,r); pitch=smooth(5,8,r); }
+    if(k<0.5){ spd=60+(vr-60)*(k/0.5); alt=0; pitch=0; }
+    else { var r=(k-0.5)/0.5; spd=smooth(vr,280,r); alt=smooth(0,CRUISE_ALT,r); pitch=smooth(5,8,r); }
   }
   else if(phaseIdx===2){ spd=280; alt=CRUISE_ALT + Math.sin(t*0.6)*30; pitch=2; }
   else {
