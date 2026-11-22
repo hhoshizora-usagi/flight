@@ -355,7 +355,12 @@ function update(dt){
   var VR = ac.vr || 150;
   var touchdown = (phaseIdx===4 && k>=0.55);
   if(phaseIdx===0){ spd=60*k; alt=0; pitch=0; }
-  else if(phaseIdx===1){ spd=0; alt=0; pitch=0; }
+  else if(phaseIdx===1){
+    // 停止（機材交換）：いきなり止まらず、減速して止まる
+    var decel = Math.min(k/0.3,1);
+    spd = 60 * (1 - (decel*decel*(3-2*decel)));
+    alt=0; pitch=0;
+  }
   else if(phaseIdx===2){
     if(k<0.25){ spd=60+(VR-60)*(k/0.25); alt=0; pitch=0; }
     else {
