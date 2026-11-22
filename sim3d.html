@@ -141,6 +141,8 @@ var APT = {
 };
 var depAp = APT[dep] || APT["羽田"];
 var CALLSIGN = "MITAN AIR";
+// 便名（無線の帯に表示する）
+var FLIGHTNO = "MITAN AIR 701便";
 
 var AC = {
   "ボーイング787": { len:20, span:28, color:0xdfe6ee, cls:"ct-787", sideStick:false, style:"glass", vr:152, vcr:490 },
@@ -317,7 +319,7 @@ var RADIO = (function(){
   var F2 = "124.350";                     // 上空のコントロール（例示）
   var R2 = destAp.rwy;                    // 着陸側の滑走路番号
 
-  freqEl.textContent = "TWR " + F;
+  freqEl.textContent = "TWR " + F + " · " + FLIGHTNO;
   tagEl.textContent = T;
 
   // 表示する無線のやりとり
