@@ -314,9 +314,7 @@ var towerGroup = new THREE.Group(); scene.add(towerGroup);
 })();
 
 // ===== 管制塔無線（リアル表示） =====
-// 出発地の空港ごとに呼び名・周波数・滑走路番号が変わる。
-// 者陸側の空港は「宛先のタワー」として、着陸フェーズで呼びかける。
-// 無線のタイミングはフェーズの目標に合わせてある（タキシング中・離陸時・空中・着陸の先など）。
+// フェーズに合わせて、ヘッダーの塔名・周波数も切り替える
 var RADIO = (function(){
   var boxEl = document.getElementById("rBox");
   var dotEl = document.getElementById("rDot");
@@ -325,18 +323,21 @@ var RADIO = (function(){
   var tagEl = document.getElementById("rTag");
   var lines = [];
   var cur = -1;
+  var curHead = -1;
 
   var T = depAp.tower;                    // 出発地の管制塔（東京タワー等）
   var F = depAp.freq;                     // 出発地のタワー周波数
   var R = depAp.rwy;                      // 出発地の滑走路番号
   var destAp = APT[dest] || APT["羽田"];
   var T2 = destAp.tower;                  // 着陸側の管制塔
-  var F2 = "124.350";                     // 上空のコントロール（例示）
+  var F2 = "124.350";                     // 上空のコントロール周波数
+  var F2N = "コントロール";               // 上空のコントロール呼び名
   var R2 = destAp.rwy;                    // 着陸側の滑走路番号
-  // ヘッダー：塔の名前・周波数・便名
-  nameEl.textContent = T;
-  freqEl.textContent = F;
+  var T2F = destAp.freq;                  // 着陸側のタワー周波数
+
   tagEl.textContent = FLIGHTNO;
+
+  function setHead(name, freq){ nameEl.textContent = name; freqEl.textContent = freq; }
 
   // 表示する無線のやりとり（フェーズのタイミングに合わせて）
   var Q = [
@@ -350,8 +351,8 @@ var RADIO = (function(){
     { t: 272,who:"crew",   text: "クリアード・フォー・テイクオフ、" + R + "番、" + CALLSIGN },
     { t: 332,who:"crew",   text: T + "、" + CALLSIGN + "、空中です、右旋回" },
     { t: 342,who:"tower",  text: CALLSIGN + "、ロジャー、コントロールへハンドオフ、周波数" + F2 },
-    { t: 352,who:"crew",   text: F2 + "、コントロール、" + CALLSIGN },
-    { t: 512,who:"crew",   text: "コントロール、" + CALLSIGN + "、巡航3万フィート" },
+    { t: 352,who:"crew",   text: F2 + "、" + F2N + "、" + CALLSIGN },
+    { t: 512,who:"crew",   text: F2N + "、" + CALLSIGN + "、巡航3万フィート" },
     { t: 692,who:"tower",  text: CALLSIGN + "、" + T2 + "、降下の指示、ILS進入" },
     { t: 700,who:"crew",   text: "降下、" + CALLSIGN },
     { t: 860,who:"tower",  text: CALLSIGN + "、" + T2 + "、着陸許可、" + R2 + "番、風は弱い" },
@@ -363,7 +364,7 @@ var RADIO = (function(){
 
   function push(ev){
     var whoLabel = ev.who==='crew' ? '機　長' : '管制官';
-    lines.push('<div class="r-line now"><span class="who'+(ev.who==='crew'?' crew':'')+'">'+whoLabel+'</span>　'+ev.text+'</div>');
+    lines.push('<div class="r-line now"><span class="who"'+(ev.who==='crew'?' class="who crew"':'')+'>'+whoLabel+'</span>　'+ev.text+'</div>');
     // 前の行は「ニュー」状態を解除
     boxEl.querySelectorAll('.r-line.now').forEach(function(el,i2){ if(i2<boxEl.querySelectorAll('.r-line.now').length-1) el.classList.remove('now'); });
     lines = lines.slice(-3);
@@ -378,6 +379,14 @@ var RADIO = (function(){
       cur++;
       var ev = Q[cur];
       push(ev);
+    }
+    // ヘッダーの切り替え（タキシング〜離陸=出発塔 / 巡航=コントロール / 着陸=到着塔）
+    var h = (t >= 692) ? 2 : ((t >= 512) ? 1 : 0);
+    if(h !== curHead){
+      curHead = h;
+      if(h===0) setHead(T, F);
+      else if(h===1) setHead(F2N, F2);
+      else setHead(T2, T2F);
     }
   }
 
