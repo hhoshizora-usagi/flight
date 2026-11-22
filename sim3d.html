@@ -362,14 +362,14 @@ function update(dt){
   var VR = ac.vr || 150;
   var touchdown = (phaseIdx===4 && k>=0.55);
   var inDesc = (phaseIdx===4 && k>=0.10);
-  if(phaseIdx===0){ spd=60*k; alt=0; pitch=0; }
+  if(phaseIdx===0){ spd=30*k; alt=0; pitch=0; }
   else if(phaseIdx===1){
     var decel = Math.min(k/0.3,1);
-    spd = 60 * (1 - (decel*decel*(3-2*decel)));
+    spd = 30 * (1 - (decel*decel*(3-2*decel)));
     alt=0; pitch=0;
   }
   else if(phaseIdx===2){
-    if(k<0.25){ spd=60+(VR-60)*(k/0.25); alt=0; pitch=0; }
+    if(k<0.25){ spd=30+(VR-30)*(k/0.25); alt=0; pitch=0; }
     else {
       var r=(k-0.25)/0.75;
       spd = VR + (VCR-VR) * (1 - Math.pow(1-r, 2));
@@ -422,8 +422,11 @@ function update(dt){
   if(snow){ var sp2=snow.geometry.attributes.position.array; for(var k3=0;k3<sp2.length;k3+=3){ sp2[k3+1]-=12*dt; if(sp2[k3+1]<-10){ sp2[k3+1]=120; sp2[k3]=(Math.random()-0.5)*260; sp2[k3+2]=(Math.random()-0.5)*260; } } snow.geometry.attributes.position.needsUpdate=true; }
   clouds.forEach(function(cl){ if(!cl.visible) return; cl.position.z -= cfg.drift*dt*50; if(cl.position.z < -16000){ cl.position.z = 11000 + Math.random()*4500; } });
 
+  // 地上（タキシング・停止・離陸の地上走行・着陸後の地上走行）は km/h、空中は kt
+  var onGround = (phaseIdx<=1) || (phaseIdx===2 && k<0.25) || (phaseIdx===4 && touchdown);
+  var spdUnit = onGround ? "km/h" : "kt";
   var spdLabel = ((phaseIdx===2 && k>=0.25) || phaseIdx===3 || (phaseIdx===4 && !inDesc)) ? "巡航速度" : "速度";
-  rtEl.innerHTML = spdLabel+" "+Math.round(spd)+" kt<br>高度 "+Math.round(alt).toLocaleString()+" ft<br>ピッチ "+Math.round(pitch)+"°<br>VSI "+Math.round(vsi).toLocaleString()+" ft/min<br>進行方位 "+Math.round(hdg)+"°";
+  rtEl.innerHTML = spdLabel+" "+Math.round(spd)+" "+spdUnit+"<br>高度 "+Math.round(alt).toLocaleString()+" ft<br>ピッチ "+Math.round(pitch)+"°<br>VSI "+Math.round(vsi).toLocaleString()+" ft/min<br>進行方位 "+Math.round(hdg)+"°";
 
   var n1v = Math.round(88*(spd>1?1:0.2));
   document.querySelectorAll('.gauge').forEach(function(gEl){
