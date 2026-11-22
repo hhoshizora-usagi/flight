@@ -116,6 +116,7 @@ var CRUISE_HDG = 92;
 var CRUISE_ALT = 30000;
 
 function smooth(a, b, x){ x = Math.max(0, Math.min(1, x)); var u = x*x*(3-2*x); return a + (b-a)*u; }
+function easeOut(x){ x = Math.max(0, Math.min(1, x)); return 1 - (1-x)*(1-x); }
 
 function stagedDescend(progress, stages){
   var x = Math.min(progress*stages, stages-0.0001);
@@ -357,7 +358,14 @@ function update(dt){
   else if(phaseIdx===1){ spd=0; alt=0; pitch=0; }
   else if(phaseIdx===2){
     if(k<0.25){ spd=60+(VR-60)*(k/0.25); alt=0; pitch=0; }
-    else { var r=(k-0.25)/0.75; spd=smooth(VR,VCR,r); alt=smooth(0,CRUISE_ALT,r); pitch=smooth(10,24,r); }
+    else {
+      var r=(k-0.25)/0.75;
+      // 実機の感覚：離陸直後はゆっくり加速し、高度は最初に勢いよく上がり
+      // 巡航高度・巡航速度に近づくにつれて緩やかに収束する（ease-out）
+      spd = VR + (VCR-VR) * (1 - Math.pow(1-r, 2));
+      alt = CRUISE_ALT * (1 - Math.pow(1-r, 2.2));
+      pitch = smooth(10, 4, r);
+    }
   }
   else if(phaseIdx===3){ spd=VCR; alt=CRUISE_ALT + Math.sin(t*0.6)*30; pitch=2; }
   else {
