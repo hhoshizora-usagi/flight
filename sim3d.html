@@ -360,8 +360,6 @@ function update(dt){
     if(k<0.25){ spd=60+(VR-60)*(k/0.25); alt=0; pitch=0; }
     else {
       var r=(k-0.25)/0.75;
-      // 実機の感覚：離陸直後はゆっくり加速し、高度は最初に勢いよく上がり
-      // 巡航高度・巡航速度に近づくにつれて緩やかに収束する（ease-out）
       spd = VR + (VCR-VR) * (1 - Math.pow(1-r, 2));
       alt = CRUISE_ALT * (1 - Math.pow(1-r, 2.2));
       pitch = smooth(10, 4, r);
@@ -386,7 +384,13 @@ function update(dt){
   prevAlt = alt;
 
   if(spd>0.5){ dist += spd*dt*0.03; }
-  planeGroup.position.set(0, alt-29+0.9, -1400 + dist);
+  // 着陸中は機体を滑走路へ戻しながら降下させ、滑走路が徐々に見えるようにする
+  var planeZ = -1400 + dist;
+  if(phaseIdx===4){
+    var rL = (t-690)/420;
+    planeZ = planeZ + (-900 - planeZ) * Math.min(rL*1.15,1);
+  }
+  planeGroup.position.set(0, alt-29+0.9, planeZ);
   planeGroup.rotation.set(THREE.MathUtils.degToRad(roll), THREE.MathUtils.degToRad(-90 + hdgWob*0.6), THREE.MathUtils.degToRad(pitch));
 
   if(rain){ var rp2=rain.geometry.attributes.position.array; for(var i3=0;i3<rp2.length;i3+=3){ rp2[i3+1]-=60*dt; if(rp2[i3+1]<-10){ rp2[i3+1]=120; rp2[i3]=(Math.random()-0.5)*260; rp2[i3+2]=(Math.random()-0.5)*260; } } rain.geometry.attributes.position.needsUpdate=true; }
