@@ -83,7 +83,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 #radio .r-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;text-shadow:0 2px 8px rgba(0,0,0,.8)}
 #radio .r-dot{width:8px;height:8px;border-radius:50%;background:#33414f;border:1px solid #46596b;transition:background .2s, box-shadow .2s;flex:none}
 #radio .r-dot.on{background:#6dcfff;box-shadow:0 0 10px #6dcfff}
-#radio .r-name{font-size:14px;font-weight:700;letter-spacing:.08em;color:#eaf4ff;text-shadow:0 0 10px rgba(109,207,255,.45);white-space:nowrap}
+#radio .r-name{font-size:14px;font-weight:700;letter-spacing:.1em;color:#eaf4ff;text-shadow:0 0 10px rgba(109,207,255,.45);white-space:nowrap}
 #radio .r-freq{font-size:11px;letter-spacing:.14em;color:#9fd8ff;text-shadow:0 0 6px rgba(109,207,255,.5);white-space:nowrap}
 #radio .r-tag{font-size:10px;letter-spacing:.1em;color:#7f93a6;margin-left:auto;white-space:nowrap}
 #radio .r-box{background:rgba(7,12,18,.82);border:1px solid #24323f;border-radius:5px;padding:9px 12px;box-shadow:0 12px 34px rgba(0,0,0,.55);backdrop-filter:blur(2px)}
@@ -206,10 +206,11 @@ var sunDisk = new THREE.Mesh(new THREE.SphereGeometry(60,16,12), new THREE.MeshB
 sunDisk.position.set(900,2100,-2200); scene.add(sunDisk);
 
 // distant mountains (far range)
+// 着陸コース（09側から滑走路へ向かって北へ進む）にになるZoneに置かない
 var mtnMat = new THREE.MeshStandardMaterial({color:0x5d6f7a, roughness:1});
 for(var mi=0; mi<14; mi++){
+  var ang = 0.45 + mi*(Math.PI*1.5/14) + 0.1;
   var mtn = new THREE.Mesh(new THREE.ConeGeometry(260+Math.random()*180, 220+Math.random()*180, 8), mtnMat);
-  var ang = mi*(Math.PI*2/14) + 0.2;
   mtn.position.set(Math.cos(ang)*(-1600+Math.random()*200), -30, Math.sin(ang)*(-1600+Math.random()*200)-600);
   scene.add(mtn);
 }
@@ -220,7 +221,17 @@ for(var gi=0;gi<gp.count;gi++){ var gx=gp.getX(gi), gz=gp.getZ(gi); var dist0=Ma
 gGeo.computeVertexNormals();
 var ground = new THREE.Mesh(gGeo, new THREE.MeshStandardMaterial({color:0x35502e, roughness:1})); ground.position.y=-30; scene.add(ground);
 var water = new THREE.Mesh(new THREE.PlaneGeometry(6000,2400), new THREE.MeshStandardMaterial({color:0x1b5a86, roughness:0.3, metalness:0.35})); water.rotation.x=-Math.PI/2; water.position.set(0,-31.2,3200); scene.add(water);
-for(var bi=0;bi<60;bi++){ var bh=30+Math.random()*120; var b=new THREE.Mesh(new THREE.BoxGeometry(16+Math.random()*22,bh,16+Math.random()*22), new THREE.MeshStandardMaterial({color:0x4a5866, roughness:0.85})); b.position.set(-1400+Math.random()*2800,-30+bh/2,-1800-Math.random()*1600); scene.add(b); }
+// ビル群（着陸コースにになるZoneには建てない）
+for(var bi=0;bi<60;bi++){
+  var bh=30+Math.random()*120;
+  var bx=-1400+Math.random()*2800;
+  var bz=-1800-Math.random()*1600;
+  if(bz > -3400){
+    if(Math.abs(bx) < 140 && bz > -3400) continue;
+  }
+  var b=new THREE.Mesh(new THREE.BoxGeometry(16+Math.random()*22,bh,16+Math.random()*22), new THREE.MeshStandardMaterial({color:0x4a5866, roughness:0.85}));
+  b.position.set(bx,-30+bh/2,bz); scene.add(b);
+}
 
 var runway = new THREE.Mesh(new THREE.PlaneGeometry(120,3400), new THREE.MeshStandardMaterial({color:0x5b646d, roughness:0.7, emissive:0x222a33, emissiveIntensity:0.7})); runway.rotation.x=-Math.PI/2; runway.position.set(0,-29.75,-900); scene.add(runway);
 var dashMat = new THREE.MeshBasicMaterial({color:0xf8fbff});
@@ -272,7 +283,7 @@ var rn09 = makeRwyNum("09"); rn09.position.set(0,-29.5,-2380); scene.add(rn09);
 var rn27 = makeRwyNum("27"); rn27.rotation.z=Math.PI; rn27.position.set(0,-29.5,720); scene.add(rn27);
 
 // ===== 管制塔（コントロールタワー） =====
-// 滑走路の終端（27側 670）の脇、離着陸の様子が見える位置に建てる
+// 滑走路の終端（27側 670）の箇所、離着陸の様子が見える位置に建てる
 var towerGroup = new THREE.Group(); scene.add(towerGroup);
 (function(){
   var shaftMat = new THREE.MeshStandardMaterial({color:0x9aa7b2, roughness:0.85});
@@ -304,8 +315,8 @@ var towerGroup = new THREE.Group(); scene.add(towerGroup);
 
 // ===== 管制塔無線（リアル表示） =====
 // 出発地の空港ごとに呼び名・周波数・滑走路番号が変わる。
-// 着陸側の空港は「宛先のタワー」として、着陸フェーズで呼びかける。
-// 無線のタイミングはフェーズの境目に合わせている（タキシング中・離陸の瞬間・着陸の瞬間など）。
+// 者陸側の空港は「宛先のタワー」として、着陸フェーズで呼びかける。
+// 無線のタイミングはフェーズの目標に合わせてある（タキシング中・離陸時・空中・着陸の先など）。
 var RADIO = (function(){
   var boxEl = document.getElementById("rBox");
   var dotEl = document.getElementById("rDot");
@@ -322,7 +333,6 @@ var RADIO = (function(){
   var T2 = destAp.tower;                  // 着陸側の管制塔
   var F2 = "124.350";                     // 上空のコントロール（例示）
   var R2 = destAp.rwy;                    // 着陸側の滑走路番号
-
   // ヘッダー：塔の名前・周波数・便名
   nameEl.textContent = T;
   freqEl.textContent = F;
@@ -489,7 +499,7 @@ var PH_START=[0, 150, 270, 510, 690];
 var totalDur=1110;
 var dist=0;
 var prevAlt=0;
-// 着陸用：接地する場所（09側の滑走路の入口近く）と、着陸フェーズで進む距離
+// 着陸用：接地する場所（09側の滑走路の入口付近）と、着陸フェーズで進む距離
 var TD_Z = -2250;
 var LAND_DUR = PH_END[4]-PH_START[4];
 // 着陸開始から接地までに前へ進む距離（速度の式をそのまま積分した値）
@@ -502,7 +512,7 @@ function update(dt){
   phaseEl.textContent = PHASE[phaseIdx];
   var s=PH_START[phaseIdx], e=PH_END[phaseIdx], k=Math.min((t-s)/(e-s),1);
 
-  // 巡航中は雲を非表示にして晴れっぽい空にする
+  // 巡航中は雲を非表示にして晴れの空にする
   clouds.forEach(function(cl){ cl.visible = (phaseIdx !== 3); });
 
   var VR = ac.vr || 150;
@@ -526,7 +536,7 @@ function update(dt){
   else if(phaseIdx===3){ spd=VCR; alt=CRUISE_ALT + Math.sin(t*0.6)*30; pitch=2; }
   else {
     if(k<0.10){
-      // 着陸前：巡航速度のまま、降下の準備（まだ高度は維持）
+      // 着陸前：巡航速度のまま、降下の準備
       spd=VCR; alt=CRUISE_ALT + Math.sin(t*0.6)*30; pitch=2;
     }
     else if(k<0.55){
@@ -555,7 +565,7 @@ function update(dt){
   // 破線は固定。機体の速度と同じペースで流れて見える。
   // 着陸中も機体は前へ進むだけ（後ろへ戻さない）。
   // 巡航高度（地上は霧で見えない）で滑走路の手前へ位置を合わせ、
-  // そこから前進しながら降下して、滑走路の入口付近に接地 → 減速して停止する。
+  // それから前進しながら降下して、滑走路の入口付近に接地 → 減速して停止する。
   var planeZ = -1400 + dist;
   if(phaseIdx===4){
     if(spd>0.5){ landDist += spd*dt*0.03; }
