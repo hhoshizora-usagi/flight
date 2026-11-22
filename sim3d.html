@@ -78,6 +78,22 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 .ct-a350 .nd-rose{width:56px;height:56px}
 .ct-737 .cp-dash{height:20%;background:linear-gradient(180deg,#2b343f 0%,#222b35 15%,#141b22 65%,#090d12 100%)}
 .ct-a321 .cp-dash{height:17%;background:linear-gradient(180deg,#1b2530 0%,#141c25 15%,#0c1218 60%,#070b10 100%)}
+/* 管制塔無線パネル */
+#radio{position:fixed;left:18px;top:86px;width:min(430px,calc(100vw - 36px));pointer-events:none;z-index:4;font-family:"Courier New",monospace;transition:opacity .35s}
+#radio .r-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;text-shadow:0 2px 8px rgba(0,0,0,.8)}
+#radio .r-dot{width:8px;height:8px;border-radius:50%;background:#33414f;border:1px solid #46596b;transition:background .2s, box-shadow .2s}
+#radio .r-dot.on{background:#6dcfff;box-shadow:0 0 10px #6dcfff}
+#radio .r-freq{font-size:11px;letter-spacing:.14em;color:#9fd8ff;text-shadow:0 0 6px rgba(109,207,255,.5)}
+#radio .r-tag{font-size:10px;letter-spacing:.1em;color:#7f93a6;margin-left:auto}
+#radio .r-box{background:rgba(7,12,18,.82);border:1px solid #24323f;border-radius:5px;padding:9px 12px;box-shadow:0 12px 34px rgba(0,0,0,.55);backdrop-filter:blur(2px)}
+#radio .r-line{font-size:12.5px;line-height:1.55;letter-spacing:.02em;color:#b9c9d8;opacity:.5;transition:opacity .3s, color .3s}
+#radio .r-line.now{opacity:1;color:#f3f8fc;text-shadow:0 0 8px rgba(160,220,255,.25)}
+#radio .r-line .who{color:#8fd8b0}
+#radio .r-line.now .who{color:#a7f2c6}
+#radio .r-line .who.crew{color:#f5b13c}
+#radio .r-line.now .who.crew{color:#ffcf73}
+#radio .r-noise{font-size:11px;color:#4a7188;letter-spacing:.18em;margin-top:4px;height:14px;overflow:hidden;white-space:nowrap}
+@keyframes rk-out{from{opacity:.5;transform:translateY(4px)}to{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -85,6 +101,14 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 <div id="hud">
   <div class="l"><div class="phase" id="phase">タキシング</div><div class="cond" id="cond"></div></div>
   <div class="rt" id="rt"></div>
+</div>
+<div id="radio">
+  <div class="r-head">
+    <span class="r-dot" id="rDot"></span>
+    <span class="r-freq" id="rFreq">TWR 118.100</span>
+    <span class="r-tag" id="rTag">管制塔</span>
+  </div>
+  <div class="r-box" id="rBox"></div>
 </div>
 <div id="cockpit"></div>
 <div id="vt">
@@ -227,6 +251,101 @@ function makeRwyNum(txt){
 }
 var rn09 = makeRwyNum("09"); rn09.position.set(0,-29.5,-2380); scene.add(rn09);
 var rn27 = makeRwyNum("27"); rn27.rotation.z=Math.PI; rn27.position.set(0,-29.5,720); scene.add(rn27);
+
+// ===== 管制塔（コントロールタワー） =====
+// 滑走路の終端（27側 670）の脇、離着陸の様子が見える位置に建てる
+var towerGroup = new THREE.Group(); scene.add(towerGroup);
+(function(){
+  var shaftMat = new THREE.MeshStandardMaterial({color:0x9aa7b2, roughness:0.85});
+  var cabinMat = new THREE.MeshStandardMaterial({color:0x22303c, roughness:0.2, metalness:0.5, transparent:true, opacity:0.85});
+  var baseMat = new THREE.MeshStandardMaterial({color:0x7f8c97, roughness:0.9});
+  // 土台
+  var base = new THREE.Mesh(new THREE.BoxGeometry(26,10,26), baseMat);
+  base.position.set(0, -25, 0); towerGroup.add(base);
+  // タワー軸
+  var shaft = new THREE.Mesh(new THREE.CylinderGeometry(3.6,5.2,70,20), shaftMat);
+  shaft.position.set(0, 15, 0); towerGroup.add(shaft);
+  // 展望台（管制室）
+  var cabin = new THREE.Mesh(new THREE.CylinderGeometry(6.4,6.4,8,20), cabinMat);
+  cabin.position.set(0, 54, 0); towerGroup.add(cabin);
+  // 屋根
+  var roof = new THREE.Mesh(new THREE.ConeGeometry(7.4,5,20), shaftMat);
+  roof.position.set(0, 60.5, 0); towerGroup.add(roof);
+  // アンテナ
+  var ant = new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.35,16,8), shaftMat);
+  ant.position.set(0, 70, 0); towerGroup.add(ant);
+  // 航空灯火（赤）
+  var beaconMat = new THREE.MeshBasicMaterial({color:0xff3b30});
+  var beacon = new THREE.Mesh(new THREE.SphereGeometry(1.1,10,8), beaconMat);
+  beacon.position.set(0, 78.5, 0); towerGroup.add(beacon);
+  towerGroup.userData.beacon = beacon;
+  // 配置：27側（+z側）の脇
+  towerGroup.position.set(-170, -30, 760);
+})();
+
+// ===== 管制塔無線（リアル表示） =====
+// 本物のATCの言い回しにそろえた放送を流す。コールサインと滑走路番号はそのまま使う。
+var RADIO = (function(){
+  var boxEl = document.getElementById("rBox");
+  var dotEl = document.getElementById("rDot");
+  var freqEl = document.getElementById("rFreq");
+  var lines = [];
+  var cur = -1;
+  var tNext = 0;
+  var airborneAt = 0;
+  var doneLanded = false;
+
+  // 表示する無線の指示（時刻はフェーズ内の相対秒ではなく、update 側で時間に応じて呼ぶ）
+  var Q = [
+    { t:  5, who:"crew",   whoName:"COLUMBUS",         text:"羽田タワー、COLUMBUS、09番、タキシング用意" },
+    { t: 12, who:"tower",  whoName:"東京コントロール", text:"COLUMBUS、羽田タワー、09番、タキシング許可" },
+    { t: 55, who:"crew",   whoName:"COLUMBUS",         text:"羽田タワー、COLUMBUS、離陸のため滑走路alogainer待ち" },
+    { t: 62, who:"tower",  whoName:"東京コントロール", text:"COLUMBUS、羽田タワー、09番、ラインアップ・アンド・ウェイト" },
+    { t: 75, who:"crew",   whoName:"COLUMBUS",         text:"ラインアップ・アンド・ウェイト、COLUMBUS" },
+    { t: 100,who:"tower",  whoName:"東京コントロール", text:"COLUMBUS、離陸用意" },
+    { t: 110,who:"crew",   whoName:"COLUMBUS",         text:"離陸用意、COLUMBUS" },
+    { t: 128,who:"tower",  whoName:"東京コントロール", text:"COLUMBUS、クリアード・フォー・テイクオフ、09番" },
+    { t: 140,who:"crew",   whoName:"COLUMBUS",         text:"クリアード・フォー・テイクオフ、09番、COLUMBUS" },
+    { t: 262,who:"crew",   whoName:"COLUMBUS",         text:"羽田タワー、COLUMBUS、空中です、右旋回" },
+    { t: 272,who:"tower",  whoName:"東京コントロール", text:"COLUMBUS、ロジャー、東京コントロールへハンドオフ、周波数124.35" },
+    { t: 285,who:"crew",   whoName:"COLUMBUS",         text:"124.35、東京コントロール、COLUMBUS" },
+    { t: 505,who:"tower",  whoName:"東京コントロール", text:"COLUMBUS、羽田タワー、降下の指示、15番ILS" },
+    { t: 695,who:"tower",  whoName:"東京コントロール", text:"COLUMBUS、羽田タワー、着陸許可、09番、風は弱い" },
+    { t: 700,who:"crew",   whoName:"COLUMBUS",         text:"着陸許可、09番、COLUMBUS" },
+    { t: 905,who:"crew",   whoName:"COLUMBUS",         text:"羽田タワー、COLUMBUS、着地、09番" },
+    { t: 915,who:"tower",  whoName:"東京コントロール", text:"COLUMBUS、ロジャー、お疲れさま、タキシングは地面にまかせます" }
+  ];
+
+  function render(){ boxEl.innerHTML = lines.join(""); var n = boxEl.querySelector('.r-line.now'); if(n){ boxEl.scrollTop = boxEl.scrollHeight; } }
+
+  function push(ev){
+    var cls = 'r-line' + (ev.who==='crew' ? '' : '');
+    var whoLabel = ev.who==='crew' ? '機　長' : '管制官';
+    lines.push('<div class="r-line now"><span class="who'+(ev.who==='crew'?' crew':'')+'">'+whoLabel+'</span>　'+ev.text+'</div>');
+    // 前の行は「ニュー」状態を解除
+    boxEl.querySelectorAll('.r-line.now').forEach(function(el,i2){ if(i2<boxEl.querySelectorAll('.r-line.now').length-1) el.classList.remove('now'); });
+    lines = lines.slice(-3);
+    render();
+    // 通話中ランプ
+    dotEl.classList.add('on');
+    setTimeout(function(){ dotEl.classList.remove('on'); }, Math.min(1500, ev.text.length*45));
+  }
+
+  function tick(t){
+    if(cur < Q.length-1 && t >= Q[cur+1].t){
+      cur++;
+      var ev = Q[cur];
+      push(ev);
+      // 周波数表示
+      if(ev.who==='tower') freqEl.textContent = (ev.t>=272 && ev.t<285) ? 'TWR 124.350' : 'TWR 118.100';
+      else freqEl.textContent = 'TWR 118.100';
+    }
+    // 「受信中」のノイズっぽい表示
+    if(t % 3 < 1.2){ /* ここは静的なので何もしない */ }
+  }
+
+  return { tick: tick };
+})();
 
 var CLOUD_CFG = {
   "晴れ":     { n:5, color:0xffffff, op:0.3, drift:8 },
@@ -421,6 +540,13 @@ function update(dt){
   if(rain){ var rp2=rain.geometry.attributes.position.array; for(var i3=0;i3<rp2.length;i3+=3){ rp2[i3+1]-=60*dt; if(rp2[i3+1]<-10){ rp2[i3+1]=120; rp2[i3]=(Math.random()-0.5)*260; rp2[i3+2]=(Math.random()-0.5)*260; } } rain.geometry.attributes.position.needsUpdate=true; }
   if(snow){ var sp2=snow.geometry.attributes.position.array; for(var k3=0;k3<sp2.length;k3+=3){ sp2[k3+1]-=12*dt; if(sp2[k3+1]<-10){ sp2[k3+1]=120; sp2[k3]=(Math.random()-0.5)*260; sp2[k3+2]=(Math.random()-0.5)*260; } } snow.geometry.attributes.position.needsUpdate=true; }
   clouds.forEach(function(cl){ if(!cl.visible) return; cl.position.z -= cfg.drift*dt*50; if(cl.position.z < -16000){ cl.position.z = 11000 + Math.random()*4500; } });
+
+  // 管制塔の航空灯火をゆっくり点滅
+  var beacon = towerGroup.userData.beacon;
+  if(beacon){ beacon.material.color.setHex(Math.sin(t*3) > 0 ? 0xff3b30 : 0x5a0f0c); }
+
+  // 管制塔の無線を更新
+  RADIO.tick(t);
 
   // 地上（タキシング・停止・離陸の地上走行・着陸後の地上走行）は km/h、空中は kt
   var onGround = (phaseIdx<=1) || (phaseIdx===2 && k<0.25) || (phaseIdx===4 && touchdown);
