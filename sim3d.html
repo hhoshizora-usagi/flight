@@ -81,10 +81,11 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 /* 管制塔無線パネル */
 #radio{position:fixed;left:18px;top:86px;width:min(430px,calc(100vw - 36px));pointer-events:none;z-index:4;font-family:"Courier New",monospace;transition:opacity .35s}
 #radio .r-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;text-shadow:0 2px 8px rgba(0,0,0,.8)}
-#radio .r-dot{width:8px;height:8px;border-radius:50%;background:#33414f;border:1px solid #46596b;transition:background .2s, box-shadow .2s}
+#radio .r-dot{width:8px;height:8px;border-radius:50%;background:#33414f;border:1px solid #46596b;transition:background .2s, box-shadow .2s;flex:none}
 #radio .r-dot.on{background:#6dcfff;box-shadow:0 0 10px #6dcfff}
-#radio .r-freq{font-size:11px;letter-spacing:.14em;color:#9fd8ff;text-shadow:0 0 6px rgba(109,207,255,.5)}
-#radio .r-tag{font-size:10px;letter-spacing:.1em;color:#7f93a6;margin-left:auto}
+#radio .r-name{font-size:14px;font-weight:700;letter-spacing:.08em;color:#eaf4ff;text-shadow:0 0 10px rgba(109,207,255,.45);white-space:nowrap}
+#radio .r-freq{font-size:11px;letter-spacing:.14em;color:#9fd8ff;text-shadow:0 0 6px rgba(109,207,255,.5);white-space:nowrap}
+#radio .r-tag{font-size:10px;letter-spacing:.1em;color:#7f93a6;margin-left:auto;white-space:nowrap}
 #radio .r-box{background:rgba(7,12,18,.82);border:1px solid #24323f;border-radius:5px;padding:9px 12px;box-shadow:0 12px 34px rgba(0,0,0,.55);backdrop-filter:blur(2px)}
 #radio .r-line{font-size:12.5px;line-height:1.55;letter-spacing:.02em;color:#b9c9d8;opacity:.5;transition:opacity .3s, color .3s}
 #radio .r-line.now{opacity:1;color:#f3f8fc;text-shadow:0 0 8px rgba(160,220,255,.25)}
@@ -105,6 +106,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 <div id="radio">
   <div class="r-head">
     <span class="r-dot" id="rDot"></span>
+    <span class="r-name" id="rName">管制塔</span>
     <span class="r-freq" id="rFreq">TWR 118.100</span>
     <span class="r-tag" id="rTag">管制塔</span>
   </div>
@@ -306,6 +308,7 @@ var towerGroup = new THREE.Group(); scene.add(towerGroup);
 var RADIO = (function(){
   var boxEl = document.getElementById("rBox");
   var dotEl = document.getElementById("rDot");
+  var nameEl = document.getElementById("rName");
   var freqEl = document.getElementById("rFreq");
   var tagEl = document.getElementById("rTag");
   var lines = [];
@@ -319,8 +322,10 @@ var RADIO = (function(){
   var F2 = "124.350";                     // 上空のコントロール（例示）
   var R2 = destAp.rwy;                    // 着陸側の滑走路番号
 
-  freqEl.textContent = "TWR " + F + " · " + FLIGHTNO;
-  tagEl.textContent = T;
+  // ヘッダー：塔の名前を大きく表示＋周波数＋便名
+  nameEl.textContent = T;
+  freqEl.textContent = F;
+  tagEl.textContent = FLIGHTNO;
 
   // 表示する無線のやりとり
   var Q = [
