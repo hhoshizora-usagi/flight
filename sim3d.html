@@ -180,8 +180,7 @@ for(var bi=0;bi<60;bi++){ var bh=30+Math.random()*120; var b=new THREE.Mesh(new 
 
 var runway = new THREE.Mesh(new THREE.PlaneGeometry(120,3400), new THREE.MeshStandardMaterial({color:0x5b646d, roughness:0.7, emissive:0x222a33, emissiveIntensity:0.7})); runway.rotation.x=-Math.PI/2; runway.position.set(0,-29.75,-900); scene.add(runway);
 var dashMat = new THREE.MeshBasicMaterial({color:0xf8fbff});
-var centerDashes = [];
-for(var di=0;di<50;di++){ var d=new THREE.Mesh(new THREE.PlaneGeometry(6,40), dashMat); d.rotation.x=-Math.PI/2; d.position.set(0,-29.1,-1450+di*70); scene.add(d); centerDashes.push(d); }
+for(var di=0;di<50;di++){ var d=new THREE.Mesh(new THREE.PlaneGeometry(6,40), dashMat); d.rotation.x=-Math.PI/2; d.position.set(0,-29.1,-1450+di*70); scene.add(d); }
 for(var el=-1; el<=1; el+=2){
   var line = new THREE.Mesh(new THREE.PlaneGeometry(3.2,3200), dashMat); line.rotation.x=-Math.PI/2; line.position.set(el*56, -29.15, -900); scene.add(line);
 }
@@ -343,7 +342,6 @@ var PH_START=[0, 150, 270, 510, 690];
 var totalDur=1110;
 var dist=0;
 var prevAlt=0;
-var dashOffset=0;
 
 function update(dt){
   t += dt;
@@ -395,25 +393,13 @@ function update(dt){
   var vsi = (dt>0) ? ((alt - prevAlt) / dt) * 60 : 0;
   prevAlt = alt;
 
-  // 破線を流れるように。タキシング・離陸は機体の進行と同じペース(1倍)、着陸は機体の戻る動きに合わせて線は速度分だけ流す
+  if(spd>0.5){ dist += spd*dt*0.03; }
+  // 破線は固定。機体の速度と同じペースで流れて見える（速度に比例した流れ）
   var planeZ = -1400 + dist;
-  var dashStep = 0;
   if(phaseIdx===4){
     var rL = (t-690)/420;
-    var newPlaneZ = planeZ + (-900 - planeZ) * Math.min(rL*1.15,1);
-    dashStep = (newPlaneZ - planeZ);
-    planeZ = newPlaneZ;
-  } else {
-    dashStep = spd*dt*0.03;
+    planeZ = planeZ + (-900 - planeZ) * Math.min(rL*1.15,1);
   }
-  dashOffset += dashStep;
-  var nD=centerDashes.length, span=70;
-  for(var di2=0;di2<nD;di2++){
-    var z = -1450 + di2*span + dashOffset;
-    z = -1450 + ((z + 1450) % (span*nD) + span*nD) % (span*nD);
-    centerDashes[di2].position.z = z;
-  }
-  if(spd>0.5){ dist += spd*dt*0.03; }
   planeGroup.position.set(0, alt-29+0.9, planeZ);
   planeGroup.rotation.set(THREE.MathUtils.degToRad(roll), THREE.MathUtils.degToRad(-90 + hdgWob*0.6), THREE.MathUtils.degToRad(pitch));
 
