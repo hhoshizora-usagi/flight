@@ -343,6 +343,12 @@ var PH_START=[0, 150, 270, 510, 690];
 var totalDur=1110;
 var dist=0;
 var prevAlt=0;
+// 着陸用：接地する場所（09側の滑走路の入口近く）と、着陸フェーズで進む距離
+var TD_Z = -2250;
+var LAND_DUR = PH_END[4]-PH_START[4];
+// 着陸開始から接地までに前へ進む距離（速度の式をそのまま積分した値）
+var LAND_TD_DIST = (0.10*LAND_DUR)*VCR*0.03 + (0.45*LAND_DUR)*(VCR - (VCR-APPR)*2/3)*0.03;
+var landDist=0;
 
 function update(dt){
   t += dt;
@@ -401,11 +407,13 @@ function update(dt){
 
   if(spd>0.5){ dist += spd*dt*0.03; }
   // 破線は固定。機体の速度と同じペースで流れて見える。
-  // 着陸中は機体を滑走路へ戻しながら降下させ、滑走路が徐々に見えるようにする
+  // 着陸中も機体は前へ進むだけ（後ろへ戻さない）。
+  // 巡航高度（地上は霧で見えない）で滑走路の手前へ位置を合わせ、
+  // そこから前進しながら降下して、滑走路の入口付近に接地 → 減速して停止する。
   var planeZ = -1400 + dist;
   if(phaseIdx===4){
-    var rL = (t-690)/420;
-    planeZ = planeZ + (-900 - planeZ) * Math.min(rL*1.15,1);
+    if(spd>0.5){ landDist += spd*dt*0.03; }
+    planeZ = TD_Z - LAND_TD_DIST + landDist;
   }
   planeGroup.position.set(0, alt-29+0.9, planeZ);
   planeGroup.rotation.set(THREE.MathUtils.degToRad(roll), THREE.MathUtils.degToRad(-90 + hdgWob*0.6), THREE.MathUtils.degToRad(pitch));
