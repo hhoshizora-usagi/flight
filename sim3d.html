@@ -369,7 +369,7 @@ function update(dt){
     alt=0; pitch=0;
   }
   else if(phaseIdx===2){
-    if(k<0.25){ spd=30+(VR-30)*(k/0.25); alt=0; pitch=0; }
+    if(k<0.25){ spd=VR*(k/0.25); alt=0; pitch=0; }
     else {
       var r=(k-0.25)/0.75;
       spd = VR + (VCR-VR) * (1 - Math.pow(1-r, 2));
