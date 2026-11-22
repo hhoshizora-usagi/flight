@@ -88,28 +88,28 @@ html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;
 </div>
 <div id="cockpit"></div>
 <div id="vt">
-  <button id="vChase">後方覦硹</button>
-  <button id="vCockpit">コックピット（コックピット）</button>
+  <button id="vChase">後方追跡</button>
+  <button id="vCockpit">コックピット（操縦席）</button>
 </div>
-<a id="back" href="index.html">← すぐろくに戻゛</a>
+<a id="back" href="index.html">← すごろくに戻る</a>
 <script src="https://cdnjs.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script>
 (function(){
 "use strict";
 var q = new URLSearchParams(location.search);
 var dep = q.get("dep") || "羽田";
-var dest = q.get("dest") || "邩戢";
-var plane = q.get("plane") || "ボーつング787";
-var weather = q.get("weather") || "曲れ";
-var acc = q.get("acc") || "なご";
+var dest = q.get("dest") || "釧路";
+var plane = q.get("plane") || "ボーイング787";
+var weather = q.get("weather") || "晴れ";
+var acc = q.get("acc") || "なし";
 
 var AC = {
-  "ボ㎱イング787": { len:20, span:28, color:0xdfe6ee, cls:"ct-787", sideStick:false, style:"glass", vr:152, vcr:490 },
-  "エアバパA350": { len:19, span:27, color:0xe8edf2, cls:"ct-a350", sideStick:true, style:"six", vr:148, vcr:488 },
-  "ボーつング737": { len:15, span:22, color:0xd8dee6, cls:"ct-737", sideStick:false, style:"round", vr:142, vcr:450 },
+  "ボーイング787": { len:20, span:28, color:0xdfe6ee, cls:"ct-787", sideStick:false, style:"glass", vr:152, vcr:490 },
+  "エアバスA350": { len:19, span:27, color:0xe8edf2, cls:"ct-a350", sideStick:true, style:"six", vr:148, vcr:488 },
+  "ボーイング737": { len:15, span:22, color:0xd8dee6, cls:"ct-737", sideStick:false, style:"round", vr:142, vcr:450 },
   "エアバスA321": { len:14, span:21, color:0xe4e9ef, cls:"ct-a321", sideStick:true, style:"four", vr:138, vcr:447 }
 };
-var ac = AC[plane] || AC["ボーつング787"];
+var ac = AC[plane] || AC["ボーイング787"];
 var VCR = ac.vcr || 280;
 
 var CRUISE_HDG = 92;
@@ -137,11 +137,11 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 var scene = new THREE.Scene();
 var cam = new THREE.PerspectiveCamera(62, window.innerWidth/window.innerHeight, 0.5, 300000);
 
-var SKYC = { "曲れ":[0x0f5fb8,0xd0e8fb], "くもり":[0x7f95a8,0xc7d2da], "雨":[0x3d4c59,0x8a99a6], "雪":[0x7d8b98,0xd3dbe2], "駧":[0x9aa6b0,0xc9d1d8], "向かい颠":[0x0f5fb8,0xd0e8fb], "追い颠":[0x0f5fb8,0xd0e8fb] };
-var sc = SKYC[weather] || SKYC["曲れ"];
+var SKYC = { "晴れ":[0x0f5fb8,0xd0e8fb], "くもり":[0x7f95a8,0xc7d2da], "雨":[0x3d4c59,0x8a99a6], "雪":[0x7d8b98,0xd3dbe2], "霧":[0x9aa6b0,0xc9d1d8], "向かい風":[0x0f5fb8,0xd0e8fb], "追い風":[0x0f5fb8,0xd0e8fb] };
+var sc = SKYC[weather] || SKYC["晴れ"];
 var skyTop = new THREE.Color(sc[0]), skyBot = new THREE.Color(sc[1]);
 var fogColor = skyBot.clone().lerp(skyTop, 0.2);
-scene.fog = new THREE.Fog(fogColor, weather==="霧"?60:(weather==="雨"?300:1200), weather==="霧"?340:(weather==="曨"?1200:6000));
+scene.fog = new THREE.Fog(fogColor, weather==="霧"?60:(weather==="雨"?300:1200), weather==="霧"?340:(weather==="雨"?1200:6000));
 
 var skyCanvas = document.createElement("canvas");
 skyCanvas.width = 4; skyCanvas.height = 256;
@@ -232,10 +232,10 @@ var CLOUD_CFG = {
   "雨":       { n:44, color:0x8a97a2, op:0.8, drift:18 },
   "雪":       { n:38, color:0xffffff, op:0.85, drift:6 },
   "霧":       { n:52, color:0xdfe6ec, op:0.9, drift:3 },
-  "向かい颠": { n:20, color:0xffffff, op:0.5, drift:26 },
+  "向かい風": { n:20, color:0xffffff, op:0.5, drift:26 },
   "追い風":   { n:16, color:0xffffff, op:0.45, drift:5 }
 };
-var cfg = CLOUD_CFG[weather] || CLOUD_CFG["曲れ"];
+var cfg = CLOUD_CFG[weather] || CLOUD_CFG["晴れ"];
 var cloudMat = new THREE.MeshLambertMaterial({color:cfg.color, transparent:true, opacity:cfg.op, fog:false});
 var clouds=[];
 for(var c=0;c<cfg.n;c++){
@@ -281,7 +281,7 @@ var rain=null, snow=null;
 if(weather==="雨"){ var rn=1600,rg=new THREE.BufferGeometry(); var rp=new Float32Array(rn*3); for(var i2=0;i2<rn;i2++){ rp[i2*3]=(Math.random()-0.5)*260; rp[i2*3+1]=Math.random()*130-10; rp[i2*3+2]=(Math.random()-0.5)*260; } rg.setAttribute("position",new THREE.BufferAttribute(rp,3)); rain=new THREE.Points(rg,new THREE.PointsMaterial({color:0xaac4dd,size:0.6,transparent:true,opacity:0.7})); scene.add(rain); }
 if(weather==="雪"){ var sn=1000,sg=new THREE.BufferGeometry(); var sp=new Float32Array(sn*3); for(var j2=0;j2<sn;j2++){ sp[j2*3]=(Math.random()-0.5)*260; sp[j2*3+1]=Math.random()*130-10; sp[j2*3+2]=(Math.random()-0.5)*260; } sg.setAttribute("position",new THREE.BufferAttribute(sp,3)); snow=new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:1.1,transparent:true,opacity:0.85})); scene.add(snow); }
 
-function pfdHTMM(label, side, wide){
+function pfdHTML(label, side, wide){
   var tag = '<span class="lbl">'+label+(side?' <b>'+side+'</b>':'')+'</span>';
   return '<div class="mfd'+(wide?' wide':'')+'"><div class="att"><div class="sky"></div><div class="gnd"></div><div class="hl"></div><div class="pitch"></div><div class="tick" style="top:44%"></div><div class="tick" style="top:64%"></div></div>'+tag+'<span class="spd"><span>240</span><span>260</span><span>280</span></span><span class="tape"><span>090</span><span>092</span><span>094</span></span></div>';
 }
@@ -381,7 +381,7 @@ function update(dt){
   if(snow){ var sp2=snow.geometry.attributes.position.array; for(var k3=0;k3<sp2.length;k3+=3){ sp2[k3+1]-=12*dt; if(sp2[k3+1]<-10){ sp2[k3+1]=120; sp2[k3]=(Math.random()-0.5)*260; sp2[k3+2]=(Math.random()-0.5)*260; } } snow.geometry.attributes.position.needsUpdate=true; }
   clouds.forEach(function(cl){ cl.position.z -= cfg.drift*dt*50; if(cl.position.z < -16000){ cl.position.z = 11000 + Math.random()*4500; } });
 
-  var spdLabel = ((phaseIdx===1 && k>=0.25) || phaseIdx===2 || (phaseIdx===3 && !touchdown)) ? "巡行速度" : "速度";
+  var spdLabel = ((phaseIdx===1 && k>=0.25) || phaseIdx===2 || (phaseIdx===3 && !touchdown)) ? "巡航速度" : "速度";
   rtEl.innerHTML = spdLabel+" "+Math.round(spd)+" kt<br>高度 "+Math.round(alt).toLocaleString()+" ft<br>ピッチ "+Math.round(pitch)+"°<br>VSI "+Math.round(vsi).toLocaleString()+" ft/min<br>進行方位 "+Math.round(hdg)+"°";
 
   var n1v = Math.round(88*(spd>1?1:0.2));
