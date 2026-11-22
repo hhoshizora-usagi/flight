@@ -227,7 +227,7 @@ var rn09 = makeRwyNum("09"); rn09.position.set(0,-29.5,-2380); scene.add(rn09);
 var rn27 = makeRwyNum("27"); rn27.rotation.z=Math.PI; rn27.position.set(0,-29.5,720); scene.add(rn27);
 
 var CLOUD_CFG = {
-  "晴れ":     { n:14, color:0xffffff, op:0.5, drift:10 },
+  "晴れ":     { n:5, color:0xffffff, op:0.3, drift:8 },
   "くもり":   { n:36, color:0xdfe6ec, op:0.7, drift:8 },
   "雨":       { n:44, color:0x8a97a2, op:0.8, drift:18 },
   "雪":       { n:38, color:0xffffff, op:0.85, drift:6 },
@@ -302,7 +302,7 @@ function ndHTML(label, side, wide){
 function mfdSimple(label){ return '<div class="mfd"><div class="att"><div class="sky"></div><div class="gnd"></div><div class="hl"></div></div><span class="lbl">'+label+'</span></div>'; }
 function gaugeHTML(name){ return '<div class="gauge"><div class="ticks"></div><span class="needle"></span><span class="cap"></span><span>'+name+'</span><span class="v" data-g="'+name+'">0</span></div>'; }
 
-function mcpCol(n, k){ var s='<div class="mcp-sec"><div class="mcp-row">'; for(var i=0;i<n;i++){ s+='<div class="mcp-knob'+(k?' kn':'')+'"'+'></div>'; } return s+'</div></div>'; }
+function mcpCol(n, k){ var s='<div class="mcp-sec"><div class="mcp-row">'; for(var i=0;i<n;i++){ s+='<div class="mcp-knob'+(k?' kn':'')+'"></div>'; } return s+'</div></div>'; }
 function mcpHTML(){ return '<div class="cp-mcp"><div class="mcp-secs">'+mcpCol(3)+mcpCol(3,1)+mcpCol(3)+mcpCol(3,1)+'</div><div class="mcp-row" style="margin-top:2px"><div class="mcp-caution">MC</div><div class="mcp-lbl" style="margin:0 0 0 4px">MASTER CAUTION</div></div></div>'; }
 
 function buildCockpit(){
@@ -348,6 +348,9 @@ function update(dt){
   phaseEl.textContent = PHASE[phaseIdx];
   var s=PH_START[phaseIdx], e=PH_END[phaseIdx], k=Math.min((t-s)/(e-s),1);
 
+  // 巡航中は雲を非表示にして晴れっぽい空にする
+  clouds.forEach(function(cl){ cl.visible = (phaseIdx !== 2); });
+
   var VR = ac.vr || 150;
   var touchdown = (phaseIdx===3 && k>=0.55);
   if(phaseIdx===0){ spd=60*k; alt=0; pitch=0; }
@@ -379,7 +382,7 @@ function update(dt){
 
   if(rain){ var rp2=rain.geometry.attributes.position.array; for(var i3=0;i3<rp2.length;i3+=3){ rp2[i3+1]-=60*dt; if(rp2[i3+1]<-10){ rp2[i3+1]=120; rp2[i3]=(Math.random()-0.5)*260; rp2[i3+2]=(Math.random()-0.5)*260; } } rain.geometry.attributes.position.needsUpdate=true; }
   if(snow){ var sp2=snow.geometry.attributes.position.array; for(var k3=0;k3<sp2.length;k3+=3){ sp2[k3+1]-=12*dt; if(sp2[k3+1]<-10){ sp2[k3+1]=120; sp2[k3]=(Math.random()-0.5)*260; sp2[k3+2]=(Math.random()-0.5)*260; } } snow.geometry.attributes.position.needsUpdate=true; }
-  clouds.forEach(function(cl){ cl.position.z -= cfg.drift*dt*50; if(cl.position.z < -16000){ cl.position.z = 11000 + Math.random()*4500; } });
+  clouds.forEach(function(cl){ if(!cl.visible) return; cl.position.z -= cfg.drift*dt*50; if(cl.position.z < -16000){ cl.position.z = 11000 + Math.random()*4500; } });
 
   var spdLabel = ((phaseIdx===1 && k>=0.25) || phaseIdx===2 || (phaseIdx===3 && !touchdown)) ? "巡航速度" : "速度";
   rtEl.innerHTML = spdLabel+" "+Math.round(spd)+" kt<br>高度 "+Math.round(alt).toLocaleString()+" ft<br>ピッチ "+Math.round(pitch)+"°<br>VSI "+Math.round(vsi).toLocaleString()+" ft/min<br>進行方位 "+Math.round(hdg)+"°";
