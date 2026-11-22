@@ -402,9 +402,9 @@ function update(dt){
   document.querySelectorAll(".mfd .hl").forEach(function(hl){ hl.style.transform='rotate('+(roll*0.5)+'deg)'; });
 
   if(mode==="cockpit"){
-    var off=new THREE.Vector3(ac.len/2-0.9,1.7,0); off.applyEuler(planeGroup.rotation);
+    var off=new THREE.Vector3(ac.len/2-0.9,1.0,0); off.applyEuler(planeGroup.rotation);
     cam.position.copy(planeGroup.position).add(off);
-    var lookAtPt = new THREE.Vector3(ac.len/2+900,6,0); lookAtPt.applyEuler(planeGroup.rotation); lookAtPt.add(planeGroup.position);
+    var lookAtPt = new THREE.Vector3(ac.len/2+900,-55,0); lookAtPt.applyEuler(planeGroup.rotation); lookAtPt.add(planeGroup.position);
     cam.lookAt(lookAtPt);
     cam.fov=72;
   } else {
