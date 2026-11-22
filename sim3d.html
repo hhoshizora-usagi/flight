@@ -343,7 +343,6 @@ var PH_START=[0, 150, 270, 510, 690];
 var totalDur=1110;
 var dist=0;
 var prevAlt=0;
-var dashOffset=0;
 
 function update(dt){
   t += dt;
@@ -401,14 +400,7 @@ function update(dt){
   prevAlt = alt;
 
   if(spd>0.5){ dist += spd*dt*0.03; }
-  // 破線を流れるように：機体の進行に合わせて破線を逆方向へ送る（正しい向き）
-  dashOffset -= spd*dt*0.03;
-  var nD=centerDashes.length, span=70;
-  for(var di2=0;di2<nD;di2++){
-    var z = -1450 + di2*span + dashOffset;
-    z = -1450 + ((z + 1450) % (span*nD) + span*nD) % (span*nD);
-    centerDashes[di2].position.z = z;
-  }
+  // 破線は固定。機体の速度と同じペースで流れて見える。
   // 着陸中は機体を滑走路へ戻しながら降下させ、滑走路が徐々に見えるようにする
   var planeZ = -1400 + dist;
   if(phaseIdx===4){
