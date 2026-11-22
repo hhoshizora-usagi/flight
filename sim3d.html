@@ -302,7 +302,7 @@ function ndHTML(label, side, wide){
 function mfdSimple(label){ return '<div class="mfd"><div class="att"><div class="sky"></div><div class="gnd"></div><div class="hl"></div></div><span class="lbl">'+label+'</span></div>'; }
 function gaugeHTML(name){ return '<div class="gauge"><div class="ticks"></div><span class="needle"></span><span class="cap"></span><span>'+name+'</span><span class="v" data-g="'+name+'">0</span></div>'; }
 
-function mcpCol(n, k){ var s='<div class="mcp-sec"><div class="mcp-row">'; for(var i=0;i<n;i++){ s+='<div class="mcp-knob'+(k?' kn':'')+'"></div>'; } return s+'</div></div>'; }
+function mcpCol(n, k){ var s='<div class="mcp-sec"><div class="mcp-row">'; for(var i=0;i<n;i++){ s+='<div class="mcp-knob'+(k?' kn':'')+'"'+'></div>'; } return s+'</div></div>'; }
 function mcpHTML(){ return '<div class="cp-mcp"><div class="mcp-secs">'+mcpCol(3)+mcpCol(3,1)+mcpCol(3)+mcpCol(3,1)+'</div><div class="mcp-row" style="margin-top:2px"><div class="mcp-caution">MC</div><div class="mcp-lbl" style="margin:0 0 0 4px">MASTER CAUTION</div></div></div>'; }
 
 function buildCockpit(){
@@ -402,12 +402,14 @@ function update(dt){
   document.querySelectorAll(".mfd .hl").forEach(function(hl){ hl.style.transform='rotate('+(roll*0.5)+'deg)'; });
 
   if(mode==="cockpit"){
-    var off=new THREE.Vector3(ac.len/2-0.9,1.0,0); off.applyEuler(planeGroup.rotation);
+    planeGroup.visible = false;
+    var off=new THREE.Vector3(ac.len/2-0.9,1.6,0); off.applyEuler(planeGroup.rotation);
     cam.position.copy(planeGroup.position).add(off);
-    var lookAtPt = new THREE.Vector3(ac.len/2+900,-55,0); lookAtPt.applyEuler(planeGroup.rotation); lookAtPt.add(planeGroup.position);
+    var lookAtPt = new THREE.Vector3(ac.len/2+900,6,0); lookAtPt.applyEuler(planeGroup.rotation); lookAtPt.add(planeGroup.position);
     cam.lookAt(lookAtPt);
     cam.fov=72;
   } else {
+    planeGroup.visible = true;
     var back=new THREE.Vector3(-ac.len-20,11,0); back.applyEuler(planeGroup.rotation);
     cam.position.copy(planeGroup.position).add(back); cam.lookAt(planeGroup.position); cam.fov=55;
   }
