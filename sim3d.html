@@ -127,6 +127,21 @@ var plane = q.get("plane") || "ボーイング787";
 var weather = q.get("weather") || "晴れ";
 var acc = q.get("acc") || "なし";
 
+// ===== 空港ごとの管制塔の呼び名・周波数・滑走路番号 =====
+// 呼び名は出発地（無線を出す管制塔）の空港で決まる。
+var APT = {
+  "羽田":   { tower:"東京タワー",       freq:"118.100", rwy:"16R" },
+  "成田":   { tower:"成田タワー",       freq:"118.200", rwy:"16R" },
+  "伊丹":   { tower:"大阪タワー",       freq:"118.300", rwy:"32L" },
+  "関空":   { tower:"関西タワー",       freq:"118.200", rwy:"24L" },
+  "那覇":   { tower:"那覇タワー",       freq:"118.100", rwy:"18"  },
+  "新千歳": { tower:"新千歳タワー",     freq:"118.100", rwy:"01L" },
+  "福岡":   { tower:"福岡タワー",       freq:"118.400", rwy:"16"  },
+  "中部":   { tower:"中部タワー",       freq:"118.300", rwy:"18"  }
+};
+var ap = APT[dep] || APT["羽田"];
+var CALLSIGN = "COLUMBUS";
+
 var AC = {
   "ボーイング787": { len:20, span:28, color:0xdfe6ee, cls:"ct-787", sideStick:false, style:"glass", vr:152, vcr:490 },
   "エアバスA350": { len:19, span:27, color:0xe8edf2, cls:"ct-a350", sideStick:true, style:"six", vr:148, vcr:488 },
@@ -284,42 +299,51 @@ var towerGroup = new THREE.Group(); scene.add(towerGroup);
 })();
 
 // ===== 管制塔無線（リアル表示） =====
-// 本物のATCの言い回しにそろえた放送を流す。コールサインと滑走路番号はそのまま使う。
+// 出発地の空港ごとに呼び名・周波数・滑走路番号が変わる。
+// 着陸側の空港は「宛先のタワー」として、着陸フェーズで呼びかける。
 var RADIO = (function(){
   var boxEl = document.getElementById("rBox");
   var dotEl = document.getElementById("rDot");
   var freqEl = document.getElementById("rFreq");
+  var tagEl = document.getElementById("rTag");
   var lines = [];
   var cur = -1;
-  var tNext = 0;
-  var airborneAt = 0;
-  var doneLanded = false;
 
-  // 表示する無線の指示（時刻はフェーズ内の相対秒ではなく、update 側で時間に応じて呼ぶ）
+  var T = ap.tower;                       // 出発地の管制塔（東京タワー等）
+  var F = ap.freq;                        // 出発地のタワー周波数
+  var R = ap.rwy;                         // 出発地の滑走路番号
+  var destAp = APT[dest] || APT["羽田"];
+  var T2 = destAp.tower;                  // 着陸側の管制塔
+  var F2 = "124.350";                     // 上空のコントロール（例示）
+  var R2 = destAp.rwy;                    // 着陸側の滑走路番号
+
+  freqEl.textContent = "TWR " + F;
+  tagEl.textContent = T;
+
+  // 表示する無線のやりとり
   var Q = [
-    { t:  5, who:"crew",   whoName:"COLUMBUS",         text:"羽田タワー、COLUMBUS、09番、タキシング用意" },
-    { t: 12, who:"tower",  whoName:"東京コントロール", text:"COLUMBUS、羽田タワー、09番、タキシング許可" },
-    { t: 55, who:"crew",   whoName:"COLUMBUS",         text:"羽田タワー、COLUMBUS、離陸のため滑走路alogainer待ち" },
-    { t: 62, who:"tower",  whoName:"東京コントロール", text:"COLUMBUS、羽田タワー、09番、ラインアップ・アンド・ウェイト" },
-    { t: 75, who:"crew",   whoName:"COLUMBUS",         text:"ラインアップ・アンド・ウェイト、COLUMBUS" },
-    { t: 100,who:"tower",  whoName:"東京コントロール", text:"COLUMBUS、離陸用意" },
-    { t: 110,who:"crew",   whoName:"COLUMBUS",         text:"離陸用意、COLUMBUS" },
-    { t: 128,who:"tower",  whoName:"東京コントロール", text:"COLUMBUS、クリアード・フォー・テイクオフ、09番" },
-    { t: 140,who:"crew",   whoName:"COLUMBUS",         text:"クリアード・フォー・テイクオフ、09番、COLUMBUS" },
-    { t: 262,who:"crew",   whoName:"COLUMBUS",         text:"羽田タワー、COLUMBUS、空中です、右旋回" },
-    { t: 272,who:"tower",  whoName:"東京コントロール", text:"COLUMBUS、ロジャー、東京コントロールへハンドオフ、周波数124.35" },
-    { t: 285,who:"crew",   whoName:"COLUMBUS",         text:"124.35、東京コントロール、COLUMBUS" },
-    { t: 505,who:"tower",  whoName:"東京コントロール", text:"COLUMBUS、羽田タワー、降下の指示、15番ILS" },
-    { t: 695,who:"tower",  whoName:"東京コントロール", text:"COLUMBUS、羽田タワー、着陸許可、09番、風は弱い" },
-    { t: 700,who:"crew",   whoName:"COLUMBUS",         text:"着陸許可、09番、COLUMBUS" },
-    { t: 905,who:"crew",   whoName:"COLUMBUS",         text:"羽田タワー、COLUMBUS、着地、09番" },
-    { t: 915,who:"tower",  whoName:"東京コントロール", text:"COLUMBUS、ロジャー、お疲れさま、タキシングは地面にまかせます" }
+    { t:  5, who:"crew",   text: T + "、" + CALLSIGN + "、" + R + "番、タキシング用意" },
+    { t: 12, who:"tower",  text: CALLSIGN + "、" + T + "、" + R + "番、タキシング許可" },
+    { t: 55, who:"crew",   text: T + "、" + CALLSIGN + "、離陸のため滑走路待ち" },
+    { t: 62, who:"tower",  text: CALLSIGN + "、" + T + "、" + R + "番、ラインアップ・アンド・ウェイト" },
+    { t: 75, who:"crew",   text: "ラインアップ・アンド・ウェイト、" + CALLSIGN },
+    { t: 100,who:"tower",  text: CALLSIGN + "、離陸用意" },
+    { t: 110,who:"crew",   text: "離陸用意、" + CALLSIGN },
+    { t: 128,who:"tower",  text: CALLSIGN + "、クリアード・フォー・テイクオフ、" + R + "番" },
+    { t: 140,who:"crew",   text: "クリアード・フォー・テイクオフ、" + R + "番、" + CALLSIGN },
+    { t: 262,who:"crew",   text: T + "、" + CALLSIGN + "、空中です、右旋回" },
+    { t: 272,who:"tower",  text: CALLSIGN + "、ロジャー、コントロールへハンドオフ、周波数" + F2 },
+    { t: 285,who:"crew",   text: F2 + "、コントロール、" + CALLSIGN },
+    { t: 505,who:"tower",  text: CALLSIGN + "、" + T2 + "、降下の指示、ILS進入" },
+    { t: 695,who:"tower",  text: CALLSIGN + "、" + T2 + "、着陸許可、" + R2 + "番、風は弱い" },
+    { t: 700,who:"crew",   text: "着陸許可、" + R2 + "番、" + CALLSIGN },
+    { t: 905,who:"crew",   text: T2 + "、" + CALLSIGN + "、着地、" + R2 + "番" },
+    { t: 915,who:"tower",  text: CALLSIGN + "、ロジャー、お疲れさま、タキシングは地面にまかせます" }
   ];
 
   function render(){ boxEl.innerHTML = lines.join(""); var n = boxEl.querySelector('.r-line.now'); if(n){ boxEl.scrollTop = boxEl.scrollHeight; } }
 
   function push(ev){
-    var cls = 'r-line' + (ev.who==='crew' ? '' : '');
     var whoLabel = ev.who==='crew' ? '機　長' : '管制官';
     lines.push('<div class="r-line now"><span class="who'+(ev.who==='crew'?' crew':'')+'">'+whoLabel+'</span>　'+ev.text+'</div>');
     // 前の行は「ニュー」状態を解除
@@ -336,12 +360,7 @@ var RADIO = (function(){
       cur++;
       var ev = Q[cur];
       push(ev);
-      // 周波数表示
-      if(ev.who==='tower') freqEl.textContent = (ev.t>=272 && ev.t<285) ? 'TWR 124.350' : 'TWR 118.100';
-      else freqEl.textContent = 'TWR 118.100';
     }
-    // 「受信中」のノイズっぽい表示
-    if(t % 3 < 1.2){ /* ここは静的なので何もしない */ }
   }
 
   return { tick: tick };
