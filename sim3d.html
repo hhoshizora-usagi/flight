@@ -395,21 +395,25 @@ function update(dt){
   var vsi = (dt>0) ? ((alt - prevAlt) / dt) * 60 : 0;
   prevAlt = alt;
 
-  if(spd>0.5){ dist += spd*dt*0.03; }
-  // 破線を流れるように：機体の進行に合わせて破線を逆方向へ送る（正しい向き）
-  dashOffset -= spd*dt*0.03;
+  // 破線を流れるように。タキシング・離陸は機体の進行と同じペース(1倍)、着陸は機体の戻る動きに合わせて線は速度分だけ流す
+  var planeZ = -1400 + dist;
+  var dashStep = 0;
+  if(phaseIdx===4){
+    var rL = (t-690)/420;
+    var newPlaneZ = planeZ + (-900 - planeZ) * Math.min(rL*1.15,1);
+    dashStep = (newPlaneZ - planeZ);
+    planeZ = newPlaneZ;
+  } else {
+    dashStep = spd*dt*0.03;
+  }
+  dashOffset += dashStep;
   var nD=centerDashes.length, span=70;
   for(var di2=0;di2<nD;di2++){
     var z = -1450 + di2*span + dashOffset;
     z = -1450 + ((z + 1450) % (span*nD) + span*nD) % (span*nD);
     centerDashes[di2].position.z = z;
   }
-  // 着陸中は機体を滑走路へ戻しながら降下させ、滑走路が徐々に見えるようにする
-  var planeZ = -1400 + dist;
-  if(phaseIdx===4){
-    var rL = (t-690)/420;
-    planeZ = planeZ + (-900 - planeZ) * Math.min(rL*1.15,1);
-  }
+  if(spd>0.5){ dist += spd*dt*0.03; }
   planeGroup.position.set(0, alt-29+0.9, planeZ);
   planeGroup.rotation.set(THREE.MathUtils.degToRad(roll), THREE.MathUtils.degToRad(-90 + hdgWob*0.6), THREE.MathUtils.degToRad(pitch));
 
