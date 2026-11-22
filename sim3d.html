@@ -305,6 +305,7 @@ var towerGroup = new THREE.Group(); scene.add(towerGroup);
 // ===== 管制塔無線（リアル表示） =====
 // 出発地の空港ごとに呼び名・周波数・滑走路番号が変わる。
 // 着陸側の空港は「宛先のタワー」として、着陸フェーズで呼びかける。
+// 無線のタイミングはフェーズの境目に合わせている（タキシング中・離陸の瞬間・着陸の瞬間など）。
 var RADIO = (function(){
   var boxEl = document.getElementById("rBox");
   var dotEl = document.getElementById("rDot");
@@ -322,30 +323,30 @@ var RADIO = (function(){
   var F2 = "124.350";                     // 上空のコントロール（例示）
   var R2 = destAp.rwy;                    // 着陸側の滑走路番号
 
-  // ヘッダー：塔の名前を大きく表示＋周波数＋便名
+  // ヘッダー：塔の名前・周波数・便名
   nameEl.textContent = T;
   freqEl.textContent = F;
   tagEl.textContent = FLIGHTNO;
 
-  // 表示する無線のやりとり
+  // 表示する無線のやりとり（フェーズのタイミングに合わせて）
   var Q = [
     { t:  5, who:"crew",   text: T + "、" + CALLSIGN + "、" + R + "番、タキシング用意" },
     { t: 12, who:"tower",  text: CALLSIGN + "、" + T + "、" + R + "番、タキシング許可" },
     { t: 55, who:"crew",   text: T + "、" + CALLSIGN + "、離陸のため滑走路待ち" },
-    { t: 62, who:"tower",  text: CALLSIGN + "、" + T + "、" + R + "番、ラインアップ・アンド・ウェイト" },
-    { t: 75, who:"crew",   text: "ラインアップ・アンド・ウェイト、" + CALLSIGN },
-    { t: 100,who:"tower",  text: CALLSIGN + "、離陸用意" },
-    { t: 110,who:"crew",   text: "離陸用意、" + CALLSIGN },
-    { t: 128,who:"tower",  text: CALLSIGN + "、クリアード・フォー・テイクオフ、" + R + "番" },
-    { t: 140,who:"crew",   text: "クリアード・フォー・テイクオフ、" + R + "番、" + CALLSIGN },
-    { t: 262,who:"crew",   text: T + "、" + CALLSIGN + "、空中です、右旋回" },
-    { t: 272,who:"tower",  text: CALLSIGN + "、ロジャー、コントロールへハンドオフ、周波数" + F2 },
-    { t: 285,who:"crew",   text: F2 + "、コントロール、" + CALLSIGN },
-    { t: 505,who:"tower",  text: CALLSIGN + "、" + T2 + "、降下の指示、ILS進入" },
-    { t: 695,who:"tower",  text: CALLSIGN + "、" + T2 + "、着陸許可、" + R2 + "番、風は弱い" },
-    { t: 700,who:"crew",   text: "着陸許可、" + R2 + "番、" + CALLSIGN },
-    { t: 905,who:"crew",   text: T2 + "、" + CALLSIGN + "、着地、" + R2 + "番" },
-    { t: 915,who:"tower",  text: CALLSIGN + "、ロジャー、お疲れさま、タキシングは地面にまかせます" }
+    { t: 155,who:"crew",   text: CALLSIGN + "、" + T + "、離陸準備完了" },
+    { t: 200,who:"tower",  text: CALLSIGN + "、" + T + "、" + R + "番、ラインアップ・アンド・ウェイト" },
+    { t: 235,who:"crew",   text: "ラインアップ・アンド・ウェイト、" + CALLSIGN },
+    { t: 262,who:"tower",  text: CALLSIGN + "、" + R + "番、クリアード・フォー・テイクオフ" },
+    { t: 272,who:"crew",   text: "クリアード・フォー・テイクオフ、" + R + "番、" + CALLSIGN },
+    { t: 332,who:"crew",   text: T + "、" + CALLSIGN + "、空中です、右旋回" },
+    { t: 342,who:"tower",  text: CALLSIGN + "、ロジャー、コントロールへハンドオフ、周波数" + F2 },
+    { t: 352,who:"crew",   text: F2 + "、コントロール、" + CALLSIGN },
+    { t: 512,who:"crew",   text: "コントロール、" + CALLSIGN + "、巡航3万フィート" },
+    { t: 692,who:"tower",  text: CALLSIGN + "、" + T2 + "、降下の指示、ILS進入" },
+    { t: 700,who:"crew",   text: "降下、" + CALLSIGN },
+    { t: 860,who:"tower",  text: CALLSIGN + "、" + T2 + "、着陸許可、" + R2 + "番、風は弱い" },
+    { t: 924,who:"crew",   text: T2 + "、" + CALLSIGN + "、着地、" + R2 + "番" },
+    { t: 935,who:"tower",  text: CALLSIGN + "、ロジャー、お疲れさま、タキシングは地面にまかせます" }
   ];
 
   function render(){ boxEl.innerHTML = lines.join(""); var n = boxEl.querySelector('.r-line.now'); if(n){ boxEl.scrollTop = boxEl.scrollHeight; } }
