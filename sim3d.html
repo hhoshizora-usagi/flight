@@ -139,7 +139,7 @@ var APT = {
   "福岡":   { tower:"福岡タワー",       freq:"118.400", rwy:"16"  },
   "中部":   { tower:"中部タワー",       freq:"118.300", rwy:"18"  }
 };
-var ap = APT[dep] || APT["羽田"];
+var depAp = APT[dep] || APT["羽田"];
 var CALLSIGN = "MITAN AIR";
 
 var AC = {
@@ -244,8 +244,8 @@ for(var ei=0; ei<60; ei++){
 }
 var appLampMat = new THREE.MeshBasicMaterial({color:0xffe9a8});
 for(var ai=0; ai<12; ai++){
-  var ap = new THREE.Mesh(new THREE.SphereGeometry(2.0,8,6), appLampMat);
-  ap.position.set(0, -29.2, -2470 - ai*60); scene.add(ap);
+  var apL = new THREE.Mesh(new THREE.SphereGeometry(2.0,8,6), appLampMat);
+  apL.position.set(0, -29.2, -2470 - ai*60); scene.add(apL);
 }
 var thrLampMat = new THREE.MeshBasicMaterial({color:0xffd060});
 for(var tli=0; tli<10; tli++){
@@ -309,9 +309,9 @@ var RADIO = (function(){
   var lines = [];
   var cur = -1;
 
-  var T = ap.tower;                       // 出発地の管制塔（東京タワー等）
-  var F = ap.freq;                        // 出発地のタワー周波数
-  var R = ap.rwy;                         // 出発地の滑走路番号
+  var T = depAp.tower;                    // 出発地の管制塔（東京タワー等）
+  var F = depAp.freq;                     // 出発地のタワー周波数
+  var R = depAp.rwy;                      // 出発地の滑走路番号
   var destAp = APT[dest] || APT["羽田"];
   var T2 = destAp.tower;                  // 着陸側の管制塔
   var F2 = "124.350";                     // 上空のコントロール（例示）
