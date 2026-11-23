@@ -393,6 +393,8 @@ var RADIO = (function(){
   return { tick: tick };
 })();
 
+// 雲の層は 12000〜20000ft。25000ft超を飛ぶときは、雲は機体の下にあって前を見ても見えない
+var CLOUD_BASE = 12000, CLOUD_TOP = 20000;
 var CLOUD_CFG = {
   "晴れ":     { n:5, color:0xffffff, op:0.3, drift:8 },
   "くもり":   { n:36, color:0xdfe6ec, op:0.7, drift:8 },
@@ -408,9 +410,29 @@ var clouds=[];
 for(var c=0;c<cfg.n;c++){
   var cl=new THREE.Mesh(new THREE.SphereGeometry(220+Math.random()*320,10,8), cloudMat);
   cl.scale.set(1.8,0.65,1.35);
-  cl.position.set((Math.random()-0.5)*12000, 23000+Math.random()*11000, -15000+Math.random()*24000);
+  cl.position.set((Math.random()-0.5)*12000, CLOUD_BASE+Math.random()*(CLOUD_TOP-CLOUD_BASE), -15000+Math.random()*24000);
   scene.add(cl); clouds.push(cl);
 }
+
+// ===== 高度による空の色 =====
+// 雲の層より上（25000ft超）は、天気にかかわらず雲ひとつない快晴の青空にする
+var CLEAR_TOP = new THREE.Color(0x0b4aa0), CLEAR_BOT = new THREE.Color(0xbfe0fb);
+var CLEAR_FROM = 22000, CLEAR_ALT = 25000;   // 22000ftから少しずつ晴れて、25000ft超で完全に快晴
+var skyMix = -1;
+function applySky(a){
+  var f = Math.max(0, Math.min(1, (a - CLEAR_FROM) / (CLEAR_ALT - CLEAR_FROM)));
+  f = Math.round(f*50)/50;
+  if(f === skyMix) return;
+  skyMix = f;
+  var top = skyTop.clone().lerp(CLEAR_TOP, f), bot = skyBot.clone().lerp(CLEAR_BOT, f);
+  var g = sctx.createLinearGradient(0,0,0,256);
+  g.addColorStop(0, "#"+top.getHexString());
+  g.addColorStop(1, "#"+bot.getHexString());
+  sctx.fillStyle = g; sctx.fillRect(0,0,4,256);
+  skyTex.needsUpdate = true;
+  scene.fog.color.copy(bot.clone().lerp(top, 0.2));
+}
+applySky(0);
 
 var planeGroup = new THREE.Group(); scene.add(planeGroup);
 var bodyMat = new THREE.MeshStandardMaterial({color:ac.color, roughness:0.45, metalness:0.2});
@@ -514,6 +536,7 @@ var LAND_DUR = PH_END[4]-PH_START[4];
 // 着陸開始から接地までに前へ進む距離（速度の式をそのまま積分した値）
 var LAND_TD_DIST = (0.10*LAND_DUR)*VCR*0.03 + (0.45*LAND_DUR)*(VCR - (VCR-APPR)*2/3)*0.03;
 var landDist=0;
+var lastPlaneZ=null, landShifted=false;
 
 function update(dt){
   t += dt;
@@ -521,8 +544,7 @@ function update(dt){
   phaseEl.textContent = PHASE[phaseIdx];
   var s=PH_START[phaseIdx], e=PH_END[phaseIdx], k=Math.min((t-s)/(e-s),1);
 
-  // 巡航中は雲を非表示にして晴れの空にする
-  clouds.forEach(function(cl){ cl.visible = (phaseIdx !== 3); });
+  // 雲はいつも出しておく（雲の層は機体の下。上昇・降下のときは雲の中を通り抜ける）
 
   var VR = ac.vr || 150;
   var touchdown = (phaseIdx===4 && k>=0.55);
@@ -567,6 +589,9 @@ function update(dt){
 
   gearGroup.visible = alt < 1000;
 
+  // 高度に合わせて空の色を変える（25000ft超で快晴）
+  applySky(alt);
+
   var vsi = (dt>0) ? ((alt - prevAlt) / dt) * 60 : 0;
   prevAlt = alt;
 
@@ -579,13 +604,20 @@ function update(dt){
   if(phaseIdx===4){
     if(spd>0.5){ landDist += spd*dt*0.03; }
     planeZ = TD_Z - LAND_TD_DIST + landDist;
+    // 着陸開始の位置合わせのとき、雲も同じだけずらして見え方を変えない
+    if(!landShifted && lastPlaneZ!==null){
+      var cdz = planeZ - lastPlaneZ;
+      clouds.forEach(function(cl){ cl.position.z += cdz; });
+    }
+    landShifted = true;
   }
+  lastPlaneZ = planeZ;
   planeGroup.position.set(0, alt-29+0.9, planeZ);
   planeGroup.rotation.set(THREE.MathUtils.degToRad(roll), THREE.MathUtils.degToRad(-90 + hdgWob*0.6), THREE.MathUtils.degToRad(pitch));
 
   if(rain){ var rp2=rain.geometry.attributes.position.array; for(var i3=0;i3<rp2.length;i3+=3){ rp2[i3+1]-=60*dt; if(rp2[i3+1]<-10){ rp2[i3+1]=120; rp2[i3]=(Math.random()-0.5)*260; rp2[i3+2]=(Math.random()-0.5)*260; } } rain.geometry.attributes.position.needsUpdate=true; }
   if(snow){ var sp2=snow.geometry.attributes.position.array; for(var k3=0;k3<sp2.length;k3+=3){ sp2[k3+1]-=12*dt; if(sp2[k3+1]<-10){ sp2[k3+1]=120; sp2[k3]=(Math.random()-0.5)*260; sp2[k3+2]=(Math.random()-0.5)*260; } } snow.geometry.attributes.position.needsUpdate=true; }
-  clouds.forEach(function(cl){ if(!cl.visible) return; cl.position.z -= cfg.drift*dt*50; if(cl.position.z < -16000){ cl.position.z = 11000 + Math.random()*4500; } });
+  clouds.forEach(function(cl){ if(!cl.visible) return; cl.position.z -= cfg.drift*dt*50; if(cl.position.z < planeZ-16000){ cl.position.z += 27000 + Math.random()*4500; } });
 
   // 管制塔の航空灯火をゆっくり点滅
   var beacon = towerGroup.userData.beacon;
