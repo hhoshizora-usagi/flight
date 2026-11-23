@@ -1,1 +1,684 @@
-X1REX0RJU1QgPSAoMC4xMCpMQU5EX0RVUikqVkNSKjAuMDMgKyAoMC40NSpMQU5EX0RVUikqKFZDUiAtIChWQ1ItQVBQUikqMi8zKSowLjAzOwp2YXIgbGFuZERpc3Q9MDsKdmFyIGxhc3RQbGFuZVo9bnVsbCwgbGFuZFNoaWZ0ZWQ9ZmFsc2U7CgpmdW5jdGlvbiB1cGRhdGUoZHQpewogIHQgKz0gZHQ7CiAgcGhhc2VJZHggPSB0PFBIX0VORFswXT8wOih0PFBIX0VORFsxXT8xOih0PFBIX0VORFsyXT8yOih0PFBIX0VORFszXT8zOjQpKSk7CiAgcGhhc2VFbC50ZXh0Q29udGVudCA9IFBIQVNFW3BoYXNlSWR4XTsKICB2YXIgcz1QSF9TVEFSVFtwaGFzZUlkeF0sIGU9UEhfRU5EW3BoYXNlSWR4XSwgaz1NYXRoLm1pbigodC1zKS8oZS1zKSwxKTsKCiAgdmFyIFZSID0gYWMudnIgfHwgMTUwOwogIHZhciB0b3VjaGRvd24gPSAocGhhc2VJZHg9PT00ICYmIGs+PTAuNTUpOwogIHZhciBpbkRlc2MgPSAocGhhc2VJZHg9PT00ICYmIGs+PTAuMTApOwogIGlmKHBoYXNlSWR4PT09MCl7IHNwZD0zMCpUQVhJX0FDQ0VMKms7IGFsdD0wOyBwaXRjaD0wOyB9Cg==
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>フライト シミュレーター（3D）</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#070b10;color:#e9eef2;font-family:Arial,"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}
+#cv{display:block;width:100vw;height:100vh}
+#hud{position:fixed;left:0;right:0;top:0;padding:14px 18px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;font-size:13px;letter-spacing:.06em;z-index:5}
+#hud .l{line-height:1.6;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+#hud .phase{font-size:20px;font-weight:700;color:#f5b13c}
+#hud .cond{color:#c3d1dd;font-size:12px}
+#hud .rt{color:#c3d1dd;font-size:12px;text-align:right;line-height:1.6;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+#back{position:fixed;left:16px;bottom:16px;border:1px solid #f5b13c;background:rgba(7,11,16,.75);color:#f5b13c;font:inherit;font-size:13px;letter-spacing:.06em;padding:10px 18px;border-radius:4px;cursor:pointer;text-decoration:none;z-index:6}
+#back:hover{background:#f5b13c;color:#070b10}
+#vt{position:fixed;right:16px;bottom:16px;display:flex;gap:8px;z-index:6}
+#vt button{border:1px solid #3a4a5a;background:rgba(7,11,16,.75);color:#c3d1dd;font:inherit;font-size:12px;letter-spacing:.06em;padding:9px 14px;border-radius:4px;cursor:pointer}
+#vt button.on{border-color:#f5b13c;color:#f5b13c;background:rgba(245,177,60,.12)}
+#cockpit{position:fixed;inset:0;pointer-events:none;display:none;z-index:3;font-family:Arial,"Noto Sans JP",sans-serif}
+#cockpit.show{display:block}
+.cp-struct{position:absolute;inset:0;pointer-events:none}
+.cp-struct:before{content:"";position:absolute;left:0;top:0;bottom:0;width:9%;background:linear-gradient(90deg,#0d1319 30%,rgba(13,19,25,0));z-index:1}
+.cp-struct:after{content:"";position:absolute;right:0;top:0;bottom:0;width:9%;background:linear-gradient(270deg,#0d1319 30%,rgba(13,19,25,0));z-index:1}
+.cp-top{position:absolute;left:9%;right:9%;top:0;height:5%;background:linear-gradient(180deg,#0b1118 30%,rgba(11,17,24,0))}
+.cp-mcp{position:absolute;left:50%;top:2%;transform:translateX(-50%);width:42%;height:11%;background:linear-gradient(180deg,#141d26 0%,#0d141b 100%);border:1px solid #1c2933;border-radius:0 0 8px 8px;box-shadow:0 8px 24px rgba(0,0,0,.5);display:flex;flex-direction:column;justify-content:center;gap:2px;padding:3px 9px}
+.mcp-row{display:flex;justify-content:center;gap:4px;align-items:center}
+.mcp-knob{width:11px;height:11px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#2c3a47,#121922);border:1px solid #3a4c5c;position:relative;box-shadow:0 1px 2px rgba(0,0,0,.6)}
+.mcp-knob:before{content:"";position:absolute;left:50%;top:2px;width:2px;height:3px;background:#8fa6ba;transform:translateX(-50%)}
+.mcp-knob.kn{background:radial-gradient(circle at 35% 30%,#3b5468,#16222c);border-color:#4e6b82}
+.mcp-lbl{color:#7f95a8;font-size:6px;letter-spacing:.16em;margin-top:1px;text-align:center}
+.mcp-secs{display:flex;justify-content:center;gap:6px}
+.mcp-sec{flex:none}
+.mcp-caution{width:20px;height:20px;border-radius:4px;background:#2b1a10;border:1px solid #5a3a1e;display:flex;align-items:center;justify-content:center;font-size:6px;font-weight:700;color:#e8a45a;box-shadow:0 0 8px rgba(232,164,90,.5)}
+.cp-dash{position:absolute;left:0;right:0;bottom:0;height:18%;background:linear-gradient(180deg,#232e39 0%,#1a232d 15%,#0e151c 60%,#070b10 100%);border-top:2px solid #33465a;box-shadow:0 -12px 44px rgba(0,0,0,.7), inset 0 2px 0 rgba(255,255,255,.05);z-index:2}
+.cp-panel{position:absolute;top:52%;left:50%;transform:translateX(-50%);display:flex;gap:14px;align-items:center;justify-content:center;width:88%}
+.cp-label{position:absolute;bottom:2%;left:50%;transform:translateX(-50%);color:#5f7386;font-size:11px;letter-spacing:.24em;text-shadow:0 2px 6px rgba(0,0,0,.6);z-index:3}
+.mfd{width:104px;height:70px;border-radius:4px;overflow:hidden;border:2px solid #26323d;box-shadow:0 4px 14px rgba(0,0,0,.55);position:relative;flex:none;background:#050a10}
+.mfd .att{position:absolute;inset:0}
+.mfd .sky{position:absolute;left:0;right:0;top:0;height:54%;background:linear-gradient(180deg,#2f6fa8,#5093c8)}
+.mfd .gnd{position:absolute;left:0;right:0;bottom:0;height:46%;background:linear-gradient(180deg,#8a5a26,#5f4016)}
+.mfd .hl{position:absolute;left:8%;right:8%;top:54%;height:2px;background:#eef4fa;box-shadow:0 0 5px rgba(0,0,0,.7)}
+.mfd .pitch{position:absolute;left:50%;top:54%;width:30px;height:30px;border-left:1px solid rgba(255,255,255,.6);border-right:1px solid rgba(255,255,255,.6);border-radius:50%;transform:translate(-50%,-50%)}
+.mfd .tick{position:absolute;left:50%;top:54%;width:60px;height:1px;background:rgba(255,255,255,.45);transform:translate(-50%,0)}
+.mfd .lbl{position:absolute;left:6px;top:4px;font-size:8px;letter-spacing:.12em;color:#e6f0f8;text-shadow:0 1px 2px rgba(0,0,0,.7);z-index:2}
+.mfd .lbl b{color:#7fc4ea;font-size:7px}
+.mfd .tape{position:absolute;right:5px;top:12px;bottom:12px;width:14px;background:rgba(0,0,0,.5);border:1px solid rgba(111,185,232,.5);display:flex;flex-direction:column;justify-content:space-between;font-size:7px;color:#cfeaff;padding:2px 0;align-items:center}
+.mfd .spd{position:absolute;left:5px;top:12px;bottom:12px;width:14px;background:rgba(0,0,0,.5);border:1px solid rgba(111,185,232,.5);display:flex;flex-direction:column;justify-content:space-between;font-size:7px;color:#cfeaff;padding:2px 0;align-items:center}
+.mfd.wide{width:140px}
+.nd-rose{position:absolute;left:50%;top:50%;width:74px;height:74px;transform:translate(-50%,-50%);opacity:.95}
+.nd-rose text{font-family:"Courier New",monospace;fill:#9fe3c0;font-size:9px}
+.nav{position:absolute;inset:0;pointer-events:none}
+.nav .nd-to{position:absolute;left:7px;top:6px;font-size:10px;font-weight:700;color:#c8fad8;font-family:"Courier New",monospace;text-shadow:0 0 6px rgba(100,255,180,.4)}
+.nav .nd-from{position:absolute;left:7px;bottom:7px;font-size:8px;color:#6fbf92;font-family:"Courier New",monospace}
+.nav .nd-hdg{position:absolute;right:7px;top:6px;font-size:8px;color:#8fd8b0;font-family:"Courier New",monospace}
+.nav .nd-rng{position:absolute;right:7px;bottom:7px;font-size:8px;color:#5fae82;font-family:"Courier New",monospace}
+.gauge{width:68px;height:68px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#2b333d,#0b0f14);border:2px solid #45505c;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#ffd27a;font-size:8px;letter-spacing:.06em;position:relative;flex:none;box-shadow:0 4px 12px rgba(0,0,0,.5)}
+.gauge .ticks{position:absolute;inset:5px;border-radius:50%;background:repeating-conic-gradient(from -140deg,rgba(255,210,122,.9) 0deg 2deg,transparent 2deg 26deg);mask:radial-gradient(circle,transparent 62%,#000 63%,#000 70%,transparent 71%);-webkit-mask:radial-gradient(circle,transparent 62%,#000 63%,#000 70%,transparent 71%)}
+.gauge .needle{position:absolute;left:50%;top:50%;width:26px;height:2px;background:#ffd27a;transform-origin:right center;transform:translate(-100%,-50%) rotate(var(--r,0deg));box-shadow:0 0 5px rgba(255,210,122,.8);z-index:2}
+.gauge .cap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:5px;height:5px;border-radius:50%;background:#ffd27a;box-shadow:0 0 4px rgba(255,210,122,.8);z-index:3}
+.gauge .v{font-size:12px;font-weight:700;color:#ffe9b8;line-height:1.1;margin-top:10px;position:relative;z-index:2}
+.cp-pedestal{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);width:22%;height:8%;background:linear-gradient(180deg,#1a242e,#0e151d);border:1px solid #2a3a48;border-radius:6px 6px 0 0;display:flex;align-items:flex-start;justify-content:center;gap:18px;padding-top:6px;z-index:2;box-shadow:0 -6px 20px rgba(0,0,0,.5)}
+.thr{ width:11px;height:36px;background:linear-gradient(180deg,#2a3844,#121a22);border:1px solid #36495a;border-radius:3px;position:relative}
+.thr:before{content:"";position:absolute;left:-4px;top:32%;width:17px;height:12px;border-radius:4px;background:linear-gradient(180deg,#4f6276,#2c3a46);border:1px solid #5f7689;box-shadow:0 2px 4px rgba(0,0,0,.6)}
+.yoke{position:absolute;bottom:12%;left:50%;transform:translateX(-50%);width:196px;height:42px;z-index:2}
+.yoke-bar{position:absolute;left:7%;right:7%;top:2px;height:9px;border-radius:6px;background:linear-gradient(180deg,#55697d,#2c3946);border:1px solid #64798e;box-shadow:0 4px 10px rgba(0,0,0,.55)}
+.yoke-grip{position:absolute;top:0;width:28px;height:30px;border-radius:8px;background:linear-gradient(180deg,#55697d,#2c3946);border:1px solid #64798e;box-shadow:0 4px 10px rgba(0,0,0,.55)}
+.yoke-grip.l{left:3%}.yoke-grip.r{right:3%}
+.yoke-hub{position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#3d4e5e,#1f2830);border:2px solid #5c7084;box-shadow:0 2px 6px rgba(0,0,0,.6)}
+.sstick{position:absolute;bottom:12%;left:18%;width:11px;height:44px;border-radius:8px;background:linear-gradient(180deg,#3a4a5a,#232e38);border:2px solid #55697d;transform:rotate(-15deg);box-shadow:0 4px 12px rgba(0,0,0,.55);z-index:2}
+.sstick:before{content:"";position:absolute;top:-9px;left:50%;transform:translateX(-50%);width:18px;height:20px;border-radius:7px;background:linear-gradient(180deg,#4a5a6a,#2c3946);border:2px solid #55697d}
+.sstick.r{left:auto;right:18%;transform:rotate(15deg)}
+.ct-787 .cp-dash{height:16%;background:linear-gradient(180deg,#26323f 0%,#1b2530 12%,#0f161d 55%,#070b10 100%)}
+.ct-a350 .cp-dash{height:16%;background:linear-gradient(180deg,#1a242f 0%,#121b24 15%,#0b1118 60%,#070b10 100%)}
+.ct-a350 .mfd{width:72px;height:50px}
+.ct-a350 .cp-panel{gap:6px;width:90%}
+.ct-a350 .cp-sw.lit{background:#3a2a12;border-color:#8a6a2a;box-shadow:0 0 8px rgba(240,180,80,.7), inset 0 0 4px rgba(240,180,80,.5)}
+.ct-a350 .nd-rose{width:56px;height:56px}
+.ct-737 .cp-dash{height:20%;background:linear-gradient(180deg,#2b343f 0%,#222b35 15%,#141b22 65%,#090d12 100%)}
+.ct-a321 .cp-dash{height:17%;background:linear-gradient(180deg,#1b2530 0%,#141c25 15%,#0c1218 60%,#070b10 100%)}
+/* 管制塔無線パネル */
+#radio{position:fixed;left:18px;top:86px;width:min(430px,calc(100vw - 36px));pointer-events:none;z-index:4;font-family:"Courier New",monospace;transition:opacity .35s}
+#radio .r-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;text-shadow:0 2px 8px rgba(0,0,0,.8)}
+#radio .r-dot{width:8px;height:8px;border-radius:50%;background:#33414f;border:1px solid #46596b;transition:background .2s, box-shadow .2s;flex:none}
+#radio .r-dot.on{background:#6dcfff;box-shadow:0 0 10px #6dcfff}
+#radio .r-name{font-size:14px;font-weight:700;letter-spacing:.1em;color:#eaf4ff;text-shadow:0 0 10px rgba(109,207,255,.45);white-space:nowrap}
+#radio .r-freq{font-size:11px;letter-spacing:.14em;color:#9fd8ff;text-shadow:0 0 6px rgba(109,207,255,.5);white-space:nowrap}
+#radio .r-tag{font-size:10px;letter-spacing:.1em;color:#7f93a6;margin-left:auto;white-space:nowrap}
+#radio .r-box{background:rgba(7,12,18,.82);border:1px solid #24323f;border-radius:5px;padding:9px 12px;box-shadow:0 12px 34px rgba(0,0,0,.55);backdrop-filter:blur(2px)}
+#radio .r-line{font-size:12.5px;line-height:1.55;letter-spacing:.02em;color:#b9c9d8;opacity:.5;transition:opacity .3s, color .3s}
+#radio .r-line.now{opacity:1;color:#f3f8fc;text-shadow:0 0 8px rgba(160,220,255,.25)}
+#radio .r-line .who{color:#8fd8b0}
+#radio .r-line.now .who{color:#a7f2c6}
+#radio .r-line .who.crew{color:#f5b13c}
+#radio .r-line.now .who.crew{color:#ffcf73}
+#radio .r-noise{font-size:11px;color:#4a7188;letter-spacing:.18em;margin-top:4px;height:14px;overflow:hidden;white-space:nowrap}
+@keyframes rk-out{from{opacity:.5;transform:translateY(4px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="hud">
+  <div class="l"><div class="phase" id="phase">タキシング</div><div class="cond" id="cond"></div></div>
+  <div class="rt" id="rt"></div>
+</div>
+<div id="radio">
+  <div class="r-head">
+    <span class="r-dot" id="rDot"></span>
+    <span class="r-name" id="rName">管制塔</span>
+    <span class="r-freq" id="rFreq">TWR 118.100</span>
+    <span class="r-tag" id="rTag">管制塔</span>
+  </div>
+  <div class="r-box" id="rBox"></div>
+</div>
+<div id="cockpit"></div>
+<div id="vt">
+  <button id="vChase">後方追跡</button>
+  <button id="vCockpit">コックピット（操縦席）</button>
+</div>
+<a id="back" href="index.html">← すごろくに戻る</a>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+(function(){
+"use strict";
+var q = new URLSearchParams(location.search);
+var dep = q.get("dep") || "羽田";
+var dest = q.get("dest") || "釧路";
+var plane = q.get("plane") || "ボーイング787";
+var weather = q.get("weather") || "晴れ";
+var acc = q.get("acc") || "なし";
+
+// ===== 空港ごとの管制塔の呼び名・周波数・滑走路番号 =====
+// 呼び名は出発地（無線を出す管制塔）の空港で決まる。
+var APT = {
+  "羽田":   { tower:"東京タワー",       freq:"118.100", rwy:"16R" },
+  "成田":   { tower:"成田タワー",       freq:"118.200", rwy:"16R" },
+  "伊丹":   { tower:"大阪タワー",       freq:"118.300", rwy:"32L" },
+  "関空":   { tower:"関西タワー",       freq:"118.200", rwy:"24L" },
+  "那覇":   { tower:"那覇タワー",       freq:"118.100", rwy:"18"  },
+  "新千歳": { tower:"新千歳タワー",     freq:"118.100", rwy:"01L" },
+  "福岡":   { tower:"福岡タワー",       freq:"118.400", rwy:"16"  },
+  "中部":   { tower:"中部タワー",       freq:"118.300", rwy:"18"  }
+};
+var depAp = APT[dep] || APT["羽田"];
+var CALLSIGN = "MITAN AIR";
+// 便名（無線の帯に表示する）
+var FLIGHTNO = "MITAN AIR 701便";
+
+var AC = {
+  "ボーイング787": { len:20, span:28, color:0xdfe6ee, cls:"ct-787", sideStick:false, style:"glass", vr:152, vcr:490 },
+  "エアバスA350": { len:19, span:27, color:0xe8edf2, cls:"ct-a350", sideStick:true, style:"six", vr:148, vcr:488 },
+  "ボーイング737": { len:15, span:22, color:0xd8dee6, cls:"ct-737", sideStick:false, style:"round", vr:142, vcr:450 },
+  "エアバスA321": { len:14, span:21, color:0xe4e9ef, cls:"ct-a321", sideStick:true, style:"four", vr:138, vcr:447 }
+};
+var ac = AC[plane] || AC["ボーイング787"];
+var VCR = ac.vcr || 280;
+var APPR = Math.round(VCR * 0.45);
+
+var CRUISE_HDG = 92;
+var CRUISE_ALT = 30000;
+
+function smooth(a, b, x){ x = Math.max(0, Math.min(1, x)); var u = x*x*(3-2*x); return a + (b-a)*u; }
+function easeOut(x){ x = Math.max(0, Math.min(1, x)); return 1 - (1-x)*(1-x); }
+
+function stagedDescend(progress, stages){
+  var x = Math.min(progress*stages, stages-0.0001);
+  var i = Math.floor(x);
+  var f = x - i;
+  var e = f*f*(3-2*f);
+  return CRUISE_ALT * (1 - (i + e) / stages);
+}
+
+document.getElementById("cond").textContent = dep + " → " + dest + " / " + plane + " / " + weather + (acc && acc!=="なし" ? " / " + acc : "");
+var rtEl = document.getElementById("rt");
+var phaseEl = document.getElementById("phase");
+
+var canvas = document.getElementById("cv");
+var renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+
+var scene = new THREE.Scene();
+var cam = new THREE.PerspectiveCamera(62, window.innerWidth/window.innerHeight, 0.5, 300000);
+
+var SKYC = { "晴れ":[0x0f5fb8,0xd0e8fb], "くもり":[0x7f95a8,0xc7d2da], "雨":[0x3d4c59,0x8a99a6], "雪":[0x7d8b98,0xd3dbe2], "霧":[0x9aa6b0,0xc9d1d8], "向かい風":[0x0f5fb8,0xd0e8fb], "追い風":[0x0f5fb8,0xd0e8fb] };
+var sc = SKYC[weather] || SKYC["晴れ"];
+var skyTop = new THREE.Color(sc[0]), skyBot = new THREE.Color(sc[1]);
+var fogColor = skyBot.clone().lerp(skyTop, 0.2);
+scene.fog = new THREE.Fog(fogColor, weather==="霧"?60:(weather==="雨"?300:1200), weather==="霧"?340:(weather==="雨"?1200:6000));
+
+var skyCanvas = document.createElement("canvas");
+skyCanvas.width = 4; skyCanvas.height = 256;
+var sctx = skyCanvas.getContext("2d");
+var lg = sctx.createLinearGradient(0,0,0,256);
+lg.addColorStop(0, "#"+skyTop.getHexString());
+lg.addColorStop(1, "#"+skyBot.getHexString());
+sctx.fillStyle = lg;
+sctx.fillRect(0,0,4,256);
+var skyTex = new THREE.CanvasTexture(skyCanvas);
+skyTex.magFilter = THREE.LinearFilter;
+scene.background = skyTex;
+
+var sun = new THREE.DirectionalLight(0xfff2d0, 1.8); sun.position.set(120,420,80); scene.add(sun);
+var hemi = new THREE.HemisphereLight(0xffffff, 0x3a4a2a, 1.0); scene.add(hemi);
+var sunDisk = new THREE.Mesh(new THREE.SphereGeometry(60,16,12), new THREE.MeshBasicMaterial({color:0xfff4d6}));
+sunDisk.position.set(900,2100,-2200); scene.add(sunDisk);
+
+// distant mountains (far range)
+// 着陸コース（09側から滑走路へ向かって北へ進む）にになるZoneに置かない
+var mtnMat = new THREE.MeshStandardMaterial({color:0x5d6f7a, roughness:1});
+for(var mi=0; mi<14; mi++){
+  var ang = 0.45 + mi*(Math.PI*1.5/14) + 0.1;
+  var mtn = new THREE.Mesh(new THREE.ConeGeometry(260+Math.random()*180, 220+Math.random()*180, 8), mtnMat);
+  mtn.position.set(Math.cos(ang)*(-1600+Math.random()*200), -30, Math.sin(ang)*(-1600+Math.random()*200)-600);
+  scene.add(mtn);
+}
+
+var gGeo = new THREE.PlaneGeometry(6000,6000,120,120); gGeo.rotateX(-Math.PI/2);
+var gp = gGeo.attributes.position;
+for(var gi=0;gi<gp.count;gi++){ var gx=gp.getX(gi), gz=gp.getZ(gi); var dist0=Math.sqrt(gx*gx+gz*gz); var amp=Math.min(dist0/900,1); var h=(Math.sin(gx*0.0035)*9+Math.cos(gz*0.0028)*12+Math.sin((gx+gz)*0.0019)*15)*amp; gp.setY(gi,h); }
+gGeo.computeVertexNormals();
+var ground = new THREE.Mesh(gGeo, new THREE.MeshStandardMaterial({color:0x35502e, roughness:1})); ground.position.y=-30; scene.add(ground);
+var water = new THREE.Mesh(new THREE.PlaneGeometry(6000,2400), new THREE.MeshStandardMaterial({color:0x1b5a86, roughness:0.3, metalness:0.35})); water.rotation.x=-Math.PI/2; water.position.set(0,-31.2,3200); scene.add(water);
+// ビル群（着陸コースにになるZoneには建てない）
+for(var bi=0;bi<60;bi++){
+  var bh=30+Math.random()*120;
+  var bx=-1400+Math.random()*2800;
+  var bz=-1800-Math.random()*1600;
+  if(bz > -3400){
+    if(Math.abs(bx) < 140 && bz > -3400) continue;
+  }
+  var b=new THREE.Mesh(new THREE.BoxGeometry(16+Math.random()*22,bh,16+Math.random()*22), new THREE.MeshStandardMaterial({color:0x4a5866, roughness:0.85}));
+  b.position.set(bx,-30+bh/2,bz); scene.add(b);
+}
+
+var runway = new THREE.Mesh(new THREE.PlaneGeometry(120,3400), new THREE.MeshStandardMaterial({color:0x5b646d, roughness:0.7, emissive:0x222a33, emissiveIntensity:0.7})); runway.rotation.x=-Math.PI/2; runway.position.set(0,-29.75,-900); scene.add(runway);
+var dashMat = new THREE.MeshBasicMaterial({color:0xf8fbff});
+for(var di=0;di<50;di++){ var d=new THREE.Mesh(new THREE.PlaneGeometry(6,40), dashMat); d.rotation.x=-Math.PI/2; d.position.set(0,-29.1,-1450+di*70); scene.add(d); }
+for(var el=-1; el<=1; el+=2){
+  var line = new THREE.Mesh(new THREE.PlaneGeometry(3.2,3200), dashMat); line.rotation.x=-Math.PI/2; line.position.set(el*56, -29.15, -900); scene.add(line);
+}
+for(var tci=0;tci<2;tci++){
+  var tcz = (tci===0) ? -2470 : 670;
+  for(var tk=0;tk<8;tk++){
+    var ts = new THREE.Mesh(new THREE.PlaneGeometry(5,22), dashMat);
+    ts.rotation.x=-Math.PI/2;
+    ts.position.set(-42+tk*12, -29.1, tcz);
+    scene.add(ts);
+  }
+}
+
+var edgeLampMat = new THREE.MeshBasicMaterial({color:0xfff0c0});
+for(var ei=0; ei<60; ei++){
+  var ez = -2450 + ei*50;
+  for(var sd=-1; sd<=1; sd+=2){
+    var el2 = new THREE.Mesh(new THREE.SphereGeometry(2.2,8,6), edgeLampMat);
+    el2.position.set(sd*62, -29.2, ez); scene.add(el2);
+  }
+}
+var appLampMat = new THREE.MeshBasicMaterial({color:0xffe9a8});
+for(var ai=0; ai<12; ai++){
+  var apL = new THREE.Mesh(new THREE.SphereGeometry(2.0,8,6), appLampMat);
+  apL.position.set(0, -29.2, -2470 - ai*60); scene.add(apL);
+}
+var thrLampMat = new THREE.MeshBasicMaterial({color:0xffd060});
+for(var tli=0; tli<10; tli++){
+  var tl = new THREE.Mesh(new THREE.SphereGeometry(1.8,8,6), thrLampMat);
+  tl.position.set(-45+tli*10, -29.2, -2440); scene.add(tl);
+}
+function makeRwyNum(txt){
+  var rcv = document.createElement("canvas"); rcv.width=256; rcv.height=256;
+  var rcx = rcv.getContext("2d");
+  rcx.clearRect(0,0,256,256);
+  rcx.fillStyle = "#f8fbff"; rcx.font = "bold 190px Arial";
+  rcx.textAlign="center"; rcx.textBaseline="middle";
+  rcx.fillText(txt, 128, 128);
+  var rtx = new THREE.CanvasTexture(rcv);
+  var m = new THREE.Mesh(new THREE.PlaneGeometry(36,36), new THREE.MeshBasicMaterial({map:rtx, transparent:true}));
+  m.rotation.x=-Math.PI/2;
+  return m;
+}
+var rn09 = makeRwyNum("09"); rn09.position.set(0,-29.5,-2380); scene.add(rn09);
+var rn27 = makeRwyNum("27"); rn27.rotation.z=Math.PI; rn27.position.set(0,-29.5,720); scene.add(rn27);
+
+// ===== 管制塔（コントロールタワー） =====
+// 滑走路の終端（27側 670）の箇所、離着陸の様子が見える位置に建てる
+var towerGroup = new THREE.Group(); scene.add(towerGroup);
+(function(){
+  var shaftMat = new THREE.MeshStandardMaterial({color:0x9aa7b2, roughness:0.85});
+  var cabinMat = new THREE.MeshStandardMaterial({color:0x22303c, roughness:0.2, metalness:0.5, transparent:true, opacity:0.85});
+  var baseMat = new THREE.MeshStandardMaterial({color:0x7f8c97, roughness:0.9});
+  // 土台
+  var base = new THREE.Mesh(new THREE.BoxGeometry(26,10,26), baseMat);
+  base.position.set(0, -25, 0); towerGroup.add(base);
+  // タワー軸
+  var shaft = new THREE.Mesh(new THREE.CylinderGeometry(3.6,5.2,70,20), shaftMat);
+  shaft.position.set(0, 15, 0); towerGroup.add(shaft);
+  // 展望台（管制室）
+  var cabin = new THREE.Mesh(new THREE.CylinderGeometry(6.4,6.4,8,20), cabinMat);
+  cabin.position.set(0, 54, 0); towerGroup.add(cabin);
+  // 屋根
+  var roof = new THREE.Mesh(new THREE.ConeGeometry(7.4,5,20), shaftMat);
+  roof.position.set(0, 60.5, 0); towerGroup.add(roof);
+  // アンテナ
+  var ant = new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.35,16,8), shaftMat);
+  ant.position.set(0, 70, 0); towerGroup.add(ant);
+  // 航空灯火（赤）
+  var beaconMat = new THREE.MeshBasicMaterial({color:0xff3b30});
+  var beacon = new THREE.Mesh(new THREE.SphereGeometry(1.1,10,8), beaconMat);
+  beacon.position.set(0, 78.5, 0); towerGroup.add(beacon);
+  towerGroup.userData.beacon = beacon;
+  // 配置：27側（+z側）の脇
+  towerGroup.position.set(-170, -30, 760);
+})();
+
+// ===== 管制塔無線（リアル表示） =====
+// フェーズに合わせて、ヘッダーの塔名・周波数も切り替える
+var RADIO = (function(){
+  var boxEl = document.getElementById("rBox");
+  var dotEl = document.getElementById("rDot");
+  var nameEl = document.getElementById("rName");
+  var freqEl = document.getElementById("rFreq");
+  var tagEl = document.getElementById("rTag");
+  var lines = [];
+  var cur = -1;
+  var taxiClearT = null;                  // 管制官がタキシング許可を出した時刻
+  var curHead = -1;
+
+  var T = depAp.tower;                    // 出発地の管制塔（東京タワー等）
+  var F = depAp.freq;                     // 出発地のタワー周波数
+  var R = depAp.rwy;                      // 出発地の滑走路番号
+  var destAp = APT[dest] || APT["羽田"];
+  var T2 = destAp.tower;                  // 着陸側の管制塔
+  var F2 = "124.350";                     // 上空のコントロール周波数
+  var F2N = "コントロール";               // 上空のコントロール呼び名
+  var R2 = destAp.rwy;                    // 着陸側の滑走路番号
+  var T2F = destAp.freq;                  // 着陸側のタワー周波数
+
+  tagEl.textContent = FLIGHTNO;
+
+  function setHead(name, freq){ nameEl.textContent = name; freqEl.textContent = freq; }
+
+  // 表示する無線のやりとり（フェーズのタイミングに合わせて）
+  var Q = [
+    { t:  5, who:"crew",   text: T + "、" + CALLSIGN + "、" + R + "番、タキシング用意" },
+    { t: 12, who:"tower",  text: CALLSIGN + "、" + T + "、" + R + "番、タキシング許可", taxi:true },
+    { t: 55, who:"crew",   text: T + "、" + CALLSIGN + "、離陸のため滑走路待ち" },
+    { t: 155,who:"crew",   text: CALLSIGN + "、" + T + "、離陸準備完了" },
+    { t: 200,who:"tower",  text: CALLSIGN + "、" + T + "、" + R + "番、ラインアップ・アンド・ウェイト" },
+    { t: 235,who:"crew",   text: "ラインアップ・アンド・ウェイト、" + CALLSIGN },
+    { t: 262,who:"tower",  text: CALLSIGN + "、" + R + "番、クリアード・フォー・テイクオフ" },
+    { t: 272,who:"crew",   text: "クリアード・フォー・テイクオフ、" + R + "番、" + CALLSIGN },
+    { t: 332,who:"crew",   text: T + "、" + CALLSIGN + "、空中です、右旋回" },
+    { t: 342,who:"tower",  text: CALLSIGN + "、ロジャー、コントロールへハンドオフ、周波数" + F2 },
+    { t: 352,who:"crew",   text: F2 + "、" + F2N + "、" + CALLSIGN },
+    { t: 512,who:"crew",   text: F2N + "、" + CALLSIGN + "、巡航3万フィート" },
+    { t: 692,who:"tower",  text: CALLSIGN + "、" + T2 + "、降下の指示、ILS進入" },
+    { t: 700,who:"crew",   text: "降下、" + CALLSIGN },
+    { t: 860,who:"tower",  text: CALLSIGN + "、" + T2 + "、着陸許可、" + R2 + "番、風は弱い" },
+    { t: 924,who:"crew",   text: T2 + "、" + CALLSIGN + "、着地、" + R2 + "番" },
+    { t: 935,who:"tower",  text: CALLSIGN + "、ロジャー、お疲れさま、タキシングは地面にまかせます" }
+  ];
+
+  function render(){ boxEl.innerHTML = lines.join(""); var n = boxEl.querySelector('.r-line.now'); if(n){ boxEl.scrollTop = boxEl.scrollHeight; } }
+
+  function push(ev){
+    var whoLabel = ev.who==='crew' ? '機　長' : '管制官';
+    lines.push('<div class="r-line now"><span class="who"'+(ev.who==='crew'?' class="who crew"':'')+'>'+whoLabel+'</span>　'+ev.text+'</div>');
+    // 前の行は「ニュー」状態を解除
+    boxEl.querySelectorAll('.r-line.now').forEach(function(el,i2){ if(i2<boxEl.querySelectorAll('.r-line.now').length-1) el.classList.remove('now'); });
+    lines = lines.slice(-3);
+    render();
+    // 通話中ランプ
+    dotEl.classList.add('on');
+    setTimeout(function(){ dotEl.classList.remove('on'); }, Math.min(1500, ev.text.length*45));
+  }
+
+  function tick(t){
+    if(cur < Q.length-1 && t >= Q[cur+1].t){
+      cur++;
+      var ev = Q[cur];
+      push(ev);
+      if(ev.taxi) taxiClearT = t;
+    }
+    // ヘッダーの切り替え（タキシング〜離陸=出発塔 / 巡航=コントロール / 着陸=到着塔）
+    var h = (t >= 692) ? 2 : ((t >= 512) ? 1 : 0);
+    if(h !== curHead){
+      curHead = h;
+      if(h===0) setHead(T, F);
+      else if(h===1) setHead(F2N, F2);
+      else setHead(T2, T2F);
+    }
+  }
+
+  return { tick: tick, taxiClearT: function(){ return taxiClearT; } };
+})();
+
+// 雲の層は 12000〜20000ft。25000ft超を飛ぶときは、雲は機体の下にあって前を見ても見えない
+var CLOUD_BASE = 12000, CLOUD_TOP = 20000;
+var CLOUD_CFG = {
+  "晴れ":     { n:5, color:0xffffff, op:0.3, drift:8 },
+  "くもり":   { n:36, color:0xdfe6ec, op:0.7, drift:8 },
+  "雨":       { n:44, color:0x8a97a2, op:0.8, drift:18 },
+  "雪":       { n:38, color:0xffffff, op:0.85, drift:6 },
+  "霧":       { n:52, color:0xdfe6ec, op:0.9, drift:3 },
+  "向かい風": { n:20, color:0xffffff, op:0.5, drift:26 },
+  "追い風":   { n:16, color:0xffffff, op:0.45, drift:5 }
+};
+var cfg = CLOUD_CFG[weather] || CLOUD_CFG["晴れ"];
+var cloudMat = new THREE.MeshLambertMaterial({color:cfg.color, transparent:true, opacity:cfg.op, fog:false});
+var clouds=[];
+for(var c=0;c<cfg.n;c++){
+  var cl=new THREE.Mesh(new THREE.SphereGeometry(220+Math.random()*320,10,8), cloudMat);
+  cl.scale.set(1.8,0.65,1.35);
+  cl.position.set((Math.random()-0.5)*12000, CLOUD_BASE+Math.random()*(CLOUD_TOP-CLOUD_BASE), -15000+Math.random()*24000);
+  scene.add(cl); clouds.push(cl);
+}
+
+// ===== 高度による空の色 =====
+// 雲の層より上（25000ft超）は、天気にかかわらず雲ひとつない快晴の青空にする
+var CLEAR_TOP = new THREE.Color(0x0b4aa0), CLEAR_BOT = new THREE.Color(0xbfe0fb);
+var CLEAR_FROM = 22000, CLEAR_ALT = 25000;   // 22000ftから少しずつ晴れて、25000ft超で完全に快晴
+var skyMix = -1;
+function applySky(a){
+  var f = Math.max(0, Math.min(1, (a - CLEAR_FROM) / (CLEAR_ALT - CLEAR_FROM)));
+  f = Math.round(f*50)/50;
+  if(f === skyMix) return;
+  skyMix = f;
+  var top = skyTop.clone().lerp(CLEAR_TOP, f), bot = skyBot.clone().lerp(CLEAR_BOT, f);
+  var g = sctx.createLinearGradient(0,0,0,256);
+  g.addColorStop(0, "#"+top.getHexString());
+  g.addColorStop(1, "#"+bot.getHexString());
+  sctx.fillStyle = g; sctx.fillRect(0,0,4,256);
+  skyTex.needsUpdate = true;
+  scene.fog.color.copy(bot.clone().lerp(top, 0.2));
+}
+applySky(0);
+
+var planeGroup = new THREE.Group(); scene.add(planeGroup);
+var bodyMat = new THREE.MeshStandardMaterial({color:ac.color, roughness:0.45, metalness:0.2});
+var wingMat = new THREE.MeshStandardMaterial({color:0xcfd6de, roughness:0.55});
+var glassMat = new THREE.MeshStandardMaterial({color:0x22303c, roughness:0.15, metalness:0.5});
+var stripeMat = new THREE.MeshStandardMaterial({color:0x2d6fb0, roughness:0.5});
+var engMat = new THREE.MeshStandardMaterial({color:0xb9c3cc, roughness:0.45, metalness:0.35});
+var gearMat = new THREE.MeshStandardMaterial({color:0x22282e, roughness:0.8});
+
+var fus = new THREE.Mesh(new THREE.CylinderGeometry(2.1,2.1,ac.len,24), bodyMat); fus.rotation.z=Math.PI/2; planeGroup.add(fus);
+var nose = new THREE.Mesh(new THREE.ConeGeometry(2.1,4.6,24), bodyMat); nose.rotation.z=-Math.PI/2; nose.position.x=ac.len/2+2.3; planeGroup.add(nose);
+var tailCone = new THREE.Mesh(new THREE.ConeGeometry(2.1,5.5,24), bodyMat); tailCone.rotation.z=Math.PI/2; tailCone.position.x=-ac.len/2-2.75; planeGroup.add(tailCone);
+var ck = new THREE.Mesh(new THREE.SphereGeometry(1.4,14,12), glassMat); ck.scale.set(1,0.8,1); ck.position.set(ac.len/2-0.6,0.9,0); planeGroup.add(ck);
+var wingL = new THREE.Mesh(new THREE.BoxGeometry(ac.span*0.5,0.5,6.2), wingMat); wingL.position.set(-1.0,-0.3,-ac.span*0.24); wingL.rotation.y=-0.13; planeGroup.add(wingL);
+var wingR = new THREE.Mesh(new THREE.BoxGeometry(ac.span*0.5,0.5,6.2), wingMat); wingR.position.set(-1.0,-0.3,ac.span*0.24); wingR.rotation.y=0.13; planeGroup.add(wingR);
+var strL = new THREE.Mesh(new THREE.BoxGeometry(ac.len*0.85,0.35,0.08), stripeMat); strL.position.set(0,0.3,2.12); planeGroup.add(strL);
+var strR = new THREE.Mesh(new THREE.BoxGeometry(ac.len*0.85,0.35,0.08), stripeMat); strR.position.set(0,0.3,-2.12); planeGroup.add(strR);
+for(var e=-1;e<=1;e+=2){
+  var eng = new THREE.Mesh(new THREE.CylinderGeometry(1.25,1.15,5.2,18), engMat); eng.rotation.x=Math.PI/2; eng.position.set(-1.0,-1.35,e*ac.span*0.30); planeGroup.add(eng);
+  var nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.9,0.75,1.2,16), glassMat); nozzle.rotation.x=Math.PI/2; nozzle.position.set(-1.0-3.2,-1.35,e*ac.span*0.30); planeGroup.add(nozzle);
+  var pylon = new THREE.Mesh(new THREE.BoxGeometry(3.4,0.4,0.8), wingMat); pylon.position.set(-1.0,-0.75,e*ac.span*0.30); planeGroup.add(pylon);
+}
+var vfin = new THREE.Mesh(new THREE.BoxGeometry(0.45,5.4,5.0), wingMat); vfin.position.set(-ac.len/2+0.6,2.7,0); planeGroup.add(vfin);
+var hstab = new THREE.Mesh(new THREE.BoxGeometry(0.45,0.45,9.5), wingMat); hstab.position.set(-ac.len/2+0.4,0.7,0); planeGroup.add(hstab);
+
+var gearGroup = new THREE.Group(); planeGroup.add(gearGroup);
+for(var g=0; g<3; g++){
+  var gx = (g===2)? ac.len*0.28 : -ac.len*0.2;
+  var gz = (g===0)? ac.span*0.24 : (g===1? -ac.span*0.24 : 0);
+  var wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.9,0.9,0.6,14), gearMat); wheel.rotation.x=Math.PI/2; wheel.position.set(gx,-2.6,gz); gearGroup.add(wheel);
+  var strut = new THREE.Mesh(new THREE.BoxGeometry(0.2,1.0,0.2), wingMat); strut.position.set(gx,-2.0,gz); gearGroup.add(strut);
+}
+
+var rain=null, snow=null;
+if(weather==="雨"){ var rn=1600,rg=new THREE.BufferGeometry(); var rp=new Float32Array(rn*3); for(var i2=0;i2<rn;i2++){ rp[i2*3]=(Math.random()-0.5)*260; rp[i2*3+1]=Math.random()*130-10; rp[i2*3+2]=(Math.random()-0.5)*260; } rg.setAttribute("position",new THREE.BufferAttribute(rp,3)); rain=new THREE.Points(rg,new THREE.PointsMaterial({color:0xaac4dd,size:0.6,transparent:true,opacity:0.7})); scene.add(rain); }
+if(weather==="雪"){ var sn=1000,sg=new THREE.BufferGeometry(); var sp=new Float32Array(sn*3); for(var j2=0;j2<sn;j2++){ sp[j2*3]=(Math.random()-0.5)*260; sp[j2*3+1]=Math.random()*130-10; sp[j2*3+2]=(Math.random()-0.5)*260; } sg.setAttribute("position",new THREE.BufferAttribute(sp,3)); snow=new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:1.1,transparent:true,opacity:0.85})); scene.add(snow); }
+
+function pfdHTML(label, side, wide){
+  var tag = '<span class="lbl">'+label+(side?' <b>'+side+'</b>':'')+'</span>';
+  return '<div class="mfd'+(wide?' wide':'')+'"><div class="att"><div class="sky"></div><div class="gnd"></div><div class="hl"></div><div class="pitch"></div><div class="tick" style="top:44%"></div><div class="tick" style="top:64%"></div></div>'+tag+'<span class="spd"><span>240</span><span>260</span><span>280</span></span><span class="tape"><span>090</span><span>092</span><span>094</span></span></div>';
+}
+function ndHTML(label, side, wide){
+  var tag = '<span class="lbl">'+label+(label?' <b>'+side+'</b>':'')+'</span>';
+  var svg = '<svg class="nd-rose" viewBox="0 0 100 100">'
+    + '<circle cx="50" cy="50" r="38" fill="none" stroke="rgba(111,232,160,.3)" stroke-width="1"/>'
+    + '<circle cx="50" cy="50" r="30" fill="none" stroke="rgba(111,232,160,.15)" stroke-width="1"/>'
+    + '<text x="50" y="11">N</text>'
+    + '<line x1="50" y1="74" x2="50" y2="30" stroke="rgba(170,255,205,.85)" stroke-width="1.4" stroke-dasharray="4 3"/>'
+    + '<polygon points="50,26 45,35 55,35" fill="#c8fad8"/>'
+    + '<circle cx="50" cy="62" r="2.6" fill="#b5f5c8"/>'
+    + '<circle cx="50" cy="50" r="3" fill="#7fe0a8"/>'
+    + '</svg>';
+  var nav = '<div class="nav"><span class="nd-to">TO '+dest+'</span><span class="nd-from">FROM '+dep+'</span><span class="nd-hdg">HDG '+CRUISE_HDG+'°</span><span class="nd-rng">RNG 40NM</span></div>';
+  return '<div class="mfd'+(wide?' wide':'')+'">'+svg+nav+tag+'</div>';
+}
+function mfdSimple(label){ return '<div class="mfd"><div class="att"><div class="sky"></div><div class="gnd"></div><div class="hl"></div></div><span class="lbl">'+label+'</span></div>'; }
+function gaugeHTML(name){ return '<div class="gauge"><div class="ticks"></div><span class="needle"></span><span class="cap"></span><span>'+name+'</span><span class="v" data-g="'+name+'">0</span></div>'; }
+
+function mcpCol(n, k){ var s='<div class="mcp-sec"><div class="mcp-row">'; for(var i=0;i<n;i++){ s+='<div class="mcp-knob'+(k?' kn':'')+'"></div>'; } return s+'</div></div>'; }
+function mcpHTML(){ return '<div class="cp-mcp"><div class="mcp-secs">'+mcpCol(3)+mcpCol(3,1)+mcpCol(3)+mcpCol(3,1)+'</div><div class="mcp-row" style="margin-top:2px"><div class="mcp-caution">MC</div><div class="mcp-lbl" style="margin:0 0 0 4px">MASTER CAUTION</div></div></div>'; }
+
+function buildCockpit(){
+  var el = document.getElementById("cockpit");
+  el.className = (mode==="cockpit") ? ("show "+ac.cls) : "";
+  var html = '<div class="cp-struct"></div><div class="cp-top"></div>'+mcpHTML()+'<div class="cp-dash"></div><div class="cp-pedestal"><div class="thr"></div><div class="thr"></div></div>';
+  if(ac.style==="glass"){
+    html += '<div class="cp-sub">CAPT</div><div class="cp-panel">'+pfdHTML("PFD","C",true)+ndHTML("ND","C",true)+ndHTML("ND","FO",true)+pfdHTML("PFD","FO",true)+'</div><div class="yoke"><div class="yoke-bar"></div><div class="yoke-grip l"></div><div class="yoke-grip r"></div><div class="yoke-hub"></div></div><div class="cp-label">ボーイング787 · YOKE · GLASS COCKPIT</div>';
+  } else if(ac.style==="six"){
+    html += '<div class="cp-sub">CAPT / FO</div><div class="cp-panel">'+pfdHTML("PFD","C")+ndHTML("ND","C")+pfdHTML("PFD","FO")+ndHTML("ND","FO")+mfdSimple("E/WD")+mfdSimple("SD")+'</div><div class="sstick"></div><div class="sstick r"></div><div class="cp-label">エアバスA350 · SIDE STICK · 6 DISPLAYS</div>';
+  } else if(ac.style==="round"){
+    html += '<div class="cp-panel">'+gaugeHTML("SPD")+gaugeHTML("ATT")+gaugeHTML("ALT")+gaugeHTML("HDG")+gaugeHTML("VSI")+gaugeHTML("N1")+'</div><div class="yoke"><div class="yoke-bar"></div><div class="yoke-grip l"></div><div class="yoke-grip r"></div><div class="yoke-hub"></div></div><div class="cp-label">ボーイング737 · YOKE · CLASSIC GAUGES</div>';
+  } else {
+    html += '<div class="cp-sub">CAPT / FO</div><div class="cp-panel">'+pfdHTML("PFD","C")+ndHTML("ND","C")+pfdHTML("PFD","FO")+ndHTML("ND","FO")+'</div><div class="sstick"></div><div class="cp-label">エアバスA321 · SIDE STICK · 4 DISPLAYS</div>';
+  }
+  el.innerHTML = html;
+}
+
+var mode = "cockpit";
+var vbtnChase = document.getElementById("vChase");
+var vbtnCockpit = document.getElementById("vCockpit");
+function setMode(m){
+  mode = m;
+  vbtnChase.className = (m==="chase")?"on":"";
+  vbtnCockpit.className = (m==="cockpit")?"on":"";
+  document.getElementById("cockpit").className = (m==="cockpit") ? ("show "+ac.cls) : "";
+}
+vbtnChase.onclick = function(){ setMode("chase"); };
+vbtnCockpit.onclick = function(){ setMode("cockpit"); };
+setMode("cockpit");
+buildCockpit();
+
+var t=0, PHASE=["タキシング","停止（機材交換）","離陸","巡航","着陸"], phaseIdx=0, alt=0, spd=0, pitch=0, roll=0, hdg=0;
+var PH_END=[150, 270, 510, 690, 1110];
+var PH_START=[0, 150, 270, 510, 690];
+var totalDur=1110;
+// タキシングは管制官の「タキシング許可」の無線が出てから、この秒数あとに動き出す
+var TAXI_DELAY = 3;
+var dist=0;
+var prevAlt=0;
+// 着陸用：接地する場所（09側の滑走路の入口付近）と、着陸フェーズで進む距離
+var TD_Z = -2250;
+var LAND_DUR = PH_END[4]-PH_START[4];
+// 着陸開始から接地までに前へ進む距離（速度の式をそのまま積分した値）
+var LAND_TD_DIST = (0.10*LAND_DUR)*VCR*0.03 + (0.45*LAND_DUR)*(VCR - (VCR-APPR)*2/3)*0.03;
+var landDist=0;
+var lastPlaneZ=null, landShifted=false;
+
+function update(dt){
+  t += dt;
+  phaseIdx = t<PH_END[0]?0:(t<PH_END[1]?1:(t<PH_END[2]?2:(t<PH_END[3]?3:4)));
+  phaseEl.textContent = PHASE[phaseIdx];
+  var s=PH_START[phaseIdx], e=PH_END[phaseIdx], k=Math.min((t-s)/(e-s),1);
+
+  // 雲はいつも出しておく（雲の層は機体の下。上昇・降下のときは雲の中を通り抜ける）
+
+  var VR = ac.vr || 150;
+  var touchdown = (phaseIdx===4 && k>=0.55);
+  var inDesc = (phaseIdx===4 && k>=0.10);
+  if(phaseIdx===0){
+    // 無線とリンク：タキシング許可が出るまでは止まったまま。許可の数秒後からゆっくり動き出す
+    var clr = RADIO.taxiClearT();
+    var ts = (clr===null) ? Infinity : clr + TAXI_DELAY;
+    spd = (t < ts) ? 0 : 30 * Math.min(1, (t - ts) / Math.max(1, PH_END[0] - ts));
+    alt=0; pitch=0;
+  }
+  else if(phaseIdx===1){
+    var decel = Math.min(k/0.3,1);
+    spd = 30 * (1 - (decel*decel*(3-2*decel)));
+    alt=0; pitch=0;
+  }
+  else if(phaseIdx===2){
+    if(k<0.25){ spd=VR*(k/0.25); alt=0; pitch=0; }
+    else {
+      var r=(k-0.25)/0.75;
+      spd = VR + (VCR-VR) * (1 - Math.pow(1-r, 2));
+      alt = CRUISE_ALT * (1 - Math.pow(1-r, 2.2));
+      pitch = smooth(10, 4, r);
+    }
+  }
+  else if(phaseIdx===3){ spd=VCR; alt=CRUISE_ALT + Math.sin(t*0.6)*30; pitch=2; }
+  else {
+    if(k<0.10){
+      // 着陸前：巡航速度のまま、降下の準備
+      spd=VCR; alt=CRUISE_ALT + Math.sin(t*0.6)*30; pitch=2;
+    }
+    else if(k<0.55){
+      var rd=(k-0.10)/0.45;
+      // 速度をあらかじめ下げながら、ゆっくり降下
+      spd = VCR - (VCR-APPR) * (1 - Math.pow(1-rd, 2));
+      alt = stagedDescend(rd, 8);
+      pitch = smooth(-8,-15,rd);
+    }
+    else { var rb=(k-0.55)/0.45; spd=APPR*(1-rb); alt=0; pitch=0; if(rb>0.97){ spd=0; } }
+  }
+  var airborne = alt > 1000;
+  var highUp = alt > 8000;
+  var turb = (acc==="乱気流" && highUp);
+  roll = airborne ? (Math.sin(t*0.7)*4 + (turb? Math.sin(t*5.5)*9:0)) : 0;
+  var hdgWob = turb ? Math.sin(t*2.5)*4 : 0;
+  hdg = CRUISE_HDG + hdgWob;
+  if(turb) pitch += Math.sin(t*4.2)*3;
+
+  gearGroup.visible = alt < 1000;
+
+  // 高度に合わせて空の色を変える（25000ft超で快晴）
+  applySky(alt);
+
+  var vsi = (dt>0) ? ((alt - prevAlt) / dt) * 60 : 0;
+  prevAlt = alt;
+
+  if(spd>0.5){ dist += spd*dt*0.03; }
+  // 破線は固定。機体の速度と同じペースで流れて見える。
+  // 着陸中も機体は前へ進むだけ（後ろへ戻さない）。
+  // 巡航高度（地上は霧で見えない）で滑走路の手前へ位置を合わせ、
+  // それから前進しながら降下して、滑走路の入口付近に接地 → 減速して停止する。
+  var planeZ = -1400 + dist;
+  if(phaseIdx===4){
+    if(spd>0.5){ landDist += spd*dt*0.03; }
+    planeZ = TD_Z - LAND_TD_DIST + landDist;
+    // 着陸開始の位置合わせのとき、雲も同じだけずらして見え方を変えない
+    if(!landShifted && lastPlaneZ!==null){
+      var cdz = planeZ - lastPlaneZ;
+      clouds.forEach(function(cl){ cl.position.z += cdz; });
+    }
+    landShifted = true;
+  }
+  lastPlaneZ = planeZ;
+  planeGroup.position.set(0, alt-29+0.9, planeZ);
+  planeGroup.rotation.set(THREE.MathUtils.degToRad(roll), THREE.MathUtils.degToRad(-90 + hdgWob*0.6), THREE.MathUtils.degToRad(pitch));
+
+  if(rain){ var rp2=rain.geometry.attributes.position.array; for(var i3=0;i3<rp2.length;i3+=3){ rp2[i3+1]-=60*dt; if(rp2[i3+1]<-10){ rp2[i3+1]=120; rp2[i3]=(Math.random()-0.5)*260; rp2[i3+2]=(Math.random()-0.5)*260; } } rain.geometry.attributes.position.needsUpdate=true; }
+  if(snow){ var sp2=snow.geometry.attributes.position.array; for(var k3=0;k3<sp2.length;k3+=3){ sp2[k3+1]-=12*dt; if(sp2[k3+1]<-10){ sp2[k3+1]=120; sp2[k3]=(Math.random()-0.5)*260; sp2[k3+2]=(Math.random()-0.5)*260; } } snow.geometry.attributes.position.needsUpdate=true; }
+  clouds.forEach(function(cl){ if(!cl.visible) return; cl.position.z -= cfg.drift*dt*50; if(cl.position.z < planeZ-16000){ cl.position.z += 27000 + Math.random()*4500; } });
+
+  // 管制塔の航空灯火をゆっくり点滅
+  var beacon = towerGroup.userData.beacon;
+  if(beacon){ beacon.material.color.setHex(Math.sin(t*3) > 0 ? 0xff3b30 : 0x5a0f0c); }
+
+  // 管制塔の無線を更新
+  RADIO.tick(t);
+
+  // 地上（タキシング・停止・離陸の地上走行・着陸後の地上走行）は km/h、空中は kt
+  var onGround = (phaseIdx<=1) || (phaseIdx===2 && k<0.25) || (phaseIdx===4 && touchdown);
+  var spdUnit = onGround ? "km/h" : "kt";
+  var spdLabel = ((phaseIdx===2 && k>=0.25) || phaseIdx===3 || (phaseIdx===4 && !inDesc)) ? "巡航速度" : "速度";
+  rtEl.innerHTML = spdLabel+" "+Math.round(spd)+" "+spdUnit+"<br>高度 "+Math.round(alt).toLocaleString()+" ft<br>ピッチ "+Math.round(pitch)+"°<br>VSI "+Math.round(vsi).toLocaleString()+" ft/min<br>進行方位 "+Math.round(hdg)+"°";
+
+  var n1v = Math.round(88*(spd>1?1:0.2));
+  document.querySelectorAll('.gauge').forEach(function(gEl){
+    var gElName = gEl.querySelector('[data-g]');
+    var g = gElName.getAttribute('data-g');
+    var needle = gEl.querySelector('.needle');
+    var val=0, ang=0;
+    if(g==='SPD'){ val=spd; ang=-135+(spd/VCR)*270; }
+    else if(g==='ATT'){ val=pitch; ang=-135+((pitch+30)/60)*270; }
+    else if(g==='ALT'){ val=alt; ang=-135+(alt/30000)*270; }
+    else if(g==='HDG'){ val=hdg; ang=-135+(hdg/360)*270; }
+    else if(g==='VSI'){ val=vsi; ang=-135+((vsi+2000)/4000)*270; }
+    else if(g==='N1'){ val=n1v; ang=-135+(n1v/100)*270; }
+    gElName.textContent=Math.round(val);
+    if(needle) needle.style.setProperty('--r', ang+'deg');
+  });
+  document.querySelectorAll(".mfd .hl").forEach(function(hl){ hl.style.transform='rotate('+(roll*0.5)+'deg)'; });
+
+  if(mode==="cockpit"){
+    planeGroup.visible = false;
+    var off=new THREE.Vector3(ac.len/2-0.9,1.6,0); off.applyEuler(planeGroup.rotation);
+    cam.position.copy(planeGroup.position).add(off);
+    var lookAtPt = new THREE.Vector3(ac.len/2+900,6,0); lookAtPt.applyEuler(planeGroup.rotation); lookAtPt.add(planeGroup.position);
+    cam.lookAt(lookAtPt);
+    cam.fov=72;
+  } else {
+    planeGroup.visible = true;
+    var back=new THREE.Vector3(-ac.len-20,11,0); back.applyEuler(planeGroup.rotation);
+    cam.position.copy(planeGroup.position).add(back); cam.lookAt(planeGroup.position); cam.fov=55;
+  }
+  cam.updateProjectionMatrix();
+}
+
+var last=performance.now();
+function loop(now){ var dt=Math.min((now-last)/1000,0.05); last=now; update(dt); renderer.render(scene,cam); requestAnimationFrame(loop); }
+requestAnimationFrame(loop);
+window.addEventListener("resize", function(){ cam.aspect=window.innerWidth/window.innerHeight; cam.updateProjectionMatrix(); renderer.setSize(window.innerWidth,window.innerHeight); });
+})();
+</script>
+</body>
+</html>
